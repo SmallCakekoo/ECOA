@@ -8,6 +8,8 @@ import donationsRoutes from "./routes/donations.js";
 import accessoriesRoutes from "./routes/accessories.js";
 import achievementsRoutes from "./routes/achievements.js";
 import alertsRoutes from "./routes/alerts.js";
+import integrationsRoutes from "./routes/integrations.js";
+import { setupSocketIO } from "./sockets/index.js";
 
 const app = express();
 
@@ -16,11 +18,20 @@ app.use(express.json());
 
 // Servidor y Socket.IO
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
 
-// Middleware para pasar io a las rutas
+// Configurar Socket.IO
+const socketHandlers = setupSocketIO(io);
+
+// Middleware para pasar io y handlers a las rutas
 app.use((req, res, next) => {
   req.io = io;
+  req.socketHandlers = socketHandlers;
   next();
 });
 
@@ -31,6 +42,7 @@ app.use("/donations", donationsRoutes);
 app.use("/accessories", accessoriesRoutes);
 app.use("/achievements", achievementsRoutes);
 app.use("/alerts", alertsRoutes);
+app.use("/api/integrations", integrationsRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
@@ -55,6 +67,7 @@ app.get("/", (req, res) => {
       accessories: "/accessories",
       achievements: "/achievements",
       alerts: "/alerts",
+      integrations: "/api/integrations",
       health: "/health",
     },
   });
@@ -80,34 +93,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Socket.IO - Conexiones
-io.on("connection", (socket) => {
-  console.log(`Nuevo cliente conectado: ${socket.id}`);
-
-  // Unirse a sala de usuario específico
-  socket.on("join_user_room", (userId) => {
-    socket.join(`user_${userId}`);
-    console.log(`Cliente ${socket.id} se unió a la sala del usuario ${userId}`);
-  });
-
-  // Unirse a sala de planta específica
-  socket.on("join_plant_room", (plantId) => {
-    socket.join(`plant_${plantId}`);
-    console.log(
-      `Cliente ${socket.id} se unió a la sala de la planta ${plantId}`
-    );
-  });
-
-  // Desconexión
-  socket.on("disconnect", (reason) => {
-    console.log(`Cliente ${socket.id} desconectado: ${reason}`);
-  });
-
-  // Eventos personalizados del cliente
-  socket.on("ping", () => {
-    socket.emit("pong", { timestamp: new Date().toISOString() });
-  });
-});
+// Las conexiones de Socket.IO se manejan en setupSocketIO
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

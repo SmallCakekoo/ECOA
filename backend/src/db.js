@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
 // Configuración de Supabase (hardcoded)
-const supabaseUrl = "urlhere";
-const supabaseAnonKey = "keyhere";
+const supabaseUrl = "https://cjkatlisqqvbvvwlllug.supabase.co";
+const supabaseAnonKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqa2F0bGlzcXF2YnZ2d2xsbHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzE5NjYsImV4cCI6MjA3MzYwNzk2Nn0.wGHpSyRnJhN68w_4DCVryKXh91fdj0VxkpGzfY6h3LE";
 
 // Crear cliente de Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
