@@ -285,25 +285,6 @@ DEBUG=supabase* npm run dev
 npm run dev
 ```
 
-### Producción con PM2
-```bash
-npm install -g pm2
-pm2 start src/index.js --name "ecoa-backend"
-pm2 save
-pm2 startup
-```
-
-### Docker (Opcional)
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
 ## Recursos Adicionales
 
 - [Express.js Documentation](https://expressjs.com/)
