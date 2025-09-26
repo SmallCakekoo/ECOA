@@ -2,14 +2,14 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import usersRoutes from "./routes/users.js";
-import plantsRoutes from "./routes/plants.js";
-import donationsRoutes from "./routes/donations.js";
-import accessoriesRoutes from "./routes/accessories.js";
-import achievementsRoutes from "./routes/achievements.js";
-import alertsRoutes from "./routes/alerts.js";
-import integrationsRoutes from "./routes/integrations.js";
-import { setupSocketIO } from "./sockets/index.js";
+import usersRoutes from "./routes/users.router.js";
+import plantsRoutes from "./routes/plants.router.js";
+import donationsRoutes from "./routes/donations.router.js";
+import accessoriesRoutes from "./routes/accessories.router.js";
+import achievementsRoutes from "./routes/achievements.router.js";
+import alertsRoutes from "./routes/alerts.router.js";
+import integrationsRoutes from "./routes/integrations.router.js";
+import { setupSocketIO } from "./services/sockets/sockets.service.js";
 
 const app = express();
 
