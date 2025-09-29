@@ -1,4 +1,6 @@
 import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -7,8 +9,11 @@ import plantsRoutes from "./routes/plants.router.js";
 import donationsRoutes from "./routes/donations.router.js";
 import accessoriesRoutes from "./routes/accessories.router.js";
 import achievementsRoutes from "./routes/achievements.router.js";
-import alertsRoutes from "./routes/alerts.router.js";
-import integrationsRoutes from "./routes/integrations.router.js";
+import foundationsRoutes from "./routes/foundations.router.js";
+import plantsAccessoriesRoutes from "./routes/plants_accessories.router.js";
+import alertHistoryRoutes from "./routes/alert_history.router.js";
+import plantMessagesRoutes from "./routes/plant_messages.router.js";
+import recentActionsRoutes from "./routes/recent_actions.router.js";
 import { setupSocketIO } from "./services/sockets/sockets.service.js";
 
 const app = express();
@@ -41,8 +46,11 @@ app.use("/plants", plantsRoutes);
 app.use("/donations", donationsRoutes);
 app.use("/accessories", accessoriesRoutes);
 app.use("/achievements", achievementsRoutes);
-app.use("/alerts", alertsRoutes);
-app.use("/api/integrations", integrationsRoutes);
+app.use("/foundations", foundationsRoutes);
+app.use("/plant_accessories", plantsAccessoriesRoutes);
+app.use("/alert_history", alertHistoryRoutes);
+app.use("/plant_messages", plantMessagesRoutes);
+app.use("/recent_actions", recentActionsRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
@@ -66,8 +74,11 @@ app.get("/", (req, res) => {
       donations: "/donations",
       accessories: "/accessories",
       achievements: "/achievements",
-      alerts: "/alerts",
-      integrations: "/api/integrations",
+      foundations: "/foundations",
+      plant_accessories: "/plant_accessories",
+      alert_history: "/alert_history",
+      plant_messages: "/plant_messages",
+      recent_actions: "/recent_actions",
       health: "/health",
     },
   });
