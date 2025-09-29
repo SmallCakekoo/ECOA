@@ -6,19 +6,19 @@ import {
   generatePlantMessage,
   generatePlantCareTips,
   diagnosePlantProblem,
-} from "../integrations/openai.js";
+} from "../services/integrations/openai.service.js";
 import {
   getWeather,
   getWeatherForecast,
   getPlantCareRecommendations,
-} from "../integrations/weather.js";
+} from "../services/integrations/weather.service.js";
 import {
   searchPlants,
   getPlantDetails,
   identifyPlantWithHealth,
   identifyMultiplePlants,
   getPlantFamilies,
-} from "../integrations/plantid.js";
+} from "../services/integrations/plantid.service.js";
 
 const router = express.Router();
 

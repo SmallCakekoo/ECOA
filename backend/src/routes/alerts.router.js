@@ -1,5 +1,5 @@
 import express from "express";
-import { supabase, handleSupabaseError, isValidUUID } from "../db.js";
+import { supabase, handleSupabaseError, isValidUUID } from "../services/supabase.service.js";
 
 const router = express.Router();
 
