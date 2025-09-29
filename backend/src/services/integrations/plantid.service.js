@@ -1,4 +1,4 @@
-// backend/src/integrations/trefle.js
+// backend/src/integrations/plantid.js
 // Integración con Trefle.io para obtener datos de plantas
 // Requiere API Key -> https://trefle.io/
 
@@ -115,6 +115,128 @@ export async function getPlantDetails(plantId) {
       success: false,
       error: error.message,
       message: "No se pudo obtener la información detallada de la planta.",
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+/**
+ * Obtiene especies de plantas
+ * @param {number} page - Página de resultados (default 1)
+ * @param {number} limit - Resultados por página (default 10)
+ */
+export async function getPlantSpecies(page = 1, limit = 10) {
+  try {
+    const url = `${TREFLE_BASE_URL}/species?token=${TREFLE_API_KEY}&page=${page}&per_page=${limit}`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error de Trefle API: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      species: data.data || [],
+      current_page: page,
+      per_page: limit,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error("Error en getPlantSpecies:", error);
+    return {
+      success: false,
+      error: error.message,
+      message: "No se pudieron obtener las especies de plantas.",
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+/**
+ * Obtiene familias de plantas
+ * @param {number} page - Página de resultados (default 1)
+ * @param {number} limit - Resultados por página (default 10)
+ */
+export async function getPlantFamilies(page = 1, limit = 10) {
+  try {
+    const url = `${TREFLE_BASE_URL}/families?token=${TREFLE_API_KEY}&page=${page}&per_page=${limit}`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error de Trefle API: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      success: true,
+      families: data.data || [],
+      current_page: page,
+      per_page: limit,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error("Error en getPlantFamilies:", error);
+    return {
+      success: false,
+      error: error.message,
+      message: "No se pudieron obtener las familias de plantas.",
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+/**
+ * Identifica una planta con análisis de salud (función placeholder)
+ * @param {string} imageBase64 - Imagen en base64
+ * @param {Array} healthDetails - Detalles de salud a incluir
+ */
+export async function identifyPlantWithHealth(imageBase64, healthDetails = []) {
+  try {
+    // Esta es una función placeholder - en una implementación real
+    // se conectaría con Plant.id API para identificación con análisis de salud
+    return {
+      success: false,
+      error: "Función no implementada",
+      message:
+        "La identificación de plantas con análisis de salud no está implementada actualmente.",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error("Error en identifyPlantWithHealth:", error);
+    return {
+      success: false,
+      error: error.message,
+      message: "No se pudo identificar la planta con análisis de salud.",
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+/**
+ * Identifica múltiples plantas (función placeholder)
+ * @param {string} imageBase64 - Imagen en base64
+ * @param {number} maxResults - Número máximo de resultados
+ */
+export async function identifyMultiplePlants(imageBase64, maxResults = 3) {
+  try {
+    // Esta es una función placeholder - en una implementación real
+    // se conectaría con Plant.id API para identificación múltiple
+    return {
+      success: false,
+      error: "Función no implementada",
+      message:
+        "La identificación múltiple de plantas no está implementada actualmente.",
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error("Error en identifyMultiplePlants:", error);
+    return {
+      success: false,
+      error: error.message,
+      message: "No se pudieron identificar múltiples plantas.",
       timestamp: new Date().toISOString(),
     };
   }
