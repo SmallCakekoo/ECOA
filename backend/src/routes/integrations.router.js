@@ -6,18 +6,19 @@ import {
   generatePlantMessage,
   generatePlantCareTips,
   diagnosePlantProblem,
-} from "../../integrations/openai.js";
+} from "../services/integrations/openai.service.js";
 import {
   getWeather,
   getWeatherForecast,
   getPlantCareRecommendations,
-} from "../../integrations/weather.js";
+} from "../services/integrations/weather.service.js";
 import {
   searchPlants,
   getPlantDetails,
-  getPlantSpecies,
+  identifyPlantWithHealth,
+  identifyMultiplePlants,
   getPlantFamilies,
-} from "../../integrations/plantid.js";
+} from "../services/integrations/plantid.service.js";
 
 const router = express.Router();
 
@@ -222,6 +223,28 @@ router.get("/weather/recommendations", async (req, res) => {
 });
 
 // ===== RUTAS DE TREFL.IO =====
+
+// GET /api/integrations/plantid/families - Obtener familias de plantas
+router.get("/plantid/families", async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const result = await getPlantFamilies(parseInt(page), parseInt(limit));
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error("Error obteniendo familias de plantas:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+});
 
 // GET /api/integrations/trefle/search - Buscar plantas por nombre
 router.get("/trefle/search", async (req, res) => {

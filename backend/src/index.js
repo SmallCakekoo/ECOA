@@ -1,15 +1,20 @@
 import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import usersRoutes from "./routes/users.js";
-import plantsRoutes from "./routes/plants.js";
-import donationsRoutes from "./routes/donations.js";
-import accessoriesRoutes from "./routes/accessories.js";
-import achievementsRoutes from "./routes/achievements.js";
-import alertsRoutes from "./routes/alerts.js";
-import integrationsRoutes from "./routes/integrations.js";
-import { setupSocketIO } from "./sockets/index.js";
+import usersRoutes from "./routes/users.router.js";
+import plantsRoutes from "./routes/plants.router.js";
+import donationsRoutes from "./routes/donations.router.js";
+import accessoriesRoutes from "./routes/accessories.router.js";
+import achievementsRoutes from "./routes/achievements.router.js";
+import foundationsRoutes from "./routes/foundations.router.js";
+import plantsAccessoriesRoutes from "./routes/plants_accessories.router.js";
+import alertHistoryRoutes from "./routes/alert_history.router.js";
+import plantMessagesRoutes from "./routes/plant_messages.router.js";
+import recentActionsRoutes from "./routes/recent_actions.router.js";
+import { setupSocketIO } from "./services/sockets/sockets.service.js";
 
 const app = express();
 
@@ -41,8 +46,11 @@ app.use("/plants", plantsRoutes);
 app.use("/donations", donationsRoutes);
 app.use("/accessories", accessoriesRoutes);
 app.use("/achievements", achievementsRoutes);
-app.use("/alerts", alertsRoutes);
-app.use("/api/integrations", integrationsRoutes);
+app.use("/foundations", foundationsRoutes);
+app.use("/plants_accessories", plantsAccessoriesRoutes);
+app.use("/alert_history", alertHistoryRoutes);
+app.use("/plant_messages", plantMessagesRoutes);
+app.use("/recent_actions", recentActionsRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
@@ -66,15 +74,18 @@ app.get("/", (req, res) => {
       donations: "/donations",
       accessories: "/accessories",
       achievements: "/achievements",
-      alerts: "/alerts",
-      integrations: "/api/integrations",
+      foundations: "/foundations",
+      plants_accessories: "/plants_accessories",
+      alert_history: "/alert_history",
+      plant_messages: "/plant_messages",
+      recent_actions: "/recent_actions",
       health: "/health",
     },
   });
 });
 
 // Manejo de rutas no encontradas
-app.use("*", (req, res) => {
+app.use("/", (req, res) => {
   res.status(404).json({
     success: false,
     message: "Ruta no encontrada",
