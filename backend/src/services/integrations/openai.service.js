@@ -4,7 +4,7 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = "AIzaSyAVNvzh5tikBquAlM7fHWO8Sx92xhYNMiA";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Inicializar cliente Gemini
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);

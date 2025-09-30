@@ -2,8 +2,8 @@
 // Integración con Trefle.io para obtener datos de plantas
 // Requiere API Key -> https://trefle.io/
 
-const TREFLE_API_KEY = "AzoCGr-wieeaGVQvfMowbrwizdbuK9jiAgcVA-0xIWg"; // hardcoded
-const TREFLE_BASE_URL = "https://trefle.io/api/v1";
+const TREFLE_API_KEY = process.env.TREFLE_API_KEY;
+const TREFLE_BASE_URL = process.env.TREFLE_BASE_URL;
 
 /**
  * Busca plantas por nombre común o científico
