@@ -98,7 +98,7 @@ const AccessoriesDB = {
   // Obtener accesorios por planta
   async getByPlant(plant_id) {
     const { data, error } = await supabase
-      .from("plant_accessories")
+      .from("plants_accessories")
       .select(
         `
         *,
@@ -114,7 +114,7 @@ const AccessoriesDB = {
   // Desasignar accesorio de planta
   async unassignFromPlant(plant_id, accessory_id) {
     const { data, error } = await supabase
-      .from("plant_accessories")
+      .from("plants_accessories")
       .delete()
       .eq("plant_id", plant_id)
       .eq("accessory_id", accessory_id)

@@ -47,7 +47,7 @@ app.use("/donations", donationsRoutes);
 app.use("/accessories", accessoriesRoutes);
 app.use("/achievements", achievementsRoutes);
 app.use("/foundations", foundationsRoutes);
-app.use("/plant_accessories", plantsAccessoriesRoutes);
+app.use("/plants_accessories", plantsAccessoriesRoutes);
 app.use("/alert_history", alertHistoryRoutes);
 app.use("/plant_messages", plantMessagesRoutes);
 app.use("/recent_actions", recentActionsRoutes);
@@ -75,7 +75,7 @@ app.get("/", (req, res) => {
       accessories: "/accessories",
       achievements: "/achievements",
       foundations: "/foundations",
-      plant_accessories: "/plant_accessories",
+      plants_accessories: "/plants_accessories",
       alert_history: "/alert_history",
       plant_messages: "/plant_messages",
       recent_actions: "/recent_actions",

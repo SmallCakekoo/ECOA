@@ -39,7 +39,7 @@ export async function deletePlant(id) {
 
 export async function assignAccessoryToPlant(plantId, accessoryId) {
   return await supabase
-    .from("plant_accessories")
+    .from("plants_accessories")
     .insert([{ plant_id: plantId, accessory_id: accessoryId }])
     .select()
     .single();

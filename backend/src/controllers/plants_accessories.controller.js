@@ -4,11 +4,10 @@ const PlantsAccessoriesController = {
   // Listar todas las asignaciones
   async list(req, res) {
     try {
-      const { plant_id, accessory_id, active } = req.query;
+      const { plant_id, accessory_id } = req.query;
       const data = await PlantsAccessoriesDB.list({
         plant_id,
         accessory_id,
-        active,
       });
 
       res.status(200).json({
