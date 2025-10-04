@@ -1,0 +1,25 @@
+:root{--green:#7DB339;--green-strong:#6EA32E;--bg:#84B840;--text:#1b2b13;--muted:#6a7d5a;--white:#ffffff;--card:#ffffff;--field:#d9e8c7;--field-border:#c7dcad;--shadow:0 20px 60px rgba(0,0,0,.15)}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:'Nunito',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;background:var(--bg);color:var(--text);}
+.page{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+.card{width:100%;max-width:420px;background:var(--card);border-radius:22px;padding:40px 36px 28px;box-shadow:var(--shadow);text-align:center}
+.logo-circle{width:96px;height:96px;border-radius:50%;background:var(--green-strong);display:grid;place-items:center;margin:-70px auto 12px;border:8px solid var(--card)}
+.logo-svg{width:80px;height:80px}
+.title{margin:4px 0 0 0;font-weight:800;font-size:28px;color:#213318}
+.subtitle{margin:2px 0 22px 0;color:var(--muted);font-size:13px}
+.form{display:flex;flex-direction:column;text-align:left}
+.label{font-size:13px;font-weight:700;margin:8px 0 8px 2px;color:#2a3d20}
+.input-wrap{display:flex;align-items:center;gap:10px;background:var(--field);border:2px solid var(--field-border);border-radius:10px;padding:10px 12px;margin-bottom:14px}
+.input-wrap .icon{opacity:.85}
+.input-wrap .icon.trailing{margin-left:auto;background:transparent;border:none;cursor:pointer}
+.input-wrap input{flex:1;border:none;outline:none;background:transparent;padding:6px 0;font-size:14px;color:#213318}
+.row.options{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 18px 2px}
+.remember{display:flex;align-items:center;gap:8px;color:#2a3d20;font-size:14px}
+.link{color:#558a2a;text-decoration:none} .link:hover{text-decoration:underline}
+.btn-primary{appearance:none;border:none;background:#6EA32E;color:var(--white);font-weight:800;border-radius:10px;padding:12px 16px;font-size:15px;cursor:pointer}
+.btn-primary:hover{filter:brightness(.95)}
+.help{text-align:center;margin:14px 0 0 0;color:var(--muted);font-size:13px}
+.footer{margin-top:24px;color:#2f4a20;opacity:.85;font-size:13px}
+
+@media (max-width:480px){.card{padding:36px 20px 24px}.logo-circle{width:84px;height:84px;margin:-60px auto 8px;border-width:6px}}
+
+

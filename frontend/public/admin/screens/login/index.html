@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Portal - Iniciar sesión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <div class="logo-circle" aria-hidden="true">
+          <svg viewBox="0 0 48 48" class="logo-svg" role="img" aria-label="Logo">
+            <circle cx="24" cy="24" r="24" fill="#6EA32E" />
+            <g transform="translate(12,12)">
+              <circle cx="12" cy="12" r="7" fill="#fff"/>
+              <circle cx="12" cy="12" r="3" fill="#6EA32E"/>
+              <path d="M12 3c2.5 2.2 3.8 4.3 2.8 6.2-2.1.4-4.6-1.2-6.9-3.7 1.2-1.7 2.7-2.7 4.1-2.5z" fill="#fff"/>
+            </g>
+          </svg>
+        </div>
+        <h1 class="title">Welcome Back!</h1>
+        <p class="subtitle">Admin Portal</p>
+
+        <form class="form" id="login-form" autocomplete="on">
+          <label class="label" for="email">Email Address</label>
+          <div class="input-wrap">
+            <span class="icon" aria-hidden="true">✉️</span>
+            <input id="email" name="email" type="email" placeholder="admin@foundation.org" required />
+          </div>
+
+          <label class="label" for="password">Password</label>
+          <div class="input-wrap">
+            <span class="icon" aria-hidden="true">🔒</span>
+            <input id="password" name="password" type="password" placeholder="••••••••••••••••••••" required />
+            <button class="icon trailing" type="button" id="toggle-password" aria-label="Mostrar contraseña">👁️</button>
+          </div>
+
+          <div class="row options">
+            <label class="remember">
+              <input type="checkbox" id="remember" />
+              <span>Remember Me</span>
+            </label>
+            <a class="link" href="#" id="forgot-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn-primary">Sing In</button>
+
+          <p class="help">Need help? <a class="link" href="#">Contact Support</a></p>
+        </form>
+      </section>
+
+      <footer class="footer">Environmental Foundation Admin Portal</footer>
+    </main>
+
+    <script src="./login.js" defer></script>
+  </body>
+  </html>
+
+
