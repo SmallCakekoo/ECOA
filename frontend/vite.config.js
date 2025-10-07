@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import path from "path";
 
 export default defineConfig({
-  root: "frontend/public", // apunta a la carpeta public
+  root: "../frontend/public", // apunta a la carpeta public
   server: {
     port: 5000, // puerto de desarrollo
     open: true,
