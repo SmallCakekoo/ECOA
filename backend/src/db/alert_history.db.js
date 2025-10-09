@@ -108,6 +108,43 @@ const AlertHistoryDB = {
     return data;
   },
 
+  // Actualizar entrada de historial
+  async update(id, updateData) {
+    const data = {
+      ...updateData,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: result, error } = await supabase
+      .from("alert_history")
+      .update(data)
+      .eq("id", id)
+      .select(
+        `
+        *,
+        plants:plant_id(name, species),
+        users:user_id(name, email)
+      `
+      )
+      .single();
+
+    if (error) throw error;
+    return result;
+  },
+
+  // Eliminar entrada de historial
+  async remove(id) {
+    const { data, error } = await supabase
+      .from("alert_history")
+      .delete()
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   // Obtener estadísticas de alertas
   async getStats({ plant_id, user_id, date_from, date_to } = {}) {
     let query = supabase.from("alert_history").select("action, created_at");

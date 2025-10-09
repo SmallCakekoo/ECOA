@@ -8,12 +8,13 @@ import usersRoutes from "./routes/users.router.js";
 import plantsRoutes from "./routes/plants.router.js";
 import donationsRoutes from "./routes/donations.router.js";
 import accessoriesRoutes from "./routes/accessories.router.js";
-import achievementsRoutes from "./routes/achievements.router.js";
 import foundationsRoutes from "./routes/foundations.router.js";
 import plantsAccessoriesRoutes from "./routes/plants_accessories.router.js";
 import alertHistoryRoutes from "./routes/alert_history.router.js";
-import plantMessagesRoutes from "./routes/plant_messages.router.js";
-import recentActionsRoutes from "./routes/recent_actions.router.js";
+import devicesRoutes from "./routes/devices.router.js";
+import plantStatsRoutes from "./routes/plants_stats.router.js";
+import plantStatusRoutes from "./routes/plants_status.router.js";
+import integrationsRoutes from "./routes/integrations.router.js";
 import { setupSocketIO } from "./services/sockets/sockets.service.js";
 
 const app = express();
@@ -45,12 +46,13 @@ app.use("/users", usersRoutes);
 app.use("/plants", plantsRoutes);
 app.use("/donations", donationsRoutes);
 app.use("/accessories", accessoriesRoutes);
-app.use("/achievements", achievementsRoutes);
 app.use("/foundations", foundationsRoutes);
 app.use("/plants_accessories", plantsAccessoriesRoutes);
 app.use("/alert_history", alertHistoryRoutes);
-app.use("/plant_messages", plantMessagesRoutes);
-app.use("/recent_actions", recentActionsRoutes);
+app.use("/devices", devicesRoutes);
+app.use("/plant_stats", plantStatsRoutes);
+app.use("/plant_status", plantStatusRoutes);
+app.use("/integrations", integrationsRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
@@ -73,12 +75,13 @@ app.get("/", (req, res) => {
       plants: "/plants",
       donations: "/donations",
       accessories: "/accessories",
-      achievements: "/achievements",
       foundations: "/foundations",
       plants_accessories: "/plants_accessories",
       alert_history: "/alert_history",
-      plant_messages: "/plant_messages",
-      recent_actions: "/recent_actions",
+      devices: "/devices",
+      plant_stats: "/plant_stats",
+      plant_status: "/plant_status",
+      integrations: "/integrations",
       health: "/health",
     },
   });

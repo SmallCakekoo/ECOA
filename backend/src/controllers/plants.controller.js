@@ -10,7 +10,7 @@ import {
   createPlantModel,
   sanitizePlantUpdate,
   sanitizePlantMetrics,
-} from "../models/plant.model.js";
+} from "../models/plants.model.js";
 
 const handleError = (error, res) => {
   const status = error?.status || 500;
@@ -148,6 +148,48 @@ export const PlantsController = {
         message: "Accesorio asignado exitosamente",
         data,
       });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  },
+
+  getByUser: async (req, res) => {
+    try {
+      const { user_id } = req.params;
+      const { data, error } = await findAllPlants({ user_id });
+      if (error) throw error;
+      return res.status(200).json({ success: true, data, count: data.length });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  },
+
+  getByFoundation: async (req, res) => {
+    try {
+      const { foundation_id } = req.params;
+      const { data, error } = await findAllPlants({ foundation_id });
+      if (error) throw error;
+      return res.status(200).json({ success: true, data, count: data.length });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  },
+
+  getAdopted: async (req, res) => {
+    try {
+      const { data, error } = await findAllPlants({ is_adopted: true });
+      if (error) throw error;
+      return res.status(200).json({ success: true, data, count: data.length });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  },
+
+  getAvailable: async (req, res) => {
+    try {
+      const { data, error } = await findAllPlants({ is_adopted: false });
+      if (error) throw error;
+      return res.status(200).json({ success: true, data, count: data.length });
     } catch (error) {
       return handleError(error, res);
     }

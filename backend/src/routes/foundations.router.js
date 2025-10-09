@@ -8,7 +8,5 @@ router.get("/:id", FoundationsController.get);
 router.post("/", FoundationsController.create);
 router.put("/:id", FoundationsController.update);
 router.delete("/:id", FoundationsController.remove);
-router.get("/country/:country", FoundationsController.getByCountry);
-router.get("/countries", FoundationsController.getCountries);
 
 export default router;

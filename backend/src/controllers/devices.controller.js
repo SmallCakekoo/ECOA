@@ -1,12 +1,14 @@
 import {
-  findAllUsers,
-  findUserById,
-  insertUser,
-  updateUser,
-  deleteUser,
-  findPlantsByUserId,
-} from "../db/users.db.js";
-import { createUserModel, sanitizeUserUpdate } from "../models/users.model.js";
+  findAllDevices,
+  findDeviceById,
+  insertDevice,
+  updateDevice,
+  deleteDevice,
+} from "../db/devices.db.js";
+import {
+  createDeviceModel,
+  sanitizeDeviceUpdate,
+} from "../models/devices.model.js";
 
 const handleError = (error, res) => {
   const status = error?.status || 500;
@@ -14,102 +16,104 @@ const handleError = (error, res) => {
   return res.status(status).json({ success: false, message });
 };
 
-export const UsersController = {
+export const DevicesController = {
   list: async (req, res) => {
     try {
-      const { data, error } = await findAllUsers();
+      const { foundation_id, model, location } = req.query;
+      const filters = {};
+      if (foundation_id) filters.foundation_id = foundation_id;
+      if (model) filters.model = model;
+      if (location) filters.location = location;
+
+      const { data, error } = await findAllDevices(filters);
       if (error) throw error;
       return res.status(200).json({ success: true, data, count: data.length });
     } catch (error) {
       return handleError(error, res);
     }
   },
+
   get: async (req, res) => {
     try {
       const { id } = req.params;
-      const { data, error } = await findUserById(id);
+      const { data, error } = await findDeviceById(id);
       if (error) throw error;
       if (!data)
         return res
           .status(404)
-          .json({ success: false, message: "Usuario no encontrado" });
+          .json({ success: false, message: "Dispositivo no encontrado" });
       return res.status(200).json({ success: true, data });
     } catch (error) {
       return handleError(error, res);
     }
   },
+
   create: async (req, res) => {
     try {
-      const userData = createUserModel(req.body);
-      const { data, error } = await insertUser(userData);
+      const deviceData = createDeviceModel(req.body);
+      const { data, error } = await insertDevice(deviceData);
       if (error) throw error;
-      req.io?.emit("user_created", {
-        type: "user_created",
+      req.io?.emit("device_created", {
+        type: "device_created",
         data,
         timestamp: new Date().toISOString(),
       });
-      return res
-        .status(201)
-        .json({ success: true, message: "Usuario creado exitosamente", data });
+      return res.status(201).json({
+        success: true,
+        message: "Dispositivo creado exitosamente",
+        data,
+      });
     } catch (error) {
       return handleError(error, res);
     }
   },
+
   update: async (req, res) => {
     try {
       const { id } = req.params;
-      const updateData = sanitizeUserUpdate(req.body);
-      const { data, error } = await updateUser(id, updateData);
+      const updateData = sanitizeDeviceUpdate(req.body);
+      const { data, error } = await updateDevice(id, updateData);
       if (error) throw error;
       if (!data)
         return res
           .status(404)
-          .json({ success: false, message: "Usuario no encontrado" });
-      req.io?.emit("user_updated", {
-        type: "user_updated",
+          .json({ success: false, message: "Dispositivo no encontrado" });
+      req.io?.emit("device_updated", {
+        type: "device_updated",
         data,
         timestamp: new Date().toISOString(),
       });
       return res.status(200).json({
         success: true,
-        message: "Usuario actualizado exitosamente",
+        message: "Dispositivo actualizado exitosamente",
         data,
       });
     } catch (error) {
       return handleError(error, res);
     }
   },
+
   remove: async (req, res) => {
     try {
       const { id } = req.params;
-      const { data, error } = await deleteUser(id);
+      const { data, error } = await deleteDevice(id);
       if (error) throw error;
       if (!data)
         return res
           .status(404)
-          .json({ success: false, message: "Usuario no encontrado" });
-      req.io?.emit("user_deleted", {
-        type: "user_deleted",
+          .json({ success: false, message: "Dispositivo no encontrado" });
+      req.io?.emit("device_deleted", {
+        type: "device_deleted",
         data: { id },
         timestamp: new Date().toISOString(),
       });
       return res
         .status(200)
-        .json({ success: true, message: "Usuario eliminado exitosamente" });
-    } catch (error) {
-      return handleError(error, res);
-    }
-  },
-  listPlants: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { data, error } = await findPlantsByUserId(id);
-      if (error) throw error;
-      return res.status(200).json({ success: true, data, count: data.length });
+        .json({ success: true, message: "Dispositivo eliminado exitosamente" });
     } catch (error) {
       return handleError(error, res);
     }
   },
 };
 
-export default UsersController;
+export default DevicesController;
