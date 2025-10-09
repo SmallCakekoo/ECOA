@@ -52,7 +52,7 @@ app.use("/alert_history", alertHistoryRoutes);
 app.use("/devices", devicesRoutes);
 app.use("/plant_stats", plantStatsRoutes);
 app.use("/plant_status", plantStatusRoutes);
-app.use("/integrations", integrationsRoutes);
+app.use("/api/integrations", integrationsRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
@@ -81,7 +81,7 @@ app.get("/", (req, res) => {
       devices: "/devices",
       plant_stats: "/plant_stats",
       plant_status: "/plant_status",
-      integrations: "/integrations",
+      integrations: "/api/integrations",
       health: "/health",
     },
   });
