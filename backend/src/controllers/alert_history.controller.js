@@ -162,6 +162,74 @@ const AlertHistoryController = {
       });
     }
   },
+
+  // Actualizar entrada de historial
+  async update(req, res) {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const data = await AlertHistoryDB.update(id, updateData);
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message: "Entrada de historial no encontrada",
+        });
+      }
+
+      // Emitir evento de Socket.IO
+      req.io?.emit("alert_history_updated", {
+        type: "alert_history_updated",
+        data,
+        timestamp: new Date().toISOString(),
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Entrada de historial actualizada exitosamente",
+        data,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al actualizar entrada de historial",
+        error: error.message,
+      });
+    }
+  },
+
+  // Eliminar entrada de historial
+  async remove(req, res) {
+    try {
+      const { id } = req.params;
+      const data = await AlertHistoryDB.remove(id);
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message: "Entrada de historial no encontrada",
+        });
+      }
+
+      // Emitir evento de Socket.IO
+      req.io?.emit("alert_history_deleted", {
+        type: "alert_history_deleted",
+        data: { id },
+        timestamp: new Date().toISOString(),
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Entrada de historial eliminada exitosamente",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al eliminar entrada de historial",
+        error: error.message,
+      });
+    }
+  },
 };
 
 export default AlertHistoryController;

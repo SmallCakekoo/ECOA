@@ -5,10 +5,9 @@ API RESTful construida con Node.js, Express.js, Supabase y Socket.IO para el sis
 ## Características
 
 - **API REST** completa con Express.js 5.1
-- **Base de datos** Supabase PostgreSQL  
+- **Base de datos** Supabase PostgreSQL
 - **Tiempo Real** con Socket.IO 4.8
-- **Inteligencia Artificial** con Google Gemini
-- **APIs Externas** para clima y plantas
+- **APIs Externas** para datos de plantas (Perenual)
 - **Arquitectura modular** y escalable
 
 ## Inicio Rápido
@@ -16,29 +15,33 @@ API RESTful construida con Node.js, Express.js, Supabase y Socket.IO para el sis
 ### Prerrequisitos
 
 - Node.js >= 18.0.0
-- npm >= 8.0.0  
+- npm >= 8.0.0
 - Cuenta activa en Supabase
 
 ### Instalación
 
 1. **Instalar dependencias**
+
 ```bash
 cd backend
 npm install
 ```
 
 2. **Configurar variables de entorno**
+
 ```bash
 cp .env.example .env
 # Edita .env con tus credenciales
 ```
 
 3. **Iniciar servidor de desarrollo**
+
 ```bash
 npm run dev
 ```
 
 4. **Iniciar servidor de producción**
+
 ```bash
 npm start
 ```
@@ -59,9 +62,7 @@ backend/
 │   │   ├── achievements.js # Sistema de logros
 │   │   └── integrations.js # APIs externas
 │   ├── integrations/     # Servicios externos
-│   │   ├── openai.js     # Google Gemini IA
-│   │   ├── weather.js    # Open-Meteo API
-│   │   └── plantid.js    # Trefle.io API
+│   │   └── perenual.service.js    # Perenual API
 │   ├── sockets/          # Socket.IO handlers
 │   │   └── index.js      # Configuración WebSockets
 │   ├── db.js            # Conexión Supabase
@@ -86,6 +87,7 @@ npm test
 ## Endpoints Principales
 
 ### Usuarios (`/users`)
+
 ```http
 GET    /users           # Listar usuarios
 GET    /users/:id       # Usuario por ID
@@ -95,7 +97,8 @@ DELETE /users/:id       # Eliminar usuario
 GET    /users/:id/plants # Plantas del usuario
 ```
 
-### Plantas (`/plants`)  
+### Plantas (`/plants`)
+
 ```http
 GET    /plants          # Listar plantas
 GET    /plants/:id      # Planta por ID
@@ -106,6 +109,7 @@ DELETE /plants/:id      # Eliminar planta
 ```
 
 ### Alertas (`/alerts`)
+
 ```http
 GET    /alerts          # Listar alertas
 POST   /alerts          # Crear alerta
@@ -114,61 +118,59 @@ GET    /alerts/plant/:plant_id # Alertas por planta
 ```
 
 ### Integraciones (`/api/integrations`)
+
 ```http
-POST   /api/integrations/gemini/chat      # Chat con plantas
-POST   /api/integrations/gemini/care-tips # Consejos IA
-GET    /api/integrations/weather/current  # Clima actual
-GET    /api/integrations/trefle/search    # Buscar plantas
+GET    /api/integrations/perenual/search          # Buscar plantas
+GET    /api/integrations/perenual/details/:plantId # Detalle por ID
+GET    /api/integrations/perenual/species         # Listar especies
+GET    /api/integrations/perenual/families        # Listar familias
+POST   /api/integrations/perenual/identify       # Identificar planta por imagen
+POST   /api/integrations/perenual/identify-health # Identificar con análisis de salud
 ```
 
-## Inteligencia Artificial
+## Integración Perenual
 
-### Google Gemini - Plantas que Hablan
+Variables de entorno requeridas y ejemplo de uso en los endpoints de arriba.
 
-```javascript
-// Ejemplo de uso
-const response = await fetch('/api/integrations/gemini/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    message: "¿Cómo te sientes hoy?",
-    plantType: "rosa",
-    plantName: "Mi Rosa del Jardín"
-  })
-});
+### Características de la API de Perenual
 
-// Respuesta esperada
-{
-  "success": true,
-  "message": "¡Hola mi querido cuidador! Me siento muy bien hoy, mis pétalos están brillantes y mis raíces están contentas. Gracias por preguntar ❤️",
-  "plant_response": {
-    "plant_type": "rosa",
-    "plant_name": "Mi Rosa del Jardín",
-    "personality": "cariñosa y agradecida"
-  }
-}
-```
+- **Más de 10,000 especies de plantas** en la base de datos
+- **Identificación de plantas por imagen** con análisis de salud
+- **Datos detallados** incluyendo cuidado, riego, luz solar, etc.
+- **Guías de cuidado** específicas para cada planta
+- **Análisis de enfermedades** y problemas de salud
 
 ## Socket.IO - Tiempo Real
 
 ### Eventos Disponibles
 
 **Cliente → Servidor:**
+
 ```javascript
-socket.emit('join_user_room', userId);
-socket.emit('join_plant_room', plantId);
-socket.emit('plant_metrics_update', { plantId, metrics });
+socket.emit("join_user_room", userId);
+socket.emit("join_plant_room", plantId);
+socket.emit("plant_metrics_update", { plantId, metrics });
 ```
 
 **Servidor → Cliente:**
+
 ```javascript
-socket.on('plant_created', (data) => { /* Nueva planta */ });
-socket.on('plant_metrics_updated', (data) => { /* Métricas actualizadas */ });
-socket.on('alert_created', (data) => { /* Nueva alerta */ });
-socket.on('notification_received', (data) => { /* Notificación */ });
+socket.on("plant_created", (data) => {
+  /* Nueva planta */
+});
+socket.on("plant_metrics_updated", (data) => {
+  /* Métricas actualizadas */
+});
+socket.on("alert_created", (data) => {
+  /* Nueva alerta */
+});
+socket.on("notification_received", (data) => {
+  /* Notificación */
+});
 ```
 
 ### Salas (Rooms)
+
 - `user_${userId}` - Eventos específicos del usuario
 - `plant_${plantId}` - Eventos específicos de la planta
 - `notifications_${userId}` - Notificaciones del usuario
@@ -179,6 +181,7 @@ socket.on('notification_received', (data) => { /* Notificación */ });
 ### Tablas Principales
 
 **users**
+
 - id (uuid, primary key)
 - name (text)
 - email (text, unique)
@@ -187,7 +190,8 @@ socket.on('notification_received', (data) => { /* Notificación */ });
 - experience_points (int, default: 0)
 
 **plants**
-- id (uuid, primary key)  
+
+- id (uuid, primary key)
 - user_id (uuid, foreign key)
 - name (text)
 - species (text)
@@ -198,6 +202,7 @@ socket.on('notification_received', (data) => { /* Notificación */ });
 - humidity (int)
 
 **alerts**
+
 - id (uuid, primary key)
 - plant_id (uuid, foreign key)
 - user_id (uuid, foreign key)
@@ -216,11 +221,8 @@ socket.on('notification_received', (data) => { /* Notificación */ });
 SUPABASE_URL=https://tu-proyecto.supabase.co
 SUPABASE_ANON_KEY=tu_anon_key_aqui
 
-# Google Gemini API
-GEMINI_API_KEY=tu_gemini_api_key
-
-# Trefle.io API (para plantas)
-TREFLE_API_KEY=tu_trefle_api_key
+# Perenual API (para plantas)
+PERENUAL_API_KEY=tu_perenual_api_key
 
 # Servidor
 PORT=3000
@@ -263,13 +265,12 @@ GET /health
 # Logs detallados
 DEBUG=* npm run dev
 
-# Solo logs de Socket.IO  
+# Solo logs de Socket.IO
 DEBUG=socket.io* npm run dev
 
 # Logs de base de datos
 DEBUG=supabase* npm run dev
 ```
-
 
 ## Performance
 
@@ -281,6 +282,7 @@ DEBUG=supabase* npm run dev
 ## Deployment
 
 ### Desarrollo Local
+
 ```bash
 npm run dev
 ```
@@ -291,5 +293,3 @@ npm run dev
 - [Socket.IO Documentation](https://socket.io/docs/)
 - [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript)
 - [Google Gemini API](https://ai.google.dev/docs)
-
-
