@@ -1,0 +1,434 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #7EB234;
+    background-image: url('./assets/images/fondo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 100px;
+}
+
+/* Header */
+.header {
+    background-color: transparent;
+    color: white;
+    padding: 15px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.time {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.status-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.status-icons .iconify {
+    font-size: 18px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    font-size: 24px;
+    font-weight: 500;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.back-button .iconify {
+    font-size: 32px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+}
+
+/* Plant Section */
+.plant-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.plant-info {
+    flex: 1;
+    max-width: 50%;
+}
+
+.plant-title {
+    font-size: 56px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    margin-bottom: 20px;
+}
+
+.plant-description {
+    font-size: 14px;
+    color: white;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.adopt-button {
+    background-color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #7EB234;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.adopt-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.adopt-button .iconify {
+    font-size: 20px;
+}
+
+.plant-image {
+    width: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.plant-image img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* More About Section */
+.more-about-section {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #7EB234;
+    margin-bottom: 20px;
+}
+
+.about-text {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* State Section */
+.state-section {
+    margin-top: 30px;
+}
+
+.state-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #7EB234;
+    margin-bottom: 20px;
+}
+
+.state-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: stretch;
+    margin-bottom: 20px;
+}
+
+.state-button {
+    background-color: #7EB234;
+    border: none;
+    border-radius: 20px;
+    flex: 1;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.state-button:hover {
+    background-color: #6da028;
+    transform: scale(1.05);
+}
+
+.state-button .iconify {
+    font-size: 50px;
+    color: white;
+}
+
+.state-message {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    font-style: italic;
+    padding: 0 10px;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    background-color: #7EB234;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+    margin: 20px auto 20px auto;
+    width: 90%;
+    max-width: 600px;
+    height: 70px;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.nav-item {
+    flex: 1;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    position: relative;
+}
+
+.nav-item:first-child {
+    border-radius: 50px 0 0 50px;
+}
+
+.nav-item:last-child {
+    border-radius: 0 50px 50px 0;
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 4px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.9),
+        transparent
+    );
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+.nav-item.active {
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        transparent 50%
+    );
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-icon {
+    font-size: 32px;
+    color: white;
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 120px;
+    }
+
+    .main-content {
+        padding: 0;
+    }
+
+    .plant-section {
+        flex-direction: column;
+        text-align: left;
+        margin-bottom: 0;
+        padding: 0 20px;
+    }
+
+    .plant-info {
+        max-width: 100%;
+        margin-bottom: 0;
+        order: 1;
+    }
+
+    .plant-title {
+        font-size: 64px;
+        margin-bottom: 15px;
+        line-height: 0.9;
+    }
+
+    .plant-description {
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+
+    .adopt-button {
+        margin: 0;
+    }
+
+    .plant-image {
+        width: 100%;
+        order: 2;
+        margin-top: -50px;
+        margin-bottom: -80px;
+        z-index: 10;
+        position: relative;
+    }
+
+    .plant-image img {
+        max-width: 350px;
+        margin-left: auto;
+        display: block;
+    }
+
+    .more-about-section {
+        border-radius: 30px 30px 0 0;
+        padding: 100px 30px 30px;
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 56px;
+        margin-bottom: 15px;
+    }
+
+    .about-text {
+        font-size: 15px;
+    }
+
+    .state-section {
+        margin-top: 25px;
+    }
+
+    .state-title {
+        font-size: 32px;
+        margin-bottom: 15px;
+    }
+
+    .state-buttons {
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .state-button {
+        height: 90px;
+        border-radius: 15px;
+    }
+
+    .state-button .iconify {
+        font-size: 48px;
+    }
+
+    .state-message {
+        font-size: 13px;
+        color: #999;
+    }
+}
+
+@media (max-width: 480px) {
+    .plant-title {
+        font-size: 56px;
+    }
+
+    .section-title {
+        font-size: 48px;
+    }
+
+    .state-title {
+        font-size: 28px;
+    }
+
+    .state-buttons {
+        gap: 10px;
+    }
+
+    .state-button {
+        height: 85px;
+    }
+
+    .state-button .iconify {
+        font-size: 42px;
+    }
+
+    .more-about-section {
+        padding: 90px 25px 25px;
+    }
+
+    .bottom-nav {
+        height: 70px;
+        width: 90%;
+    }
+
+    .nav-icon {
+        font-size: 30px;
+    }
+}
