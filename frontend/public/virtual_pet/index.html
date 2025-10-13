@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Julio - Plant Detail</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <span class="time" id="current-time">12:42</span>
+            <div class="status-icons">
+                <span class="iconify" data-icon="mdi:signal"></span>
+                <span class="iconify" data-icon="mdi:wifi"></span>
+                <span class="iconify" data-icon="mdi:battery"></span>
+            </div>
+        </div>
+        <div class="header-title-row">
+            <button class="back-button" onclick="goBack()">
+                <span class="iconify" data-icon="material-symbols:chevron-left-rounded"></span>
+            </button>
+            <h1 class="header-title">Julio</h1>
+        </div>
+    </header>
+
+    <div class="plant-image-section">
+        <div class="plant-image-container">
+            <img src="./assets/images/plant.png" alt="Julio Plant">
+        </div>
+    </div>
+
+    <div class="state-section">
+        <div class="state-label">State</div>
+        <div class="state-buttons">
+            <button class="state-button">
+                <span class="iconify" data-icon="solar:sun-linear"></span>
+            </button>
+            <button class="state-button">
+                <span class="iconify" data-icon="lets-icons:water-light"></span>
+            </button>
+            <button class="state-button">
+                <span class="iconify" data-icon="material-symbols-light:shower-outline"></span>
+            </button>
+            <button class="state-button">
+                <span class="iconify" data-icon="mingcute:happy-line"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="accessories-section">
+        <h2 class="accessories-title">Accessories</h2>
+        
+        <div class="accessory-card">
+            <div class="accessory-image">
+                <img src="./assets/images/accesori1.png" alt="Care Kit">
+            </div>
+            <div class="accessory-content">
+                <div class="accessory-title">Care Kit Upgrade</div>
+                <div class="accessory-description">A pack of tools and eco-supplies applied to your plant for improved maintenance.</div>
+                <button class="add-button-small">
+                    <span class="iconify" data-icon="material-symbols:add"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="accessory-card">
+            <div class="accessory-image">
+                <img src="./assets/images/accesori2.png" alt="Organic Fertilizer">
+            </div>
+            <div class="accessory-content">
+                <div class="accessory-title">Organic Fertilizer</div>
+                <div class="accessory-description">Boosts growth with natural nutrients that improve soil quality and strengthen the roots.</div>
+                <button class="add-button-small">
+                    <span class="iconify" data-icon="material-symbols:add"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="view-more-container">
+            <button class="view-more-button">
+                View more
+                <div class="view-more-icon">
+                    <span class="iconify" data-icon="material-symbols:add"></span>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item" onclick="goToHome(event)">
+            <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
+        </a>
+        <a href="#" class="nav-item active" onclick="goToPlants(event)">
+            <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToShop(event)">
+            <span class="iconify nav-icon" data-icon="tabler:world"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToProfile(event)">
+            <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+        </a>
+    </nav>
+
+    <script src="./app.js"></script>
+</body>
+</html>
