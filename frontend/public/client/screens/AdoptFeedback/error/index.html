@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adopt Feedback - Error</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <span class="time" id="current-time">12:42</span>
+            <div class="status-icons">
+                <span class="iconify" data-icon="mdi:signal"></span>
+                <span class="iconify" data-icon="mdi:wifi"></span>
+                <span class="iconify" data-icon="mdi:battery"></span>
+            </div>
+        </div>
+        <button class="back-button" onclick="goBack()">
+            <span class="iconify" data-icon="mingcute:left-fill"></span>
+            <span>Back</span>
+        </button>
+    </header>
+
+    <main class="content">
+        <h1>Oops!</h1>
+        
+        <div class="icon-container">
+            <span class="iconify error-icon" data-icon="healthicons:no-outline"></span>
+        </div>
+
+        <p class="message">
+            Something went wrong. . . Try Again.
+        </p>
+
+        <a href="#" class="back-link" onclick="goToShop(event)">Back</a>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item" onclick="goToHome(event)">
+            <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
+        </a>
+        <a href="#" class="nav-item active" onclick="goToPlants(event)">
+            <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToShop(event)">
+            <span class="iconify nav-icon" data-icon="tabler:world"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToProfile(event)">
+            <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+        </a>
+    </nav>
+
+    <script src="./app.js"></script>
+</body>
+</html>
