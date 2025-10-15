@@ -1,4 +1,3 @@
-// Sidebar active state
 document.querySelectorAll('.menu-item').forEach((item)=>{
   item.addEventListener('click',()=>{
     document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active'))
@@ -6,7 +5,6 @@ document.querySelectorAll('.menu-item').forEach((item)=>{
   })
 })
 
-// Upload preview
 const uploadBox = document.getElementById('uploadBox')
 const fileInput = document.getElementById('plantPhoto')
 const preview = document.getElementById('photoPreview')
@@ -26,7 +24,6 @@ if(uploadBox && fileInput && preview){
   })
 }
 
-// Mock submit
 const plantForm = document.getElementById('plantForm')
 if(plantForm){
   plantForm.addEventListener('submit',(e)=>{

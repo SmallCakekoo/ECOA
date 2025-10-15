@@ -6,56 +6,91 @@
     <title>Ecoa Admin · Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app">
-      <aside class="sidebar">
+      <header class="topbar">
         <div class="brand">
-          <div class="brand-icon">🌱</div>
+          <div class="brand-icon">
+            <img src="./assets/Logoecoa.png" alt="Logo" />
+          </div>
           <div class="brand-name">Ecoa Admin</div>
         </div>
+        <div class="profile">
+          <div class="avatar"></div>
+        </div>
+      </header>
+      
+      <div class="main-container">
+        <aside class="sidebar">
         <nav class="menu">
           <a class="menu-item active" href="./index.html">
-            <span class="menu-icon">📊</span>
+            <span class="menu-icon">
+              <img src="./assets/1menu.png" alt="Dashboard" />
+            </span>
             <span class="menu-text">Dashboard</span>
           </a>
-          <a class="menu-item" href="../plant%20catalog/index.html">
-            <span class="menu-icon">🪴</span>
+          <a class="menu-item" href="../plantcatalog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/2menu.png" alt="Plant Catalog" />
+            </span>
             <span class="menu-text">Plant Catalog</span>
           </a>
           <a class="menu-item" href="../donationlog/index.html">
-            <span class="menu-icon">💸</span>
+            <span class="menu-icon">
+              <img src="./assets/3menu.png" alt="Donations" />
+            </span>
             <span class="menu-text">Donations</span>
           </a>
         </nav>
       </aside>
 
       <main class="content">
-        <header class="topbar">
-          <div></div>
-          <div class="profile">
-            <div class="avatar"></div>
-          </div>
-        </header>
-
         <section class="metrics">
           <div class="metric-card">
-            <div class="metric-header"><div class="metric-title">Total Adoptions</div><div class="metric-badge">🖤</div></div>
-            <div class="metric-value">1,247</div><div class="metric-subtext">+12% this month</div>
+            <div class="metric-header">
+              <div class="metric-title">Total Adoptions</div>
+            </div>
+            <div class="metric-value">1,247</div>
+            <div class="metric-subtext">+12% this month</div>
+            <div class="metric-badge">
+              <img src="./assets/1pantalla.png" alt="Heart" />
+            </div>
           </div>
+          
           <div class="metric-card">
-            <div class="metric-header"><div class="metric-title">Total Donations</div><div class="metric-badge">💵</div></div>
-            <div class="metric-value">$12mill</div><div class="metric-subtext">+8% this month</div>
+            <div class="metric-header">
+              <div class="metric-title">Total Donations</div>
+            </div>
+            <div class="metric-value">$12mill</div>
+            <div class="metric-subtext">+8% this month</div>
+            <div class="metric-badge">
+              <img src="./assets/2pantalla.png" alt="Dollar" />
+            </div>
           </div>
+          
           <div class="metric-card">
-            <div class="metric-header"><div class="metric-title">Plants in Catalog</div><div class="metric-badge">🌿</div></div>
-            <div class="metric-value">892</div><div class="metric-subtext">+15 new plants</div>
+            <div class="metric-header">
+              <div class="metric-title">Plants in Catalog</div>
+            </div>
+            <div class="metric-value">892</div>
+            <div class="metric-subtext">+15 new plants</div>
+            <div class="metric-badge">
+              <img src="./assets/3pantalla.png" alt="Leaf" />
+            </div>
           </div>
+          
           <div class="metric-card">
-            <div class="metric-header"><div class="metric-title">Health Score</div><div class="metric-badge">🍃</div></div>
-            <div class="metric-value">94%</div><div class="metric-subtext">Excellent condition</div>
+            <div class="metric-header">
+              <div class="metric-title">Health Score</div>
+            </div>
+            <div class="metric-value">94%</div>
+            <div class="metric-subtext">Excellent condition</div>
+            <div class="metric-badge">
+              <img src="./assets/4pantalla.png" alt="Plant" />
+            </div>
           </div>
         </section>
 
@@ -67,50 +102,138 @@
                 <label class="label">Plant Photo</label>
                 <label class="upload" id="uploadBox">
                   <input type="file" id="plantPhoto" accept="image/*" hidden />
-                  <div class="upload-inner"><div class="upload-icon">📷</div><div class="upload-text">Upload Photo</div></div>
+                  <div class="upload-inner">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Upload Photo</div>
+                  </div>
                   <img id="photoPreview" alt="preview" />
                 </label>
               </div>
-              <div class="form-group"><label class="label" for="plantId">ID</label><input id="plantId" class="input" placeholder="PLT-010214" /></div>
-              <div class="form-group"><label class="label" for="plantName">Name</label><input id="plantName" class="input" placeholder="Add a name here" /></div>
-              <div class="form-group"><label class="label" for="plantSpecies">Species</label><input id="plantSpecies" class="input" placeholder="e.g., Monstera Deliciosa" /></div>
+              
+              <div class="form-group">
+                <label class="label" for="plantId">ID</label>
+                <input id="plantId" class="input" placeholder="PLT-010214" />
+              </div>
+              
+              <div class="form-group">
+                <label class="label" for="plantName">Name</label>
+                <input id="plantName" class="input" placeholder="Add a name here" />
+              </div>
+              
+              <div class="form-group">
+                <label class="label" for="plantSpecies">Species</label>
+                <input id="plantSpecies" class="input" placeholder="e.g., Monstera Deliciosa" />
+              </div>
+              
               <div class="form-group">
                 <label class="label" for="healthStatus">Health Status</label>
                 <div class="select-wrap">
                   <select id="healthStatus" class="select">
-                    <option>Excellent</option><option>Healthy</option><option>Recovering</option><option>Critical</option>
+                    <option>Excellent</option>
+                    <option>Healthy</option>
+                    <option>Recovering</option>
+                    <option>Critical</option>
                   </select>
                 </div>
               </div>
+              
               <button class="btn" type="submit">Register Plant</button>
             </form>
           </div>
 
-          <div class="panel">
-            <h2 class="panel-title">Plant Monitoring</h2>
-            <div class="table">
-              <div class="table-head"><div>Plant</div><div>Adopter</div><div>Status</div><div>Care Notes</div></div>
-              <div class="table-row"><div class="plant-cell"><div class="thumb"></div><div>Monstera #010214</div></div><div>Sarah</div><div><span class="status status-healthy">Healthy</span></div><div><i>Watered yesterday</i></div></div>
-              <div class="table-row"><div class="plant-cell"><div class="thumb"></div><div>Snake Plant #045124</div></div><div>Mike</div><div><span class="status status-recovering">Recovering</span></div><div><i>Schedule watering</i></div></div>
-              <div class="table-row"><div class="plant-cell"><div class="thumb"></div><div>Fiddle Leaf #078241</div></div><div>Emma</div><div><span class="status status-healthy">Healthy</span></div><div><i>New growth spotted</i></div></div>
+          <div class="panel-right">
+            <div class="panel">
+              <h2 class="panel-title">Plant Monitoring</h2>
+              <div class="table">
+                <div class="table-head">
+                  <div>Plant</div>
+                  <div>Adopter</div>
+                  <div>Status</div>
+                  <div>Care Notes</div>
+                </div>
+                
+                <div class="table-row">
+                  <div class="plant-cell">
+                    <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=200&auto=format&fit=crop')"></div>
+                    <div>Monstera #010214</div>
+                  </div>
+                  <div>Sarah</div>
+                  <div><span class="status status-healthy">Healthy</span></div>
+                  <div class="care-notes">Watered yesterday</div>
+                </div>
+                
+                <div class="table-row">
+                  <div class="plant-cell">
+                    <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?q=80&w=200&auto=format&fit=crop')"></div>
+                    <div>Snake Plant #045124</div>
+                  </div>
+                  <div>Mike</div>
+                  <div><span class="status status-recovering">Recovering</span></div>
+                  <div class="care-notes">Schedule watering</div>
+                </div>
+                
+                <div class="table-row">
+                  <div class="plant-cell">
+                    <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1463154545680-d59320fd685d?q=80&w=200&auto=format&fit=crop')"></div>
+                    <div>Fiddle Leaf #078241</div>
+                  </div>
+                  <div>Emma</div>
+                  <div><span class="status status-healthy">Healthy</span></div>
+                  <div class="care-notes">New growth spotted</div>
+                </div>
+              </div>
+              <a class="more" href="#">See more...</a>
             </div>
-            <a class="more" href="#">See more...</a>
-          </div>
 
-          <div class="panel full">
-            <h2 class="panel-title">Recent Donations</h2>
-            <div class="donations">
-              <div class="donation-item"><div class="donation-left"><div class="donation-icon">💲</div><div class="donation-info"><div class="donation-name">John Smith</div><div class="donation-note">For fertilizers</div></div></div><div class="donation-amount">$130,000</div></div>
-              <div class="donation-item"><div class="donation-left"><div class="donation-icon">💲</div><div class="donation-info"><div class="donation-name">Pedro Pedrín</div><div class="donation-note">For Stickers</div></div></div><div class="donation-amount">$29,000</div></div>
-              <div class="donation-item"><div class="donation-left"><div class="donation-icon">💲</div><div class="donation-info"><div class="donation-name">Plants Lovers Co</div><div class="donation-note">For Water</div></div></div><div class="donation-amount">$1,300,000</div></div>
+            <div class="panel">
+              <h2 class="panel-title">Recent Donations</h2>
+              <div class="donations">
+                <div class="donation-item">
+                  <div class="donation-left">
+                    <div class="donation-icon">
+                      <img src="./assets/2pantalla.png" alt="Dollar" />
+                    </div>
+                    <div class="donation-info">
+                      <div class="donation-name">John Smith</div>
+                      <div class="donation-note">For fertilizers</div>
+                    </div>
+                  </div>
+                  <div class="donation-amount">$130,000</div>
+                </div>
+                
+                <div class="donation-item">
+                  <div class="donation-left">
+                    <div class="donation-icon">
+                      <img src="./assets/2pantalla.png" alt="Dollar" />
+                    </div>
+                    <div class="donation-info">
+                      <div class="donation-name">Pedro Pedrín</div>
+                      <div class="donation-note">For Stickers</div>
+                    </div>
+                  </div>
+                  <div class="donation-amount">$29,000</div>
+                </div>
+                
+                <div class="donation-item">
+                  <div class="donation-left">
+                    <div class="donation-icon">
+                      <img src="./assets/2pantalla.png" alt="Dollar" />
+                    </div>
+                    <div class="donation-info">
+                      <div class="donation-name">Plants Lovers Co</div>
+                      <div class="donation-note">For Water</div>
+                    </div>
+                  </div>
+                  <div class="donation-amount">$1,300,000</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
       </main>
+      </div>
     </div>
 
     <script src="./dashboard.js"></script>
   </body>
-  </html>
-
-
+</html>

@@ -1,4 +1,3 @@
-// Sidebar active state when navigating inside the catalog page
 document.querySelectorAll('.menu-item').forEach((item)=>{
   item.addEventListener('click',()=>{
     document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active'))
@@ -6,7 +5,6 @@ document.querySelectorAll('.menu-item').forEach((item)=>{
   })
 })
 
-// Reset filters (visual only for mock)
 const resetBtn = document.getElementById('resetFilters')
 if(resetBtn){
   resetBtn.addEventListener('click',()=>{
@@ -14,7 +12,6 @@ if(resetBtn){
   })
 }
 
-// Pagination highlight
 document.querySelectorAll('.page-num').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.page-num').forEach(b=>b.classList.remove('active'))
@@ -22,7 +19,6 @@ document.querySelectorAll('.page-num').forEach(btn=>{
   })
 })
 
-// Overlay logic
 const openAddPlant = document.getElementById('openAddPlant')
 const overlay = document.getElementById('addPlantOverlay')
 const closeAddPlant = document.getElementById('closeAddPlant')
@@ -34,7 +30,6 @@ openAddPlant && openAddPlant.addEventListener('click', openOverlay)
 closeAddPlant && closeAddPlant.addEventListener('click', closeOverlay)
 overlay && overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeOverlay() })
 
-// Photo preview inside overlay
 const overlayUpload = document.getElementById('overlayUpload')
 const overlayInput = document.getElementById('overlayPhotoInput')
 const overlayPreview = document.getElementById('overlayPhotoPreview')
@@ -55,7 +50,6 @@ if(overlayUpload && overlayInput && overlayPreview){
   })
 }
 
-// Mock submit
 const overlayPlantForm = document.getElementById('overlayPlantForm')
 if(overlayPlantForm){
   overlayPlantForm.addEventListener('submit',(e)=>{

@@ -6,27 +6,41 @@
     <title>Ecoa Admin · Donation Log</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="../dashboard/assets/Logoecoa.png" alt="Logo" />
+        </div>
+        <div class="brand-name">Ecoa Admin</div>
+      </div>
+      <div class="profile">
+        <div class="avatar"></div>
+      </div>
+    </header>
+    
     <div class="app">
       <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-icon">🌱</div>
-          <div class="brand-name">Ecoa Admin</div>
-        </div>
         <nav class="menu">
           <a class="menu-item" href="../dashboard/index.html">
-            <span class="menu-icon">📊</span>
+            <span class="menu-icon">
+              <img src="./assets/1.2menu.png" alt="Dashboard" />
+            </span>
             <span class="menu-text">Dashboard</span>
           </a>
-          <a class="menu-item" href="../plant%20catalog/index.html">
-            <span class="menu-icon">🪴</span>
+          <a class="menu-item" href="../PlantCatalog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/2menu.png" alt="Plant Catalog" />
+            </span>
             <span class="menu-text">Plant Catalog</span>
           </a>
-          <a class="menu-item active">
-            <span class="menu-icon">💸</span>
+          <a class="menu-item active" href="../donationlog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/3.3menu.png" alt="Donations" />
+            </span>
             <span class="menu-text">Donations</span>
           </a>
         </nav>
@@ -41,10 +55,26 @@
         </header>
 
         <section class="metrics">
-          <div class="metric-card"><div class="metric-title">Total Donations</div><div class="metric-value">$12 mill</div></div>
-          <div class="metric-card"><div class="metric-title">Total Donors</div><div class="metric-value">92</div></div>
-          <div class="metric-card"><div class="metric-title">This Month</div><div class="metric-value">$1 mill</div></div>
-          <div class="metric-card"><div class="metric-title">Avg. Donation</div><div class="metric-value">12</div></div>
+          <div class="metric-card">
+            <div class="metric-title">Total Donations</div>
+            <div class="metric-value">$12 mill</div>
+            <div class="metric-badge"><img src="./assets/1.3pantalla.png" alt="Total Donations" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Total Donors</div>
+            <div class="metric-value">92</div>
+            <div class="metric-badge"><img src="./assets/2.3pantalla.png" alt="Total Donors" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">This Month</div>
+            <div class="metric-value">$1 mill</div>
+            <div class="metric-badge"><img src="./assets/3.3pantalla.png" alt="This Month" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Avg. Donation</div>
+            <div class="metric-value">12</div>
+            <div class="metric-badge"><img src="./assets/4.3pantalla.png" alt="Avg Donation" /></div>
+          </div>
         </section>
 
         <section class="grid">
@@ -73,7 +103,7 @@
                 <div class="cell date">Jun 8, 2024</div>
               </div>
               <div class="trow">
-                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=100&auto=format&fit=crop')"></div> Lisa Thompson</div>
+                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop')"></div> Lisa Thompson</div>
                 <div class="cell amount">$450</div>
                 <div class="cell date">May 5, 2024</div>
               </div>
@@ -89,28 +119,21 @@
           <div class="right-col">
             <div class="panel quick">
               <h2 class="panel-title">Quick Actions</h2>
-              <button class="qa-item"><span class="qa-icon">📤</span><span><div class="qa-title">Export Data</div><div class="qa-sub">Record new donation</div></span></button>
-              <button class="qa-item"><span class="qa-icon">📊</span><span><div class="qa-title">View Analytics</div><div class="qa-sub">Detailed insights</div></span></button>
+              <button class="qa-item"><span class="qa-icon"><img src="./assets/5.3pantalla.png" alt="Export" /></span><span><div class="qa-title">Export Data</div><div class="qa-sub">Record new donation</div></span></button>
+              <button class="qa-item"><span class="qa-icon"><img src="./assets/6.3pantalla.png" alt="Analytics" /></span><span><div class="qa-title">View Analytics</div><div class="qa-sub">Detailed insights</div></span></button>
             </div>
 
             <div class="panel chart">
               <h2 class="panel-title">Donation Distribution</h2>
               <div class="donut">
-                <svg viewBox="0 0 36 36">
-                  <circle class="ring" cx="18" cy="18" r="16" stroke-width="8" fill="transparent"></circle>
-                  <!-- 4 segments: June 40, May 30, April 20, March 10 -->
-                  <circle class="seg seg1" cx="18" cy="18" r="16" stroke-width="8" fill="transparent" stroke-dasharray="40 60" stroke-dashoffset="0"></circle>
-                  <circle class="seg seg2" cx="18" cy="18" r="16" stroke-width="8" fill="transparent" stroke-dasharray="30 70" stroke-dashoffset="-40"></circle>
-                  <circle class="seg seg3" cx="18" cy="18" r="16" stroke-width="8" fill="transparent" stroke-dasharray="20 80" stroke-dashoffset="-70"></circle>
-                  <circle class="seg seg4" cx="18" cy="18" r="16" stroke-width="8" fill="transparent" stroke-dasharray="10 90" stroke-dashoffset="-90"></circle>
-                </svg>
+                <img class="donut-img" src="./assets/grafico circulo.png" alt="Donation Distribution" />
+                <ul class="legend">
+                  <li><span class="dot dot-june"></span> June</li>
+                  <li><span class="dot dot-may"></span> May</li>
+                  <li><span class="dot dot-april"></span> April</li>
+                  <li><span class="dot dot-march"></span> March</li>
+                </ul>
               </div>
-              <ul class="legend">
-                <li><span class="dot dot-june"></span> June</li>
-                <li><span class="dot dot-may"></span> May</li>
-                <li><span class="dot dot-april"></span> April</li>
-                <li><span class="dot dot-march"></span> March</li>
-              </ul>
             </div>
           </div>
         </section>
@@ -119,6 +142,4 @@
 
     <script src="./donationlog.js"></script>
   </body>
-  </html>
-
-
+</html>
