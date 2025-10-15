@@ -1,4 +1,3 @@
-// Sidebar active highlight
 document.querySelectorAll('.menu-item').forEach((item)=>{
   item.addEventListener('click',()=>{
     document.querySelectorAll('.menu-item').forEach(i=>i.classList.remove('active'))
@@ -6,7 +5,6 @@ document.querySelectorAll('.menu-item').forEach((item)=>{
   })
 })
 
-// Pagination highlight
 document.querySelectorAll('.page-num').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.page-num').forEach(b=>b.classList.remove('active'))
@@ -14,7 +12,6 @@ document.querySelectorAll('.page-num').forEach(btn=>{
   })
 })
 
-// Quick actions placeholders
 document.querySelectorAll('.qa-item').forEach(btn=>{
   btn.addEventListener('click',()=>{
     alert('Feature coming soon (demo)')

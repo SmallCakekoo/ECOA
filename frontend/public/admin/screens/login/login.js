@@ -4,27 +4,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('login-form');
 
   if (toggle && password) {
+    const eyeIcon = toggle.querySelector('img');
     toggle.addEventListener('click', () => {
       const showing = password.getAttribute('type') === 'text';
       password.setAttribute('type', showing ? 'password' : 'text');
       toggle.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      
+      // Cambiar la imagen del ojo según el estado
+      if (eyeIcon) {
+        if (showing) {
+          eyeIcon.src = './ assets/Ojocerrado.png'; // Ojo cerrado cuando está oculto
+        } else {
+          eyeIcon.src = './ assets/Ojoabierto.png'; // Ojo abierto cuando está visible
+        }
+      }
     });
   }
 
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const emailValue = /** @type {HTMLInputElement} */(document.getElementById('email')).value.trim();
-      const remember = /** @type {HTMLInputElement} */(document.getElementById('remember')).checked;
-      // Simulación de login; aquí después se integrará con backend
+      const emailValue = document.getElementById('email').value.trim();
+      const remember = document.getElementById('remember').checked;
+      
       console.log('Login attempt', { email: emailValue, remember });
-      form.querySelector('.btn-primary').disabled = true;
+      const btn = form.querySelector('.btn-primary');
+      btn.disabled = true;
       setTimeout(() => {
-        form.querySelector('.btn-primary').disabled = false;
+        btn.disabled = false;
         alert('Inicio de sesión simulado. Integra con backend.');
       }, 600);
     });
   }
 });
-
-
