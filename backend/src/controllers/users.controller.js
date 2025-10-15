@@ -6,7 +6,7 @@ import {
   deleteUser,
   findPlantsByUserId,
 } from "../db/users.db.js";
-import { createUserModel, sanitizeUserUpdate } from "../models/user.model.js";
+import { createUserModel, sanitizeUserUpdate } from "../models/users.model.js";
 
 const handleError = (error, res) => {
   const status = error?.status || 500;

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Your Garden</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <span class="time" id="current-time">12:42</span>
+            <div class="status-icons">
+                <span class="iconify" data-icon="mdi:signal"></span>
+                <span class="iconify" data-icon="mdi:wifi"></span>
+                <span class="iconify" data-icon="mdi:battery"></span>
+            </div>
+        </div>
+        <h1 class="header-title">Welcome to Your Garden</h1>
+    </header>
+
+    <div class="subtitle">Hi, your plants missed you.</div>
+
+    <div class="plants-grid" id="plantsGrid"></div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="goToHome(event)">
+            <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToPlants(event)">
+            <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToShop(event)">
+            <span class="iconify nav-icon" data-icon="tabler:world"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToProfile(event)">
+            <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+        </a>
+    </nav>
+
+    <script src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Connect with Nature</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Belanosima:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="time" id="current-time">12:42</div>
+        <div class="status-icons">
+          <div class="signal"></div>
+          <div class="wifi"></div>
+          <div class="battery"></div>
+        </div>
+      </div>
+
+      <div class="logo-section">
+        <img
+          style="scale: 0.2"
+          src="../../src/assets/images/flower-icon.png"
+          alt=""
+        />
+
+        <div class="plant left-plant">
+          <img
+            style="scale: 0.9"
+            src="../../src/assets/images/plant-menu.png"
+            alt=""
+          />
+          <img
+            style="scale: 0.7; padding-top: 10px;"
+            src="../../src/assets/images/plant-menu.png"
+            alt=""
+          />
+        </div>
+
+        <div class="plant right-plant">
+          <img
+            style="scale: 0.7; transform: scaleX(-1); padding-top: 10px;"
+            src="../../src/assets/images/plant-menu.png"
+            alt=""
+          />
+          <img
+            style="scale: 0.9; transform: scaleX(-1)"
+            src="../../src/assets/images/plant-menu.png"
+            alt=""
+          />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h1 class="title">Connect with nature, one click at a time.</h1>
+
+        <form class="login-form" id="loginForm">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <div class="input-wrapper">
+              <svg
+                class="input-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                  stroke="#7EB234"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <circle
+                  cx="12"
+                  cy="7"
+                  r="4"
+                  stroke="#7EB234"
+                  stroke-width="2"
+                />
+              </svg>
+              <input type="text" id="username" placeholder="Username" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <svg
+                class="input-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  x="3"
+                  y="11"
+                  width="18"
+                  height="11"
+                  rx="2"
+                  ry="2"
+                  stroke="#7EB234"
+                  stroke-width="2"
+                />
+                <path
+                  d="M7 11V7a5 5 0 0 1 10 0v4"
+                  stroke="#7EB234"
+                  stroke-width="2"
+                />
+              </svg>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••••••••"
+              />
+              <button type="button" class="eye-icon" id="togglePassword">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    stroke="#7EB234"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    stroke="#7EB234"
+                    stroke-width="2"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="signup-text">
+            Don't have an account?
+            <a href="#" class="signup-link" id="signupLink">Sign Up</a>
+          </div>
+
+          <button type="submit" class="signin-btn">Sign In</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Portal - Iniciar sesión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <div class="logo-circle" aria-hidden="true">
+          <img src="./ assets/Logoecoa.png" alt="Logo ECOA" class="logo-img" />
+        </div>
+        <h1 class="title">Welcome Back!</h1>
+        <p class="subtitle">Admin Portal</p>
+
+        <form class="form" id="login-form" autocomplete="on">
+          <label class="label" for="email">Email Address</label>
+          <div class="input-wrap">
+            <img src="./ assets/mail.png" alt="Email" class="icon" aria-hidden="true" />
+            <input id="email" name="email" type="email" placeholder="admin@foundation.org" required />
+          </div>
+
+          <label class="label" for="password">Password</label>
+          <div class="input-wrap">
+            <img src="./ assets/candado.png" alt="Password" class="icon" aria-hidden="true" />
+            <input id="password" name="password" type="password" placeholder="••••••••••••••••••••" required />
+            <button class="icon trailing" type="button" id="toggle-password" aria-label="Mostrar contraseña">
+              <img src="./ assets/Ojocerrado.png" alt="Mostrar/Ocultar" class="icon" />
+            </button>
+          </div>
+
+          <div class="row options">
+            <label class="remember">
+              <input type="checkbox" id="remember" />
+              <span>Remember Me</span>
+            </label>
+            <a class="link" href="#" id="forgot-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn-primary">Sign In</button>
+
+          <p class="help">Need help? <a class="link" href="#">Contact Support</a></p>
+        </form>
+      </section>
+
+      <footer class="footer">Environmental Foundation Admin Portal</footer>
+    </main>
+
+    <script src="./login.js" defer></script>
+  </body>
+</html>

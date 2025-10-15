@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecoa Admin · Plant Catalog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="../dashboard/assets/Logoecoa.png" alt="Logo" />
+        </div>
+        <div class="brand-name">Ecoa Admin</div>
+      </div>
+      <div class="profile">
+        <div class="avatar"></div>
+      </div>
+    </header>
+    <div class="app">
+      <aside class="sidebar">
+        <nav class="menu">
+          <a class="menu-item" href="../dashboard/index.html">
+            <span class="menu-icon">
+              <img src="./assets/1.2menu.png" alt="Dashboard" />
+            </span>
+            <span class="menu-text">Dashboard</span>
+          </a>
+          <a class="menu-item active" href="../PlantCatalog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/2.2menu.png" alt="Plant Catalog" />
+            </span>
+            <span class="menu-text">Plant Catalog</span>
+          </a>
+          <a class="menu-item" href="../donationlog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/3menu.png" alt="Donations" />
+            </span>
+            <span class="menu-text">Donations</span>
+          </a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="page-header">
+          <div>
+            <h1 class="title">Plant Catalog</h1>
+            <p class="subtitle">Manage and track your environmental foundation's plant catalog</p>
+          </div>
+          <button class="btn btn-primary" id="openAddPlant">+ Add Plant</button>
+        </header>
+
+        <section class="metrics">
+          <div class="metric-card">
+            <div class="metric-title">Total Plants</div>
+            <div class="metric-value">102,413</div>
+            <div class="metric-badge"><img src="./assets/3pantalla.png" alt="Total Plants" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Healthy</div>
+            <div class="metric-value">92,189</div>
+            <div class="metric-badge"><img src="./assets/1pantalla.png" alt="Healthy" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Recovering</div>
+            <div class="metric-value">10,212</div>
+            <div class="metric-badge"><img src="./assets/3.2pantalla.png" alt="Recovering" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Bad</div>
+            <div class="metric-value bad">12</div>
+            <div class="metric-badge"><img src="./assets/4.2pantalla.png" alt="Bad" /></div>
+          </div>
+        </section>
+
+        <section class="filters">
+          <div class="filter">
+            <label>Status:</label>
+            <select>
+              <option>All Status</option>
+              <option>Healthy</option>
+              <option>Recovering</option>
+              <option>Bad</option>
+            </select>
+          </div>
+          <div class="filter">
+            <label>Species:</label>
+            <select>
+              <option>All Species</option>
+              <option>Monstera</option>
+              <option>Ficus</option>
+              <option>Sansevieria</option>
+            </select>
+          </div>
+          <div class="filter">
+            <label>Adopted:</label>
+            <select>
+              <option>All</option>
+              <option>Adopted</option>
+              <option>Abandoned</option>
+            </select>
+          </div>
+          <button class="link" id="resetFilters">Reset Filters</button>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="table">
+            <div class="thead">
+              <div>Plant</div>
+              <div>Species</div>
+              <div>Date Added</div>
+              <div>Status</div>
+              <div>Actions</div>
+            </div>
+
+            <div class="trow">
+              <div class="cell plant">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1557844352-761f2565b576?q=80&w=200&auto=format&fit=crop" alt="plant"/></div>
+                <div>
+                  <div class="plant-name">Boston Fern</div>
+                  <div class="plant-id">ID: PLT-00001</div>
+                </div>
+              </div>
+              <div class="cell">Nephrolepis exaltata</div>
+              <div class="cell">Jan 15, 2025</div>
+              <div class="cell"><span class="badge healthy">Healthy</span> <span class="badge adopted">Adopted</span></div>
+              <div class="cell actions"><a class="edit" href="#">Edit</a> <a class="delete" href="#">Delete</a></div>
+            </div>
+
+            <div class="trow">
+              <div class="cell plant">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1509423350716-97f9360b4e09?q=80&w=200&auto=format&fit=crop" alt="plant"/></div>
+                <div>
+                  <div class="plant-name">Jade Plant</div>
+                  <div class="plant-id">ID: PLT-00002</div>
+                </div>
+              </div>
+              <div class="cell">Crassula ovata</div>
+              <div class="cell">Jan 12, 2025</div>
+              <div class="cell"><span class="badge recovering">Recovering</span> <span class="badge adopted">Adopted</span></div>
+              <div class="cell actions"><a class="edit" href="#">Edit</a> <a class="delete" href="#">Delete</a></div>
+            </div>
+
+            <div class="trow">
+              <div class="cell plant">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?q=80&w=200&auto=format&fit=crop" alt="plant"/></div>
+                <div>
+                  <div class="plant-name">Peace Lily</div>
+                  <div class="plant-id">ID: PLT-00003</div>
+                </div>
+              </div>
+              <div class="cell">Spathiphyllum</div>
+              <div class="cell">Jan 10, 2025</div>
+              <div class="cell"><span class="badge healthy">Healthy</span> <span class="badge adopted">Adopted</span></div>
+              <div class="cell actions"><a class="edit" href="#">Edit</a> <a class="delete" href="#">Delete</a></div>
+            </div>
+
+            <div class="trow">
+              <div class="cell plant">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1632207691143-643e2a9a9361?q=80&w=200&auto=format&fit=crop" alt="plant"/></div>
+                <div>
+                  <div class="plant-name">Snake Plant</div>
+                  <div class="plant-id">ID: PLT-00004</div>
+                </div>
+              </div>
+              <div class="cell">Sansevieria trifasciata</div>
+              <div class="cell">Jan 8, 2025</div>
+              <div class="cell"><span class="badge healthy">Healthy</span> <span class="badge adopted">Adopted</span></div>
+              <div class="cell actions"><a class="edit" href="#">Edit</a> <a class="delete" href="#">Delete</a></div>
+            </div>
+
+            <div class="trow">
+              <div class="cell plant">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop" alt="plant"/></div>
+                <div>
+                  <div class="plant-name">Rubber Plant</div>
+                  <div class="plant-id">ID: PLT-00005</div>
+                </div>
+              </div>
+              <div class="cell">Ficus elastica</div>
+              <div class="cell">Jan 5, 2025</div>
+              <div class="cell"><span class="badge bad">Bad</span> <span class="badge abandoned">Abandoned</span></div>
+              <div class="cell actions"><a class="edit" href="#">Edit</a> <a class="delete" href="#">Delete</a></div>
+            </div>
+          </div>
+
+          <div class="pagination">
+            <button class="page-btn">Previous</button>
+            <button class="page-num active">1</button>
+            <button class="page-num">2</button>
+            <button class="page-num">3</button>
+            <button class="page-btn">Next</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Register Plant Overlay -->
+    <div class="overlay" id="addPlantOverlay" aria-hidden="true">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">Register New Plant</h2>
+          <button class="close" id="closeAddPlant" aria-label="Close">✕</button>
+        </div>
+        <form class="plant-form" id="overlayPlantForm">
+          <div class="form-group">
+            <label class="label">Plant Photo</label>
+            <label class="upload" id="overlayUpload">
+              <input type="file" id="overlayPhotoInput" accept="image/*" hidden />
+              <div class="upload-inner">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">Upload Photo</div>
+              </div>
+              <img id="overlayPhotoPreview" alt="preview" />
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="overlayPlantId">ID</label>
+            <input id="overlayPlantId" class="input" placeholder="PLT-010214" />
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="overlayPlantName">Name</label>
+            <input id="overlayPlantName" class="input" placeholder="Add a name here" />
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="overlaySpecies">Species</label>
+            <input id="overlaySpecies" class="input" placeholder="e.g., Monstera Deliciosa" />
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="overlayHealth">Health Status</label>
+            <div class="select-wrap">
+              <select id="overlayHealth" class="select">
+                <option>Excellent</option>
+                <option>Healthy</option>
+                <option>Recovering</option>
+                <option>Critical</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Register Plant</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="./plantcatalog.js"></script>
+  </body>
+  </html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecoa Admin · Donation Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="../dashboard/assets/Logoecoa.png" alt="Logo" />
+        </div>
+        <div class="brand-name">Ecoa Admin</div>
+      </div>
+      <div class="profile">
+        <div class="avatar"></div>
+      </div>
+    </header>
+    
+    <div class="app">
+      <aside class="sidebar">
+        <nav class="menu">
+          <a class="menu-item" href="../dashboard/index.html">
+            <span class="menu-icon">
+              <img src="./assets/1.2menu.png" alt="Dashboard" />
+            </span>
+            <span class="menu-text">Dashboard</span>
+          </a>
+          <a class="menu-item" href="../PlantCatalog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/2menu.png" alt="Plant Catalog" />
+            </span>
+            <span class="menu-text">Plant Catalog</span>
+          </a>
+          <a class="menu-item active" href="../donationlog/index.html">
+            <span class="menu-icon">
+              <img src="./assets/3.3menu.png" alt="Donations" />
+            </span>
+            <span class="menu-text">Donations</span>
+          </a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="page-header">
+          <div>
+            <h1 class="title">Donation Log</h1>
+            <p class="subtitle">Track and analyze eco-friendly donations and their impact</p>
+          </div>
+        </header>
+
+        <section class="metrics">
+          <div class="metric-card">
+            <div class="metric-title">Total Donations</div>
+            <div class="metric-value">$12 mill</div>
+            <div class="metric-badge"><img src="./assets/1.3pantalla.png" alt="Total Donations" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Total Donors</div>
+            <div class="metric-value">92</div>
+            <div class="metric-badge"><img src="./assets/2.3pantalla.png" alt="Total Donors" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">This Month</div>
+            <div class="metric-value">$1 mill</div>
+            <div class="metric-badge"><img src="./assets/3.3pantalla.png" alt="This Month" /></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Avg. Donation</div>
+            <div class="metric-value">12</div>
+            <div class="metric-badge"><img src="./assets/4.3pantalla.png" alt="Avg Donation" /></div>
+          </div>
+        </section>
+
+        <section class="grid">
+          <div class="panel recent">
+            <h2 class="panel-title">Recent Donations</h2>
+            <div class="table">
+              <div class="thead"><div>Donor Name</div><div>Amount</div><div>Date Added</div></div>
+              <div class="trow">
+                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=100&auto=format&fit=crop')"></div> Sarah Chen</div>
+                <div class="cell amount">$250</div>
+                <div class="cell date">Jun 15, 2024</div>
+              </div>
+              <div class="trow">
+                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop')"></div> Mike Rodriguez</div>
+                <div class="cell amount">$180</div>
+                <div class="cell date">Jun 12, 2024</div>
+              </div>
+              <div class="trow">
+                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100&auto=format&fit=crop')"></div> Emma Wilson</div>
+                <div class="cell amount">$320</div>
+                <div class="cell date">Jun 10, 2024</div>
+              </div>
+              <div class="trow">
+                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=100&auto=format&fit=crop')"></div> David Park</div>
+                <div class="cell amount">$95</div>
+                <div class="cell date">Jun 8, 2024</div>
+              </div>
+              <div class="trow">
+                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop')"></div> Lisa Thompson</div>
+                <div class="cell amount">$450</div>
+                <div class="cell date">May 5, 2024</div>
+              </div>
+            </div>
+            <div class="pagination">
+              <button class="page-btn">Previous</button>
+              <button class="page-num active">1</button>
+              <button class="page-num">2</button>
+              <button class="page-btn">Next</button>
+            </div>
+          </div>
+
+          <div class="right-col">
+            <div class="panel quick">
+              <h2 class="panel-title">Quick Actions</h2>
+              <button class="qa-item"><span class="qa-icon"><img src="./assets/5.3pantalla.png" alt="Export" /></span><span><div class="qa-title">Export Data</div><div class="qa-sub">Record new donation</div></span></button>
+              <button class="qa-item"><span class="qa-icon"><img src="./assets/6.3pantalla.png" alt="Analytics" /></span><span><div class="qa-title">View Analytics</div><div class="qa-sub">Detailed insights</div></span></button>
+            </div>
+
+            <div class="panel chart">
+              <h2 class="panel-title">Donation Distribution</h2>
+              <div class="donut">
+                <img class="donut-img" src="./assets/grafico circulo.png" alt="Donation Distribution" />
+                <ul class="legend">
+                  <li><span class="dot dot-june"></span> June</li>
+                  <li><span class="dot dot-may"></span> May</li>
+                  <li><span class="dot dot-april"></span> April</li>
+                  <li><span class="dot dot-march"></span> March</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./donationlog.js"></script>
+  </body>
+</html>

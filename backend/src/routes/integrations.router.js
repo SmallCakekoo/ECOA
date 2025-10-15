@@ -1,231 +1,93 @@
 // Rutas para las integraciones externas
-// OpenAI, OpenWeatherMap y Plant.id
+// Perenual API
 
 import express from "express";
-import {
-  generatePlantMessage,
-  generatePlantCareTips,
-  diagnosePlantProblem,
-} from "../services/integrations/openai.service.js";
-import {
-  getWeather,
-  getWeatherForecast,
-  getPlantCareRecommendations,
-} from "../services/integrations/weather.service.js";
+// Eliminadas integraciones de OpenAI/Gemini y Weather
 import {
   searchPlants,
   getPlantDetails,
+  getPlantSpecies,
+  getPlantFamilies,
   identifyPlantWithHealth,
   identifyMultiplePlants,
-  getPlantFamilies,
-} from "../services/integrations/plantid.service.js";
+} from "../services/integrations/perenual.service.js";
 
 const router = express.Router();
 
-// ===== RUTAS DE GEMINI (PLANTAS QUE HABLAN) =====
+// Se eliminaron rutas de Gemini y Weather
 
-// POST /api/integrations/gemini/chat - Hacer que una planta "hable"
-router.post("/gemini/chat", async (req, res) => {
-  try {
-    const { message, plantType = "planta", plantName } = req.body;
+// ===== RUTAS DE PERENUAL API =====
 
-    if (
-      !message ||
-      typeof message !== "string" ||
-      message.trim().length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "El mensaje es requerido",
-      });
-    }
-
-    const result = await generatePlantMessage(message, plantType, plantName);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error("Error en chat de Gemini:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
+// GET /api/integrations/perenual - Información sobre los endpoints de Perenual
+router.get("/perenual", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "API de Perenual disponible",
+    service: "Perenual Plant API",
+    endpoints: {
+      search: {
+        method: "GET",
+        path: "/api/integrations/perenual/search",
+        description: "Buscar plantas por nombre",
+        parameters: {
+          q: "string (requerido) - Término de búsqueda",
+          page: "number (opcional) - Página de resultados (default: 1)",
+          limit: "number (opcional) - Resultados por página (default: 10)",
+        },
+      },
+      details: {
+        method: "GET",
+        path: "/api/integrations/perenual/details/:plantId",
+        description: "Obtener detalles de una planta por ID",
+        parameters: {
+          plantId: "string (requerido) - ID de la planta",
+        },
+      },
+      species: {
+        method: "GET",
+        path: "/api/integrations/perenual/species",
+        description: "Obtener lista de especies de plantas",
+        parameters: {
+          page: "number (opcional) - Página de resultados (default: 1)",
+          limit: "number (opcional) - Resultados por página (default: 10)",
+        },
+      },
+      families: {
+        method: "GET",
+        path: "/api/integrations/perenual/families",
+        description: "Obtener familias de plantas",
+        parameters: {
+          page: "number (opcional) - Página de resultados (default: 1)",
+          limit: "number (opcional) - Resultados por página (default: 10)",
+        },
+      },
+      identify_health: {
+        method: "POST",
+        path: "/api/integrations/perenual/identify-health",
+        description: "Identificar planta con análisis de salud",
+        parameters: {
+          imageBase64: "string (requerido) - Imagen en formato base64",
+          healthDetails: "array (opcional) - Detalles de salud a incluir",
+        },
+      },
+      identify_multiple: {
+        method: "POST",
+        path: "/api/integrations/perenual/identify-multiple",
+        description: "Identificar múltiples plantas",
+        parameters: {
+          imageBase64: "string (requerido) - Imagen en formato base64",
+          maxResults:
+            "number (opcional) - Número máximo de resultados (default: 3)",
+        },
+      },
+    },
+    documentation: "https://perenual.com/docs/plant-open-api",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// POST /api/integrations/gemini/care-tips - Consejos de cuidado desde la perspectiva de la planta
-router.post("/gemini/care-tips", async (req, res) => {
-  try {
-    const { plantType, issue, plantName } = req.body;
-
-    if (
-      !plantType ||
-      typeof plantType !== "string" ||
-      plantType.trim().length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "El tipo de planta es requerido",
-      });
-    }
-
-    const result = await generatePlantCareTips(plantType, issue, plantName);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error("Error en consejos de cuidado:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
-});
-
-// POST /api/integrations/gemini/diagnose - Diagnóstico desde la perspectiva de la planta
-router.post("/gemini/diagnose", async (req, res) => {
-  try {
-    const { symptoms, plantType = "planta", plantName } = req.body;
-
-    if (
-      !symptoms ||
-      typeof symptoms !== "string" ||
-      symptoms.trim().length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Los síntomas son requeridos",
-      });
-    }
-
-    const result = await diagnosePlantProblem(symptoms, plantType, plantName);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error("Error en diagnóstico:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
-});
-
-// ===== RUTAS DE OPEN-METEO =====
-
-// GET /api/integrations/weather/current - Obtener clima actual por coordenadas
-router.get("/weather/current", async (req, res) => {
-  try {
-    const { latitude, longitude, units = "celsius" } = req.query;
-
-    if (!latitude || !longitude) {
-      return res.status(400).json({
-        success: false,
-        message: "Se requieren coordenadas (latitude y longitude)",
-      });
-    }
-
-    const lat = parseFloat(latitude);
-    const lng = parseFloat(longitude);
-
-    if (isNaN(lat) || isNaN(lng)) {
-      return res.status(400).json({
-        success: false,
-        message: "Las coordenadas deben ser números válidos",
-      });
-    }
-
-    const result = await getWeather(lat, lng, units);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error("Error obteniendo clima:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
-});
-
-// GET /api/integrations/weather/forecast - Obtener pronóstico del clima
-router.get("/weather/forecast", async (req, res) => {
-  try {
-    const { city, country, units = "metric" } = req.query;
-
-    if (!city || typeof city !== "string" || city.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El nombre de la ciudad es requerido",
-      });
-    }
-
-    const result = await getWeatherForecast(city, country, units);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error("Error obteniendo pronóstico:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
-});
-
-// GET /api/integrations/weather/recommendations - Recomendaciones de cuidado basadas en clima
-router.get("/weather/recommendations", async (req, res) => {
-  try {
-    const { city, plantType } = req.query;
-
-    if (!city || typeof city !== "string" || city.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "El nombre de la ciudad es requerido",
-      });
-    }
-
-    const result = await getPlantCareRecommendations(city, plantType);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(400).json(result);
-    }
-  } catch (error) {
-    console.error("Error obteniendo recomendaciones:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor",
-      error: error.message,
-    });
-  }
-});
-
-// ===== RUTAS DE TREFL.IO =====
-
-// GET /api/integrations/plantid/families - Obtener familias de plantas
-router.get("/plantid/families", async (req, res) => {
+// GET /api/integrations/perenual/families - Obtener familias de plantas
+router.get("/perenual/families", async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
@@ -246,8 +108,8 @@ router.get("/plantid/families", async (req, res) => {
   }
 });
 
-// GET /api/integrations/trefle/search - Buscar plantas por nombre
-router.get("/trefle/search", async (req, res) => {
+// GET /api/integrations/perenual/search - Buscar plantas por nombre
+router.get("/perenual/search", async (req, res) => {
   try {
     const { q, page = 1, limit = 10 } = req.query;
 
@@ -275,8 +137,8 @@ router.get("/trefle/search", async (req, res) => {
   }
 });
 
-// POST /api/integrations/plantid/identify-health - Identificar planta con análisis de salud
-router.post("/plantid/identify-health", async (req, res) => {
+// POST /api/integrations/perenual/identify-health - Identificar planta con análisis de salud
+router.post("/perenual/identify-health", async (req, res) => {
   try {
     const {
       imageBase64,
@@ -311,8 +173,8 @@ router.post("/plantid/identify-health", async (req, res) => {
   }
 });
 
-// POST /api/integrations/plantid/identify-multiple - Identificar múltiples plantas
-router.post("/plantid/identify-multiple", async (req, res) => {
+// POST /api/integrations/perenual/identify-multiple - Identificar múltiples plantas
+router.post("/perenual/identify-multiple", async (req, res) => {
   try {
     const { imageBase64, maxResults = 3 } = req.body;
 
@@ -344,8 +206,8 @@ router.post("/plantid/identify-multiple", async (req, res) => {
   }
 });
 
-// GET /api/integrations/plantid/details/:plantId - Obtener detalles de una planta
-router.get("/plantid/details/:plantId", async (req, res) => {
+// GET /api/integrations/perenual/details/:plantId - Obtener detalles de una planta
+router.get("/perenual/details/:plantId", async (req, res) => {
   try {
     const { plantId } = req.params;
 
@@ -377,6 +239,28 @@ router.get("/plantid/details/:plantId", async (req, res) => {
   }
 });
 
+// GET /api/integrations/perenual/species - Obtener especies de plantas
+router.get("/perenual/species", async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const result = await getPlantSpecies(parseInt(page), parseInt(limit));
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error("Error obteniendo especies de plantas:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+});
+
 // ===== RUTA DE ESTADO DE INTEGRACIONES =====
 
 // GET /api/integrations/status - Estado de todas las integraciones
@@ -385,32 +269,16 @@ router.get("/status", (req, res) => {
     success: true,
     message: "Estado de las integraciones",
     integrations: {
-      openai: {
-        name: "OpenAI",
+      perenual: {
+        name: "Perenual",
         status: "disponible",
         endpoints: [
-          "POST /api/integrations/openai/chat",
-          "POST /api/integrations/openai/care-tips",
-          "POST /api/integrations/openai/diagnose",
-        ],
-      },
-      weather: {
-        name: "OpenWeatherMap",
-        status: "disponible",
-        endpoints: [
-          "GET /api/integrations/weather/current",
-          "GET /api/integrations/weather/forecast",
-          "GET /api/integrations/weather/recommendations",
-        ],
-      },
-      plantid: {
-        name: "Plant.id",
-        status: "disponible",
-        endpoints: [
-          "POST /api/integrations/plantid/identify",
-          "POST /api/integrations/plantid/identify-health",
-          "POST /api/integrations/plantid/identify-multiple",
-          "GET /api/integrations/plantid/details/:plantId",
+          "GET /api/integrations/perenual/search",
+          "GET /api/integrations/perenual/details/:plantId",
+          "GET /api/integrations/perenual/species",
+          "GET /api/integrations/perenual/families",
+          "POST /api/integrations/perenual/identify-health",
+          "POST /api/integrations/perenual/identify-multiple",
         ],
       },
     },

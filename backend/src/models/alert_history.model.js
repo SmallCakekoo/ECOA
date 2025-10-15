@@ -7,6 +7,7 @@ export default class AlertHistory {
     this.action = data.action; // 'created', 'updated', 'resolved', 'dismissed'
     this.old_status = data.old_status;
     this.new_status = data.new_status;
+
     this.notes = data.notes;
     this.created_at = data.created_at;
   }
