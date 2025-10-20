@@ -7,13 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="topbar">
       <div class="brand">
         <div class="brand-icon">
-          <img src="../dashboard/assets/Logoecoa.png" alt="Logo" />
+          <img src="../../../client/src/assets/images/flower-icon.png" alt="Logo" />
         </div>
         <div class="brand-name">Ecoa Admin</div>
       </div>
@@ -27,19 +28,19 @@
         <nav class="menu">
           <a class="menu-item" href="../dashboard/index.html">
             <span class="menu-icon">
-              <img src="./assets/1.2menu.png" alt="Dashboard" />
+              <span class="iconify" data-icon="octicon-graph-16" style="font-size: 20px;"></span>
             </span>
             <span class="menu-text">Dashboard</span>
           </a>
-          <a class="menu-item" href="../PlantCatalog/index.html">
+          <a class="menu-item" href="../plantcatalog/index.html">
             <span class="menu-icon">
-              <img src="./assets/2menu.png" alt="Plant Catalog" />
+              <span class="iconify" data-icon="bxs:leaf" style="font-size: 20px;"></span>
             </span>
             <span class="menu-text">Plant Catalog</span>
           </a>
           <a class="menu-item active" href="../donationlog/index.html">
             <span class="menu-icon">
-              <img src="./assets/3.3menu.png" alt="Donations" />
+              <span class="iconify" data-icon="material-symbols:attach-money-rounded" style="font-size: 24px;"></span>
             </span>
             <span class="menu-text">Donations</span>
           </a>
@@ -58,22 +59,30 @@
           <div class="metric-card">
             <div class="metric-title">Total Donations</div>
             <div class="metric-value">$12 mill</div>
-            <div class="metric-badge"><img src="./assets/1.3pantalla.png" alt="Total Donations" /></div>
+            <div class="metric-badge">
+              <span class="iconify" data-icon="fa-solid:hand-holding-heart" style="font-size: 24px; color: #1D2607;"></span>
+            </div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Total Donors</div>
             <div class="metric-value">92</div>
-            <div class="metric-badge"><img src="./assets/2.3pantalla.png" alt="Total Donors" /></div>
+            <div class="metric-badge">
+              <span class="iconify" data-icon="fa:users" style="font-size: 24px; color: #1D2607;"></span>
+            </div>
           </div>
           <div class="metric-card">
             <div class="metric-title">This Month</div>
             <div class="metric-value">$1 mill</div>
-            <div class="metric-badge"><img src="./assets/3.3pantalla.png" alt="This Month" /></div>
+            <div class="metric-badge">
+              <span class="iconify" data-icon="ri:calendar-fill" style="font-size: 24px; color: #1D2607;"></span>
+            </div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Avg. Donation</div>
             <div class="metric-value">12</div>
-            <div class="metric-badge"><img src="./assets/4.3pantalla.png" alt="Avg Donation" /></div>
+            <div class="metric-badge">
+              <span class="iconify" data-icon="octicon-graph-16" style="font-size: 24px; color: #1D2607;"></span>
+            </div>
           </div>
         </section>
 
@@ -119,14 +128,30 @@
           <div class="right-col">
             <div class="panel quick">
               <h2 class="panel-title">Quick Actions</h2>
-              <button class="qa-item"><span class="qa-icon"><img src="./assets/5.3pantalla.png" alt="Export" /></span><span><div class="qa-title">Export Data</div><div class="qa-sub">Record new donation</div></span></button>
-              <button class="qa-item"><span class="qa-icon"><img src="./assets/6.3pantalla.png" alt="Analytics" /></span><span><div class="qa-title">View Analytics</div><div class="qa-sub">Detailed insights</div></span></button>
+              <button class="qa-item">
+                <span class="qa-icon">
+                  <span class="iconify" data-icon="fa6-solid:file-export" style="font-size: 22px; color: #1D2607;"></span>
+                </span>
+                <span>
+                  <div class="qa-title">Export Data</div>
+                  <div class="qa-sub">Record new donation</div>
+                </span>
+              </button>
+              <button class="qa-item">
+                <span class="qa-icon">
+                  <span class="iconify" data-icon="fa:bar-chart" style="font-size: 22px; color: #1D2607;"></span>
+                </span>
+                <span>
+                  <div class="qa-title">View Analytics</div>
+                  <div class="qa-sub">Detailed insights</div>
+                </span>
+              </button>
             </div>
 
             <div class="panel chart">
               <h2 class="panel-title">Donation Distribution</h2>
               <div class="donut">
-                <img class="donut-img" src="./assets/grafico circulo.png" alt="Donation Distribution" />
+                <img class="donut-img" src="../../src/grafico circulo.png" alt="Donation Distribution" />
                 <ul class="legend">
                   <li><span class="dot dot-june"></span> June</li>
                   <li><span class="dot dot-may"></span> May</li>

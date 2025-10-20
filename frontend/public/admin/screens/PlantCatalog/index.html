@@ -7,13 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="topbar">
       <div class="brand">
         <div class="brand-icon">
-          <img src="../dashboard/assets/Logoecoa.png" alt="Logo" />
+          <img src="../../../client/src/assets/images/flower-icon.png" alt="Logo" />
         </div>
         <div class="brand-name">Ecoa Admin</div>
       </div>
@@ -26,19 +27,19 @@
         <nav class="menu">
           <a class="menu-item" href="../dashboard/index.html">
             <span class="menu-icon">
-              <img src="./assets/1.2menu.png" alt="Dashboard" />
+              <span class="iconify" data-icon="octicon-graph-16" style="font-size: 20px;"></span>
             </span>
             <span class="menu-text">Dashboard</span>
           </a>
-          <a class="menu-item active" href="../PlantCatalog/index.html">
+          <a class="menu-item active" href="../plantcatalog/index.html">
             <span class="menu-icon">
-              <img src="./assets/2.2menu.png" alt="Plant Catalog" />
+              <span class="iconify" data-icon="bxs-leaf" style="font-size: 20px;"></span>
             </span>
             <span class="menu-text">Plant Catalog</span>
           </a>
           <a class="menu-item" href="../donationlog/index.html">
             <span class="menu-icon">
-              <img src="./assets/3menu.png" alt="Donations" />
+              <span class="iconify" data-icon="material-symbols:attach-money-rounded" style="font-size: 24px;"></span>
             </span>
             <span class="menu-text">Donations</span>
           </a>
@@ -53,27 +54,27 @@
           </div>
           <button class="btn btn-primary" id="openAddPlant">+ Add Plant</button>
         </header>
-
         <section class="metrics">
           <div class="metric-card">
             <div class="metric-title">Total Plants</div>
             <div class="metric-value">102,413</div>
-            <div class="metric-badge"><img src="./assets/3pantalla.png" alt="Total Plants" /></div>
+            <div class="metric-badge"><span class="iconify" data-icon="fa6-solid:seedling" style="font-size: 24px;"></span></div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Healthy</div>
             <div class="metric-value">92,189</div>
-            <div class="metric-badge"><img src="./assets/1pantalla.png" alt="Healthy" /></div>
+            <div class="metric-badge"><span class="iconify" data-icon="mdi:heart" style="font-size: 24px;"></span></div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Recovering</div>
             <div class="metric-value">10,212</div>
-            <div class="metric-badge"><img src="./assets/3.2pantalla.png" alt="Recovering" /></div>
+            <div class="metric-badge"><span class="iconify" data-icon="fa6-solid:bandage" style="font-size: 24px;"></span></div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Bad</div>
             <div class="metric-value bad">12</div>
-            <div class="metric-badge"><img src="./assets/4.2pantalla.png" alt="Bad" /></div>
+            <div class="metric-badge"><span class="iconify" data-icon="material-symbols-light:help-outline" style="font-size: 24px;"></span>
+              </div>
           </div>
         </section>
 
@@ -107,7 +108,7 @@
           <button class="link" id="resetFilters">Reset Filters</button>
         </section>
 
-        <section class="panel table-panel">
+        <section class="catalog">
           <div class="table">
             <div class="thead">
               <div>Plant</div>
@@ -212,7 +213,7 @@
             <label class="upload" id="overlayUpload">
               <input type="file" id="overlayPhotoInput" accept="image/*" hidden />
               <div class="upload-inner">
-                <div class="upload-icon">📷</div>
+                <span class="iconify" data-icon="typcn:camera" style="font-size: 24px; color: #1D2607;"></span>
                 <div class="upload-text">Upload Photo</div>
               </div>
               <img id="overlayPhotoPreview" alt="preview" />
@@ -253,4 +254,4 @@
 
     <script src="./plantcatalog.js"></script>
   </body>
-  </html>
+</html>

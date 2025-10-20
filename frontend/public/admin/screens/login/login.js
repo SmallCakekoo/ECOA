@@ -1,39 +1,55 @@
+// Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.getElementById('toggle-password');
-  const password = document.getElementById('password');
-  const form = document.getElementById('login-form');
+  // Toggle password visibility
+  const togglePassword = document.getElementById('toggle-password');
+  const passwordInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
 
-  if (toggle && password) {
-    const eyeIcon = toggle.querySelector('img');
-    toggle.addEventListener('click', () => {
-      const showing = password.getAttribute('type') === 'text';
-      password.setAttribute('type', showing ? 'password' : 'text');
-      toggle.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+  if (togglePassword && passwordInput && eyeIcon) {
+    togglePassword.addEventListener('click', function(e) {
+      e.preventDefault();
       
-      // Cambiar la imagen del ojo según el estado
-      if (eyeIcon) {
-        if (showing) {
-          eyeIcon.src = './ assets/Ojocerrado.png'; // Ojo cerrado cuando está oculto
-        } else {
-          eyeIcon.src = './ assets/Ojoabierto.png'; // Ojo abierto cuando está visible
-        }
+      // Cambiar el tipo de input y el icono
+      if (passwordInput.type === 'password') {
+        // Mostrar contraseña
+        passwordInput.type = 'text';
+        eyeIcon.setAttribute('data-icon', 'mdi:eye-outline');
+        console.log('Contraseña visible');
+      } else {
+        // Ocultar contraseña
+        passwordInput.type = 'password';
+        eyeIcon.setAttribute('data-icon', 'mdi:eye-off-outline');
+        console.log('Contraseña oculta');
       }
     });
   }
 
-  if (form) {
-    form.addEventListener('submit', (e) => {
+  // Form submission
+  const loginForm = document.getElementById('login-form');
+  
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const emailValue = document.getElementById('email').value.trim();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
       
-      console.log('Login attempt', { email: emailValue, remember });
-      const btn = form.querySelector('.btn-primary');
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.disabled = false;
-        alert('Inicio de sesión simulado. Integra con backend.');
-      }, 600);
+      // Here you would typically send a request to your backend
+      console.log('Login attempt:', { email, password, remember });
+      
+      // Redirect to dashboard (for demo purposes)
+      window.location.href = '../dashboard/index.html';
+    });
+  }
+
+  // Forgot password link
+  const forgotLink = document.getElementById('forgot-link');
+  
+  if (forgotLink) {
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Password reset functionality would be implemented here.');
     });
   }
 });

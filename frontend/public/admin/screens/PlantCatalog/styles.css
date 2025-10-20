@@ -298,7 +298,7 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.panel {
+.catalog {
   background: var(--card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -433,14 +433,6 @@ body {
   border: none;
 }
 
-.table-panel {
-  position: relative;
-}
-
-.table-panel .floating-icon {
-  display: none;
-}
-
 .overlay {
   position: fixed;
   inset: 0;
@@ -463,6 +455,7 @@ body {
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0,0,0,.2);
   overflow: hidden;
+  margin-top: 40px;
 }
 
 .modal-header {
@@ -476,6 +469,7 @@ body {
 .modal-title {
   margin: 0;
   color: #3b6b33;
+  font-family: 'Belanosima', sans-serif;
 }
 
 .close {
@@ -502,6 +496,7 @@ body {
 .label {
   font-weight: 600;
   color: #4a6a45;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .input {
@@ -510,6 +505,7 @@ body {
   border-radius: 10px;
   padding: 0 12px;
   outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .select-wrap {
@@ -526,6 +522,8 @@ body {
   border-radius: 10px;
   padding: 0 38px 0 12px;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2365b845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 12px center/16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none;
 }
 
 .upload {
@@ -551,6 +549,11 @@ body {
   font-size: 26px;
 }
 
+.upload-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #4a6a45;
+}
+
 .upload img {
   position: absolute;
   inset: 0;
@@ -560,3 +563,36 @@ body {
   display: none;
 }
 
+/* Colores específicos para los iconos de las métricas */
+.metrics .metric-card:nth-child(1) .metric-badge .iconify {
+  color: #1D2607;
+}
+
+.metrics .metric-card:nth-child(2) .metric-badge .iconify {
+  color: #1D2607;
+}
+
+.metrics .metric-card:nth-child(3) .metric-badge .iconify {
+  color: #5C4300;
+}
+
+.metrics .metric-card:nth-child(4) .metric-badge .iconify {
+  color: #A70000;
+}
+
+/* Estilos para iconos de Iconify en el menú del sidebar */
+.menu-icon .iconify {
+  color: white;
+}
+
+.menu-icon .iconify svg {
+  fill: white;
+}
+
+.menu-item.active .menu-icon .iconify {
+  color: #7EB234;
+}
+
+.menu-item.active .menu-icon .iconify svg {
+  fill: #7EB234;
+}
