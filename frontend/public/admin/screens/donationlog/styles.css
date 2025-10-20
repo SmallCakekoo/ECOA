@@ -319,9 +319,9 @@ body {
 }
 
 .qa-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   background: #7EB234;
   display: grid;
   place-items: center;
@@ -439,3 +439,24 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* Estilos para iconos de Iconify en el menú del sidebar */
+.menu-icon .iconify {
+  color: white;
+}
+
+.menu-icon .iconify svg {
+  fill: white;
+}
+
+.menu-item.active .menu-icon .iconify {
+  color: #7EB234;
+}
+
+.menu-item.active .menu-icon .iconify svg {
+  fill: #7EB234;
+}
+
+/* Colores específicos para los iconos de las métricas */
+.metric-badge .iconify {
+  color: #1D2607;
+}

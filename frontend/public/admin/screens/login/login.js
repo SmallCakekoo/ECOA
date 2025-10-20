@@ -1,39 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.getElementById('toggle-password');
-  const password = document.getElementById('password');
-  const form = document.getElementById('login-form');
+ 
+  const togglePassword = document.getElementById('toggle-password');
+  const passwordInput = document.getElementById('password');
+  const eyeIcon = document.getElementById('eye-icon');
 
-  if (toggle && password) {
-    const eyeIcon = toggle.querySelector('img');
-    toggle.addEventListener('click', () => {
-      const showing = password.getAttribute('type') === 'text';
-      password.setAttribute('type', showing ? 'password' : 'text');
-      toggle.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+  if (togglePassword && passwordInput && eyeIcon) {
+    togglePassword.addEventListener('click', function(e) {
+      e.preventDefault();
       
-      // Cambiar la imagen del ojo según el estado
-      if (eyeIcon) {
-        if (showing) {
-          eyeIcon.src = './ assets/Ojocerrado.png'; // Ojo cerrado cuando está oculto
-        } else {
-          eyeIcon.src = './ assets/Ojoabierto.png'; // Ojo abierto cuando está visible
-        }
+      
+      if (passwordInput.type === 'password') {
+        // Mostrar contraseña
+        passwordInput.type = 'text';
+        eyeIcon.setAttribute('data-icon', 'mdi:eye-outline');
+        console.log('Contraseña visible');
+      } else {
+        // Ocultar contraseña
+        passwordInput.type = 'password';
+        eyeIcon.setAttribute('data-icon', 'mdi:eye-off-outline');
+        console.log('Contraseña oculta');
       }
     });
   }
 
-  if (form) {
-    form.addEventListener('submit', (e) => {
+ 
+  const loginForm = document.getElementById('login-form');
+  
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const emailValue = document.getElementById('email').value.trim();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
       
-      console.log('Login attempt', { email: emailValue, remember });
-      const btn = form.querySelector('.btn-primary');
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.disabled = false;
-        alert('Inicio de sesión simulado. Integra con backend.');
-      }, 600);
+      
+      console.log('Login attempt:', { email, password, remember });
+      
+      
+      window.location.href = '../dashboard/index.html';
+    });
+  }
+
+ 
+  const forgotLink = document.getElementById('forgot-link');
+  
+  if (forgotLink) {
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('Password reset functionality would be implemented here.');
     });
   }
 });
