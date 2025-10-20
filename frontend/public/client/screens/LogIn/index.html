@@ -10,34 +10,37 @@
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Belanosima:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <div class="time" id="current-time">12:42</div>
-        <div class="status-icons">
-          <div class="signal"></div>
-          <div class="wifi"></div>
-          <div class="battery"></div>
+        <div class="header-top">
+          <span class="time" id="current-time">12:42</span>
+          <div class="status-icons">
+            <span class="iconify" data-icon="mdi:signal"></span>
+            <span class="iconify" data-icon="mdi:wifi"></span>
+            <span class="iconify" data-icon="mdi:battery"></span>
+          </div>
         </div>
       </div>
 
       <div class="logo-section">
         <img
-          style="scale: 0.2"
+          class="flower-logo"
           src="../../src/assets/images/flower-icon.png"
-          alt=""
+          alt="Flower Logo"
         />
 
         <div class="plant left-plant">
           <img
-            style="scale: 0.9"
+            class="plant-img plant-img-large"
             src="../../src/assets/images/plant-menu.png"
             alt=""
           />
           <img
-            style="scale: 0.7; padding-top: 10px;"
+            class="plant-img plant-img-small"
             src="../../src/assets/images/plant-menu.png"
             alt=""
           />
@@ -45,12 +48,12 @@
 
         <div class="plant right-plant">
           <img
-            style="scale: 0.7; transform: scaleX(-1); padding-top: 10px;"
+            class="plant-img plant-img-small plant-img-right"
             src="../../src/assets/images/plant-menu.png"
             alt=""
           />
           <img
-            style="scale: 0.9; transform: scaleX(-1)"
+            class="plant-img plant-img-large plant-img-right"
             src="../../src/assets/images/plant-menu.png"
             alt=""
           />
@@ -64,26 +67,9 @@
           <div class="input-group">
             <label for="username">Username</label>
             <div class="input-wrapper">
-              <svg
-                class="input-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                  stroke="#7EB234"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <circle
-                  cx="12"
-                  cy="7"
-                  r="4"
-                  stroke="#7EB234"
-                  stroke-width="2"
-                />
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#7EB234" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="7" r="4" stroke="#7EB234" stroke-width="2"/>
               </svg>
               <input type="text" id="username" placeholder="Username" />
             </div>
@@ -92,27 +78,9 @@
           <div class="input-group">
             <label for="password">Password</label>
             <div class="input-wrapper">
-              <svg
-                class="input-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect
-                  x="3"
-                  y="11"
-                  width="18"
-                  height="11"
-                  rx="2"
-                  ry="2"
-                  stroke="#7EB234"
-                  stroke-width="2"
-                />
-                <path
-                  d="M7 11V7a5 5 0 0 1 10 0v4"
-                  stroke="#7EB234"
-                  stroke-width="2"
-                />
+              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="#7EB234" stroke-width="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#7EB234" stroke-width="2"/>
               </svg>
               <input
                 type="password"
@@ -120,23 +88,9 @@
                 placeholder="••••••••••••••"
               />
               <button type="button" class="eye-icon" id="togglePassword">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                    stroke="#7EB234"
-                    stroke-width="2"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
-                    stroke="#7EB234"
-                    stroke-width="2"
-                  />
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#7EB234" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3" stroke="#7EB234" stroke-width="2"/>
                 </svg>
               </button>
             </div>

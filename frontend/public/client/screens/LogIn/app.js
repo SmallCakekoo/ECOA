@@ -1,11 +1,8 @@
-
 function updateTime() {
   const now = new Date();
   const hours = now.getHours().toString().padStart(2, "0");
   const minutes = now.getMinutes().toString().padStart(2, "0");
-  document.getElementById(
-    "current-time"
-  ).textContent = `${hours}:${minutes}`;
+  document.getElementById("current-time").textContent = `${hours}:${minutes}`;
 }
 updateTime();
 setInterval(updateTime, 60000);
@@ -15,32 +12,38 @@ const togglePassword = document.getElementById("togglePassword");
 const passwordInput = document.getElementById("password");
 
 togglePassword.addEventListener("click", () => {
-  const type =
-    passwordInput.getAttribute("type") === "password"
-      ? "text"
-      : "password";
+  const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
   passwordInput.setAttribute("type", type);
 });
 
-// Handle form submission
+// Handle form submission - Sign In
 const loginForm = document.getElementById("loginForm");
 loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
+  
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
-
-  console.log("Login attempt:", { username, password });
-  alert(`Login attempt with username: ${username}`);
-
-  // Aquí va la lógica de autenticación
+  
+  // Obtener usuarios registrados
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  
+  // Verificar si el usuario existe
+  const userExists = users.find(
+    (user) => user.username === username && user.password === password
+  );
+  
+  if (userExists) {
+    // Si el usuario existe, redirigir a home
+    window.location.href = "../Home/index.html";
+  } else {
+    // Si no existe, mostrar mensaje de error
+    alert("Usuario o contraseña incorrectos");
+  }
 });
 
-// Handle signup link
+// Handle signup link - Sign Up
 const signupLink = document.getElementById("signupLink");
 signupLink.addEventListener("click", (e) => {
   e.preventDefault();
-  console.log("Navigate to signup");
-  alert("Redirecting to signup page...");
-
-  // Aquí la lógica de navegación
+  window.location.href = "../SingUp/index.html";
 });
