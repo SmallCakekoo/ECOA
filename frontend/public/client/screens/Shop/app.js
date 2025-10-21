@@ -23,25 +23,20 @@ function goBack() {
 // Funciones de navegación
 function goToHome(event) {
     event.preventDefault();
-    window.location.href = 'index.html';
+    window.location.href = '../Home/index.html';
 }
 
 function goToPlants(event) {
     event.preventDefault();
-    window.location.href = 'plants.html';
-}
-
-function goToShop(event) {
-    event.preventDefault();
-    window.location.href = 'shop.html';
+    window.location.href = '../VirtualPet/index.html';
 }
 
 function goToProfile(event) {
     event.preventDefault();
-    window.location.href = 'profile.html';
+    console.log('Profile no disponible por ahora');
 }
 
-// Función opcional para agregar productos (si quieres usarla en el futuro)
-function addProduct(productName) {
-    alert('Producto agregado: ' + productName);
+// Función para ir a Shop Feedback Success
+function goToShopFeedback() {
+    window.location.href = '../ShopFeedbackSuccess/index.html';
 }
