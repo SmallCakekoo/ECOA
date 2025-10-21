@@ -35,8 +35,7 @@ function goToPlants(event) {
 
 function goToProfile(event) {
     event.preventDefault();
-    console.log('Profile no disponible por ahora');
-    // Esta función no hace nada por ahora
+    window.location.href = '../Profile/index.html';
 }
 
 // Funciones para los botones de accesorios

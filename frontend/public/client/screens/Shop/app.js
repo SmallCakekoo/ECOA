@@ -33,7 +33,7 @@ function goToPlants(event) {
 
 function goToProfile(event) {
     event.preventDefault();
-    console.log('Profile no disponible por ahora');
+    window.location.href = '../Profile/index.html';
 }
 
 // Función para ir a Shop Feedback Success

@@ -35,14 +35,14 @@ function goToProfile(event) {
   window.location.href = '../../Profile/index.html';
 }
 
-// Función para volver atrás - va a Adopt
+// Función para volver atrás - va a la página anterior
 function goBack() {
-  console.log('Volviendo a Adopt...');
-  window.location.href = '../../Adopt/index.html';
+  console.log('Volviendo atrás...');
+  window.history.back();
 }
 
-// Función para ir a Shop
-function goToShop() {
-  console.log('Volviendo a Shop...');
-  window.location.href = '../../Shop/index.html';
+// Función para ir a Garden
+function goToGarden() {
+  console.log('Yendo a Garden...');
+  window.location.href = '../../Garden/index.html';
 }

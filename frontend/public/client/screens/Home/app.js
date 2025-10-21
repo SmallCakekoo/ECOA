@@ -29,9 +29,8 @@ function goToPlants(event) {
 }
 
 function goToProfile(event) {
-  event.preventDefault();
-  console.log('Profile no disponible por ahora');
-  // Esta función no hace nada por ahora
+    event.preventDefault();
+    window.location.href = '../Profile/index.html';
 }
 
 // Adopt button - Redirige a página de adopción

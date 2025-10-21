@@ -30,9 +30,8 @@ function goToPlants(event) {
 }
 
 function goToProfile(event) {
-  event.preventDefault();
-  console.log('Navegando a Profile');
-  window.location.href = '../Profile/index.html';
+    event.preventDefault();
+    window.location.href = '../Profile/index.html';
 }
 
 // Función para volver atrás - va a Shop
@@ -41,13 +40,13 @@ function goBack() {
   window.location.href = '../Shop/index.html';
 }
 
-// Función para seleccionar una planta
+// Función para ver detalles de una planta (click en tarjeta)
 function selectPlant(id) {
-  console.log('Planta seleccionada:', id);
-  // Aquí puedes agregar lógica adicional si necesitas
+  console.log('Ver detalles de planta:', id);
+  window.location.href = '../AdoptDetail/index.html';
 }
 
-// Función para adoptar una planta
+// Función para adoptar una planta (click en botón +)
 function adoptPlant(id) {
   console.log('Adoptando planta:', id);
   

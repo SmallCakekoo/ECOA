@@ -18,7 +18,7 @@ setInterval(updateTime, 60000);
 // Funciones de navegación
 function goToHome(event) {
     event.preventDefault();
-    window.location.href = '../Home/index.html';
+    window.history.back();
 }
 
 function goToPlants(event) {
@@ -28,8 +28,7 @@ function goToPlants(event) {
 
 function goToProfile(event) {
     event.preventDefault();
-    console.log('Profile no disponible por ahora');
-    // Esta función no hace nada por ahora
+    window.location.href = '../Profile/index.html';
 }
 
 // Función para ir a la página de éxito de adopción
