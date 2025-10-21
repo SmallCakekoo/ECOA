@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - ECOA</title>
+    <link rel="stylesheet" href="./styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="time" id="current-time">12:42</div>
+            <div class="status-icons">
+                <span class="iconify" data-icon="mdi:signal-cellular-3"></span>
+                <span class="iconify" data-icon="mdi:wifi"></span>
+                <span class="iconify" data-icon="mdi:battery"></span>
+            </div>
+        </div>
+        <div class="header-title-row">
+            <button class="back-button" onclick="goToHome()">
+                <span class="iconify" data-icon="mdi:chevron-left"></span>
+            </button>
+            <h1 class="header-title">Profile</h1>
+        </div>
+    </header>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <!-- User Info Header -->
+        <div class="profile-header">
+            <img src="../../src/assets/images/Profile.png" alt="Profile" class="profile-image" id="profileImage">
+            <div class="profile-info">
+                <h2 class="profile-name" id="userName">Julianana :)</h2>
+                <div class="profile-stats">
+                    <div class="plants-count">
+                        <span class="iconify" data-icon="mdi:sprout"></span>
+                        <span id="plantsCount">132,643</span> Plants
+                    </div>
+                    <span class="iconify heart-icon" data-icon="mdi:heart"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="settings-section">
+            <h3 class="section-title">General Settings</h3>
+            <div class="settings-list">
+                <div class="setting-item" onclick="goToChangePassword()">
+                    <div class="setting-content">
+                        <div class="setting-icon">
+                            <span class="iconify" data-icon="mdi:lock-outline"></span>
+                        </div>
+                        <div class="setting-text">
+                            <div class="setting-title">Change Password</div>
+                            <div class="setting-description">Update your password</div>
+                        </div>
+                    </div>
+                    <span class="iconify setting-arrow" data-icon="mdi:chevron-right"></span>
+                </div>
+
+                <div class="setting-item" onclick="goToEditProfile()">
+                    <div class="setting-content">
+                        <div class="setting-icon">
+                            <span class="iconify" data-icon="mdi:account-edit-outline"></span>
+                        </div>
+                        <div class="setting-text">
+                            <div class="setting-title">Edit Profile</div>
+                            <div class="setting-description">Change your name and photo</div>
+                        </div>
+                    </div>
+                    <span class="iconify setting-arrow" data-icon="mdi:chevron-right"></span>
+                </div>
+
+                <div class="setting-item" onclick="goToNotifications()">
+                    <div class="setting-content">
+                        <div class="setting-icon">
+                            <span class="iconify" data-icon="mdi:bell-outline"></span>
+                        </div>
+                        <div class="setting-text">
+                            <div class="setting-title">Notifications</div>
+                            <div class="setting-description">Manage your notifications</div>
+                        </div>
+                    </div>
+                    <span class="iconify setting-arrow" data-icon="mdi:chevron-right"></span>
+                </div>
+
+                <div class="setting-item" onclick="goToPrivacy()">
+                    <div class="setting-content">
+                        <div class="setting-icon">
+                            <span class="iconify" data-icon="mdi:shield-outline"></span>
+                        </div>
+                        <div class="setting-text">
+                            <div class="setting-title">Privacy & Security</div>
+                            <div class="setting-description">Control your privacy settings</div>
+                        </div>
+                    </div>
+                    <span class="iconify setting-arrow" data-icon="mdi:chevron-right"></span>
+                </div>
+
+                <div class="setting-item" onclick="goToAbout()">
+                    <div class="setting-content">
+                        <div class="setting-icon">
+                            <span class="iconify" data-icon="mdi:information-outline"></span>
+                        </div>
+                        <div class="setting-text">
+                            <div class="setting-title">About ECOA</div>
+                            <div class="setting-description">App version and information</div>
+                        </div>
+                    </div>
+                    <span class="iconify setting-arrow" data-icon="mdi:chevron-right"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="logout-section">
+        <button class="logout-button" onclick="handleLogout()">
+            <span class="iconify" data-icon="mdi:logout"></span>
+            Log Out
+        </button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item" onclick="goToHome(event)">
+            <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToPlants(event)">
+            <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+        </a>
+        <a href="#" class="nav-item active" onclick="goToProfile(event)">
+            <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+        </a>
+    </nav>
+
+    <script src="./app.js"></script>
+</body>
+</html>
