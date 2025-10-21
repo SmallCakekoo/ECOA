@@ -1,234 +1,255 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap');
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #ffffff;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #ffffff;
+  overflow-x: hidden;
+  min-height: 100vh;
+  padding-bottom: 100px;
 }
 
-/* Header */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Header - Exactamente igual a Adopt */
 .header {
-    background-color: #7EB234;
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #7EB234;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .time {
-    font-size: 16px;
-    font-weight: 600;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .status-icons {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .status-icons .iconify {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .back-button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 500;
-    padding: 5px 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 500;
+  padding: 5px 0;
 }
 
 .back-button .iconify {
-    font-size: 28px;
+  font-size: 28px;
 }
 
 /* Content */
 .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    background-color: #ffffff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #ffffff;
+  min-height: calc(100vh - 200px);
 }
 
 h1 {
-    font-size: 40px;
-    color: #000000;
-    margin-bottom: 30px;
-    font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 40px;
+  color: #000000;
+  margin-bottom: 30px;
+  font-weight: 700;
 }
 
 .icon-container {
-    width: 140px;
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 30px 0 40px 0;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px 0 40px 0;
 }
 
 .check-icon {
-    font-size: 140px;
-    color: #000000;
+  font-size: 140px;
+  color: black;
 }
 
 .message {
-    text-align: center;
-    color: #333333;
-    font-size: 16px;
-    line-height: 1.6;
-    max-width: 320px;
-    margin-bottom: 40px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 400;
+  text-align: center;
+  color: #333333;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 320px;
+  margin-bottom: 40px;
+  font-weight: 400;
 }
 
 .back-link {
-    background-color: #F5F5F5;
-    color: #7EB234;
-    padding: 14px 50px;
-    border: none;
-    border-radius: 30px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all 0.3s;
-    cursor: pointer;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background-color: #F5F5F5;
+  color: #7EB234;
+  padding: 14px 50px;
+  border: none;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .back-link:hover {
-    background-color: #7EB234;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(126,178,52,0.3);
+  background-color: #7EB234;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(126,178,52,0.3);
 }
 
-/* Bottom Navigation */
+/* Bottom Navigation - Exactamente igual a Adopt */
 .bottom-nav {
-    background-color: #7EB234;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50px;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
-    margin: 20px auto 20px auto;
-    width: 90%;
-    max-width: 400px;
-    height: 70px;
-    position: relative;
+  background-color: #7EB234;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50px;
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
+  margin: 20px auto;
+  width: 70%;
+  max-width: 450px;
+  height: 70px;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
 }
 
 .nav-item {
-    flex: 1;
-    color: white;
-    text-decoration: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    position: relative;
+  flex: 1;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: relative;
+  border: none;
+  background: none;
 }
 
 .nav-item:first-child {
-    border-radius: 50px 0 0 50px;
+  border-radius: 50px 0 0 50px;
 }
 
 .nav-item:last-child {
-    border-radius: 0 50px 50px 0;
+  border-radius: 0 50px 50px 0;
 }
 
-/* Indicador de página activa - Luz superior */
 .nav-item.active::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 4px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.9),
-        transparent
-    );
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.9),
+    transparent
+  );
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
 }
 
-/* Zona de luz más amplia para el icono activo */
 .nav-item.active {
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.25) 0%,
-        transparent 50%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    transparent 50%
+  );
 }
 
 .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .nav-icon {
-    font-size: 32px;
-    color: white;
-    position: relative;
-    z-index: 1;
+  font-size: 32px;
+  color: white;
+  position: relative;
+  z-index: 1;
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+  .bottom-nav {
+    width: 75%;
+  }
+}
+
 @media (max-width: 480px) {
-    h1 {
-        font-size: 32px;
-    }
-    
-    .icon-container {
-        width: 120px;
-        height: 120px;
-    }
-    
-    .check-icon {
-        font-size: 120px;
-    }
-    
-    .message {
-        font-size: 14px;
-    }
-    
-    .bottom-nav {
-        height: 65px;
-        width: 85%;
-    }
-    
-    .nav-icon {
-        font-size: 28px;
-    }
+  h1 {
+    font-size: 32px;
+  }
+  
+  .icon-container {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .check-icon {
+    font-size: 120px;
+  }
+  
+  .message {
+    font-size: 14px;
+  }
+
+  .bottom-nav {
+    height: 65px;
+    width: 80%;
+    max-width: 350px;
+  }
+
+  .nav-icon {
+    font-size: 28px;
+  }
 }
