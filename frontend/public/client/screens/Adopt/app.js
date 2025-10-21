@@ -53,9 +53,9 @@ function adoptPlant(id) {
   
   // Si es la planta 1 (Snake Plant), va a success
   if (id === 1) {
-    window.location.href = '../AdoptFeedback/success.html';
+    window.location.href = '../AdoptFeedback/success/index.html';
   } else {
     // El resto va a error
-    window.location.href = '../AdoptFeedback/error.html';
+    window.location.href = '../AdoptFeedback/error/index.html';
   }
 }
