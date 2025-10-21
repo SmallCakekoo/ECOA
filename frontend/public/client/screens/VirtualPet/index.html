@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="header-title-row">
-            <button class="back-button" onclick="goBack()">
+            <button class="back-button" onclick="goToGarden()">
                 <span class="iconify" data-icon="material-symbols:chevron-left-rounded"></span>
             </button>
             <h1 class="header-title">Julio</h1>
@@ -27,7 +27,7 @@
 
     <div class="plant-image-section">
         <div class="plant-image-container">
-            <img src="./assets/images/plant.png" alt="Julio Plant">
+            <img src="../../src/assets/images/plant.png" alt="Julio Plant">
         </div>
     </div>
 
@@ -54,12 +54,12 @@
         
         <div class="accessory-card">
             <div class="accessory-image">
-                <img src="./assets/images/accesori1.png" alt="Care Kit">
+                <img src="../../src/assets/images/accessory-1.png" alt="Care Kit">
             </div>
             <div class="accessory-content">
                 <div class="accessory-title">Care Kit Upgrade</div>
                 <div class="accessory-description">A pack of tools and eco-supplies applied to your plant for improved maintenance.</div>
-                <button class="add-button-small">
+                <button class="add-button-small" onclick="goToShopSuccess()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                 </button>
             </div>
@@ -67,19 +67,19 @@
 
         <div class="accessory-card">
             <div class="accessory-image">
-                <img src="./assets/images/accesori2.png" alt="Organic Fertilizer">
+                <img src="../../src/assets/images/accessory-2.png" alt="Organic Fertilizer">
             </div>
             <div class="accessory-content">
                 <div class="accessory-title">Organic Fertilizer</div>
                 <div class="accessory-description">Boosts growth with natural nutrients that improve soil quality and strengthen the roots.</div>
-                <button class="add-button-small">
+                <button class="add-button-small" onclick="goToShopError()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                 </button>
             </div>
         </div>
 
         <div class="view-more-container">
-            <button class="view-more-button">
+            <button class="view-more-button" onclick="goToShop()">
                 View more
                 <div class="view-more-icon">
                     <span class="iconify" data-icon="material-symbols:add"></span>
@@ -94,9 +94,6 @@
         </a>
         <a href="#" class="nav-item active" onclick="goToPlants(event)">
             <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-        </a>
-        <a href="#" class="nav-item" onclick="goToShop(event)">
-            <span class="iconify nav-icon" data-icon="tabler:world"></span>
         </a>
         <a href="#" class="nav-item" onclick="goToProfile(event)">
             <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>

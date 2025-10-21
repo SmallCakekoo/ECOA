@@ -15,28 +15,43 @@ updateTime();
 // Actualizar la hora cada minuto
 setInterval(updateTime, 60000);
 
-// Función para volver atrás
-function goBack() {
-    window.history.back();
+// Función para volver a Garden
+function goToGarden() {
+    window.location.href = '../Garden/index.html';
 }
 
-// Funciones de navegación
+// Funciones de navegación del navbar
 function goToHome(event) {
     event.preventDefault();
-    window.location.href = 'index.html';
+    console.log('Navegando a Home');
+    window.location.href = '../Home/index.html';
 }
 
 function goToPlants(event) {
     event.preventDefault();
-    window.location.href = 'plants.html';
-}
-
-function goToShop(event) {
-    event.preventDefault();
-    window.location.href = 'shop.html';
+    console.log('Navegando a Virtual Pet');
+    window.location.href = '../VirtualPet/index.html';
 }
 
 function goToProfile(event) {
     event.preventDefault();
-    window.location.href = 'profile.html';
+    console.log('Profile no disponible por ahora');
+    // Esta función no hace nada por ahora
+}
+
+// Funciones para los botones de accesorios
+function goToShopSuccess() {
+    console.log('Navegando a Shop Feedback Success');
+    window.location.href = '../ShopFeedback/success/index.html';
+}
+
+function goToShopError() {
+    console.log('Navegando a Shop Feedback Error');
+    window.location.href = '../ShopFeedback/error/index.html';
+}
+
+// Función para el botón View More
+function goToShop() {
+    console.log('Navegando a Shop');
+    window.location.href = '../Shop/index.html';
 }
