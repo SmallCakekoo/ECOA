@@ -7,13 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="page">
       <section class="card">
         <div class="logo-circle" aria-hidden="true">
-          <img src="./ assets/Logoecoa.png" alt="Logo ECOA" class="logo-img" />
+          <img src="../../../client/src/assets/images/flower-icon.png" alt="Logo ECOA" class="logo-img" />
         </div>
         <h1 class="title">Welcome Back!</h1>
         <p class="subtitle">Admin Portal</p>
@@ -21,16 +22,16 @@
         <form class="form" id="login-form" autocomplete="on">
           <label class="label" for="email">Email Address</label>
           <div class="input-wrap">
-            <img src="./ assets/mail.png" alt="Email" class="icon" aria-hidden="true" />
+            <span class="iconify icon" data-icon="material-symbols-light:mail" style="font-size: 20px; color: #7EB234;"></span>
             <input id="email" name="email" type="email" placeholder="admin@foundation.org" required />
           </div>
 
           <label class="label" for="password">Password</label>
           <div class="input-wrap">
-            <img src="./ assets/candado.png" alt="Password" class="icon" aria-hidden="true" />
+            <span class="iconify icon" data-icon="mdi:lock-outline" style="font-size: 20px; color: #7EB234;"></span>
             <input id="password" name="password" type="password" placeholder="••••••••••••••••••••" required />
-            <button class="icon trailing" type="button" id="toggle-password" aria-label="Mostrar contraseña">
-              <img src="./ assets/Ojocerrado.png" alt="Mostrar/Ocultar" class="icon" />
+            <button class="icon trailing" type="button" id="toggle-password" aria-label="Toggle password visibility">
+              <span class="iconify" id="eye-icon" data-icon="mdi:eye-off-outline" style="font-size: 20px; color: #7EB234;"></span>
             </button>
           </div>
 
@@ -51,6 +52,6 @@
       <footer class="footer">Environmental Foundation Admin Portal</footer>
     </main>
 
-    <script src="./login.js" defer></script>
+    <script src="./login.js"></script>
   </body>
 </html>

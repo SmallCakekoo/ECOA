@@ -1,45 +1,48 @@
-// Actualizar la hora actual
+// Actualizar hora
 function updateTime() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const timeElement = document.getElementById('current-time');
-    if (timeElement) {
-        timeElement.textContent = `${hours}:${minutes}`;
-    }
+  var now = new Date();
+  var hours = now.getHours().toString();
+  var minutes = now.getMinutes().toString();
+  
+  if (hours.length === 1) hours = '0' + hours;
+  if (minutes.length === 1) minutes = '0' + minutes;
+  
+  var timeElement = document.getElementById('current-time');
+  if (timeElement) {
+    timeElement.textContent = hours + ':' + minutes;
+  }
 }
 
-// Actualizar la hora al cargar la página
 updateTime();
-
-// Actualizar la hora cada minuto
 setInterval(updateTime, 60000);
 
-// Función para volver atrás
-function goBack() {
-    window.history.back();
-}
-
-// Navegar a la tienda
-function goToShop(event) {
-    event.preventDefault();
-    window.location.href = '../shop.html';
-}
-
-// Navegar al inicio
+// Funciones de navegación
 function goToHome(event) {
-    event.preventDefault();
-    window.location.href = '../../index.html';
+  event.preventDefault();
+  console.log('Navegando a Home');
+  window.location.href = '../../Home/index.html';
 }
 
-// Navegar a plantas
 function goToPlants(event) {
-    event.preventDefault();
-    window.location.href = '../../plants.html';
+  event.preventDefault();
+  console.log('Navegando a Virtual Pet');
+  window.location.href = '../../VirtualPet/index.html';
 }
 
-// Navegar al perfil
 function goToProfile(event) {
-    event.preventDefault();
-    window.location.href = '../../profile.html';
+  event.preventDefault();
+  console.log('Navegando a Profile');
+  window.location.href = '../../Profile/index.html';
+}
+
+// Función para volver atrás - va a la página anterior
+function goBack() {
+  console.log('Volviendo atrás...');
+  window.history.back();
+}
+
+// Función para ir a Shop
+function goToShop() {
+  console.log('Volviendo a Shop...');
+  window.location.href = '../../Shop/index.html';
 }

@@ -1,44 +1,60 @@
-// Update time
+// Actualizar hora
 function updateTime() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+  var now = new Date();
+  var hours = now.getHours().toString();
+  var minutes = now.getMinutes().toString();
+  
+  if (hours.length === 1) hours = '0' + hours;
+  if (minutes.length === 1) minutes = '0' + minutes;
+  
+  var timeElement = document.getElementById('current-time');
+  if (timeElement) {
+    timeElement.textContent = hours + ':' + minutes;
+  }
 }
+
 updateTime();
 setInterval(updateTime, 60000);
 
-// Navigation functions
+// Funciones de navegación
+function goToHome(event) {
+  event.preventDefault();
+  console.log('Navegando a Home');
+  window.location.href = '../Home/index.html';
+}
+
+function goToPlants(event) {
+  event.preventDefault();
+  console.log('Navegando a Virtual Pet');
+  window.location.href = '../VirtualPet/index.html';
+}
+
+function goToProfile(event) {
+    event.preventDefault();
+    window.location.href = '../Profile/index.html';
+}
+
+// Función para volver atrás - va a Shop
 function goBack() {
-  console.log('Going back...');
-  // Aquí puedes agregar la lógica para volver a la página anterior
+  console.log('Volviendo a Shop...');
+  window.location.href = '../Shop/index.html';
 }
 
-function navigate(page) {
-  console.log('Navigating to:', page);
-  // Aquí puedes agregar la lógica de navegación
-  
-  // Update active state
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.classList.remove('active');
-  });
-  event.currentTarget.classList.add('active');
-}
-
+// Función para ver detalles de una planta (click en tarjeta)
 function selectPlant(id) {
-  console.log('Plant selected:', id);
-  // Aquí puedes agregar la lógica para ver detalles de la planta
+  console.log('Ver detalles de planta:', id);
+  window.location.href = '../AdoptDetail/index.html';
 }
 
+// Función para adoptar una planta (click en botón +)
 function adoptPlant(id) {
-  console.log('Adopting plant:', id);
-  alert('¡Planta adoptada exitosamente! 🌱');
-  // Aquí puedes agregar la lógica para adoptar la planta
+  console.log('Adoptando planta:', id);
+  
+  // Si es la planta 1 (Snake Plant), va a success
+  if (id === 1) {
+    window.location.href = '../AdoptFeedback/success/index.html';
+  } else {
+    // El resto va a error
+    window.location.href = '../AdoptFeedback/error/index.html';
+  }
 }
-
-// Add smooth animations
-document.querySelectorAll('.plant-card').forEach(card => {
-  card.addEventListener('mouseenter', function() {
-    this.style.transition = 'all 0.3s ease';
-  });
-});
