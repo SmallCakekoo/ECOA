@@ -15,35 +15,23 @@ updateTime();
 // Actualizar la hora cada minuto
 setInterval(updateTime, 60000);
 
-// Función para volver atrás
-function goBack() {
-    window.history.back();
-}
-
 // Funciones de navegación
 function goToHome(event) {
     event.preventDefault();
-    window.location.href = 'index.html';
+    window.history.back();
 }
 
 function goToPlants(event) {
     event.preventDefault();
-    window.location.href = 'plants.html';
-}
-
-function goToShop(event) {
-    event.preventDefault();
-    window.location.href = 'shop.html';
+    window.location.href = '../VirtualPet/index.html';
 }
 
 function goToProfile(event) {
     event.preventDefault();
-    window.location.href = 'profile.html';
+    window.location.href = '../Profile/index.html';
 }
 
-// Función para adoptar la planta
-function adoptPlant() {
-    alert('¡Felicitaciones! Has adoptado a Snake Plant 🌱');
-    // Aquí puedes agregar más lógica, como guardar en localStorage
-    // o redirigir a otra página
+// Función para ir a la página de éxito de adopción
+function goToAdoptSuccess() {
+    window.location.href = '../AdoptFeedback/success.html';
 }

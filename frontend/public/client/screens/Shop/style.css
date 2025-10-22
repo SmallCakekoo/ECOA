@@ -1,3 +1,38 @@
+/* Header con botón de regreso */
+.header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.back-button:hover {
+    transform: scale(1.1);
+}
+
+.back-button .iconify {
+    font-size: 32px;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
 /* Shop Content */
 .shop-content {
     padding: 20px;

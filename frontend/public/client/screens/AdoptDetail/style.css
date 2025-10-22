@@ -9,7 +9,7 @@
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: #7EB234;
-    background-image: url('./assets/images/fondo.png');
+    background-image: url('../../src/assets/images/fondo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -23,7 +23,7 @@ body {
 .header {
     background-color: transparent;
     color: white;
-    padding: 15px 20px 20px;
+    padding: 15px 20px 10px;
     display: flex;
     flex-direction: column;
 }
@@ -32,21 +32,21 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .time {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
 }
 
 .status-icons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .status-icons .iconify {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .header-content {
@@ -61,15 +61,20 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 2px;
     padding: 0;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 500;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: opacity 0.2s;
+}
+
+.back-button:hover {
+    opacity: 0.8;
 }
 
 .back-button .iconify {
-    font-size: 32px;
+    font-size: 28px;
 }
 
 /* Main Content */
@@ -94,43 +99,50 @@ body {
 }
 
 .plant-title {
-    font-size: 56px;
+    font-size: 48px;
     font-weight: 700;
     color: white;
     line-height: 1;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .plant-description {
-    font-size: 14px;
+    font-size: 13px;
     color: white;
-    line-height: 1.6;
-    margin-bottom: 25px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    opacity: 0.95;
 }
 
 .adopt-button {
     background-color: white;
     border: none;
-    border-radius: 25px;
-    padding: 12px 30px;
-    font-size: 16px;
+    border-radius: 20px;
+    padding: 12px 28px;
+    font-size: 15px;
     font-weight: 600;
     color: #7EB234;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
 }
 
 .adopt-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.adopt-button:active {
+    transform: translateY(0);
 }
 
 .adopt-button .iconify {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .plant-image {
@@ -138,6 +150,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: -1;
 }
 
 .plant-image img {
@@ -150,76 +163,82 @@ body {
 /* More About Section */
 .more-about-section {
     background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 30px;
-    padding: 30px;
-    margin-bottom: 20px;
+    border-radius: 25px;
+    padding: 25px;
+    margin-bottom: -20px;
 }
 
 .section-title {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 700;
     color: #7EB234;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .about-text {
-    font-size: 16px;
+    font-size: 14px;
     color: #333;
-    line-height: 1.6;
-    margin-bottom: 30px;
+    line-height: 1.5;
+    margin-bottom: 25px;
 }
 
 /* State Section */
 .state-section {
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .state-title {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: #7EB234;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .state-buttons {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     justify-content: stretch;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .state-button {
     background-color: #7EB234;
     border: none;
-    border-radius: 20px;
+    border-radius: 16px;
     flex: 1;
-    height: 100px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(126, 178, 52, 0.2);
 }
 
 .state-button:hover {
     background-color: #6da028;
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(126, 178, 52, 0.3);
+}
+
+.state-button:active {
+    transform: translateY(0);
 }
 
 .state-button .iconify {
-    font-size: 50px;
+    font-size: 44px;
     color: white;
 }
 
 .state-message {
-    font-size: 14px;
+    font-size: 13px;
     color: #666;
-    line-height: 1.6;
+    line-height: 1.5;
     font-style: italic;
-    padding: 0 10px;
+    padding: 0 5px;
 }
 
-/* Bottom Navigation */
+/* Bottom Navigation - 3 iconos */
 .bottom-nav {
     background-color: #7EB234;
     padding: 0;
@@ -228,9 +247,9 @@ body {
     align-items: center;
     border-radius: 50px;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
-    margin: 20px auto 20px auto;
-    width: 90%;
-    max-width: 600px;
+    margin: 20px auto;
+    width: 70%;
+    max-width: 450px;
     height: 70px;
     position: fixed;
     bottom: 0;
@@ -250,6 +269,8 @@ body {
     cursor: pointer;
     transition: background-color 0.3s;
     position: relative;
+    border: none;
+    background: none;
 }
 
 .nav-item:first-child {
@@ -303,6 +324,30 @@ body {
         padding-bottom: 120px;
     }
 
+    .header {
+        padding: 12px 20px 8px;
+    }
+
+    .header-top {
+        margin-bottom: 8px;
+    }
+
+    .time {
+        font-size: 14px;
+    }
+
+    .status-icons .iconify {
+        font-size: 15px;
+    }
+
+    .back-button {
+        font-size: 18px;
+    }
+
+    .back-button .iconify {
+        font-size: 26px;
+    }
+
     .main-content {
         padding: 0;
     }
@@ -321,18 +366,20 @@ body {
     }
 
     .plant-title {
-        font-size: 64px;
-        margin-bottom: 15px;
+        font-size: 56px;
+        margin-bottom: 12px;
         line-height: 0.9;
     }
 
     .plant-description {
-        font-size: 15px;
-        margin-bottom: 20px;
+        font-size: 14px;
+        margin-bottom: 18px;
     }
 
     .adopt-button {
         margin: 0;
+        padding: 11px 26px;
+        font-size: 14px;
     }
 
     .plant-image {
@@ -351,84 +398,102 @@ body {
     }
 
     .more-about-section {
-        border-radius: 30px 30px 0 0;
-        padding: 100px 30px 30px;
+        border-radius: 25px 25px 0 0;
+        padding: 90px 25px 25px;
         margin-bottom: 0;
     }
 
     .section-title {
-        font-size: 56px;
-        margin-bottom: 15px;
+        font-size: 48px;
+        margin-bottom: 12px;
     }
 
     .about-text {
-        font-size: 15px;
+        font-size: 14px;
     }
 
     .state-section {
-        margin-top: 25px;
-    }
-
-    .state-title {
-        font-size: 32px;
-        margin-bottom: 15px;
-    }
-
-    .state-buttons {
-        gap: 12px;
-        margin-bottom: 15px;
-    }
-
-    .state-button {
-        height: 90px;
-        border-radius: 15px;
-    }
-
-    .state-button .iconify {
-        font-size: 48px;
-    }
-
-    .state-message {
-        font-size: 13px;
-        color: #999;
-    }
-}
-
-@media (max-width: 480px) {
-    .plant-title {
-        font-size: 56px;
-    }
-
-    .section-title {
-        font-size: 48px;
+        margin-top: 20px;
     }
 
     .state-title {
         font-size: 28px;
+        margin-bottom: 12px;
     }
 
     .state-buttons {
         gap: 10px;
+        margin-bottom: 12px;
     }
 
     .state-button {
         height: 85px;
+        border-radius: 14px;
     }
 
     .state-button .iconify {
         font-size: 42px;
     }
 
-    .more-about-section {
-        padding: 90px 25px 25px;
+    .state-message {
+        font-size: 12px;
+        color: #999;
     }
 
     .bottom-nav {
-        height: 70px;
-        width: 90%;
+        width: 75%;
+    }
+}
+
+@media (max-width: 480px) {
+    .plant-title {
+        font-size: 50px;
+    }
+
+    .plant-description {
+        font-size: 13px;
+    }
+
+    .adopt-button {
+        padding: 10px 24px;
+        font-size: 13px;
+    }
+
+    .section-title {
+        font-size: 42px;
+    }
+
+    .about-text {
+        font-size: 13px;
+    }
+
+    .state-title {
+        font-size: 26px;
+    }
+
+    .state-buttons {
+        gap: 8px;
+    }
+
+    .state-button {
+        height: 80px;
+    }
+
+    .state-button .iconify {
+        font-size: 38px;
+    }
+
+    .more-about-section {
+        padding: 80px 20px 20px;
+    }
+
+    .bottom-nav {
+        height: 65px;
+        width: 80%;
+        max-width: 350px;
     }
 
     .nav-icon {
-        font-size: 30px;
+        font-size: 28px;
     }
 }

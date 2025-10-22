@@ -18,22 +18,19 @@ setInterval(updateTime, 60000);
 // Funciones de navegación
 function goToHome(event) {
     event.preventDefault();
-    window.location.href = 'index.html';
+    console.log('Navegando a Home');
+    window.location.href = '../Home/index.html';
 }
 
 function goToPlants(event) {
     event.preventDefault();
-    window.location.href = 'plants.html';
-}
-
-function goToShop(event) {
-    event.preventDefault();
-    window.location.href = 'shop.html';
+    console.log('Ya estás en Plants');
+    // Ya estamos en esta página
 }
 
 function goToProfile(event) {
     event.preventDefault();
-    window.location.href = 'profile.html';
+    window.location.href = '../Profile/index.html';
 }
 
 // Nombres aleatorios
@@ -53,7 +50,7 @@ for (let i = 1; i <= 10; i++) {
     
     card.innerHTML = `
         <div class="card-background"></div>
-        <img class="plant-image" src="./assets/images/${i}.png" alt="Planta ${i}">
+        <img class="plant-image" src="../../src/assets/images/plant-${i}.png" alt="Planta ${i}">
         <div class="card-overlay">
             <div class="plant-name">${randomName}</div>
             <div class="plant-stats">
@@ -69,13 +66,20 @@ for (let i = 1; i <= 10; i++) {
         </div>
     `;
     
+    // Al hacer clic en una planta, ir a Virtual Pet
+    card.onclick = function() {
+        console.log('Navegando a Virtual Pet con planta: ' + randomName);
+        window.location.href = '../VirtualPet/index.html';
+    };
+    
     plantsGrid.appendChild(card);
 }
 
-// Botón de agregar
+// Botón de agregar - Redirige a Shop
 const addButton = document.createElement('div');
 addButton.className = 'plant-card add-button';
 addButton.onclick = function() {
-    alert('Agregar nueva planta');
+    console.log('Navegando a Shop para adoptar nueva planta');
+    window.location.href = '../Adopt/index.html';
 };
 plantsGrid.appendChild(addButton);

@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop - Julio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
-    <link rel="stylesheet" href="../virtual_pet/style.css">
+    <link rel="stylesheet" href="../Home/styles.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="header-top">
             <span class="time" id="current-time">12:42</span>
@@ -29,12 +33,12 @@
     <div class="shop-content">
         <div class="shop-card">
             <div class="shop-image">
-                <img src="./assets/images/1.png" alt="Artificial Light Lamp">
+                <img src="../../src/assets/images/accessory-1.png" alt="Artificial Light Lamp">
             </div>
             <div class="shop-info">
                 <div class="shop-title">Artificial Light Lamp</div>
                 <div class="shop-description">Ensures your plant receives the right amount of light, even indoors or on cloudy days.</div>
-                <button class="add-button">
+                <button class="add-button" onclick="goToShopFeedback()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                 </button>
             </div>
@@ -42,12 +46,12 @@
 
         <div class="shop-card">
             <div class="shop-image">
-                <img src="./assets/images/2.png" alt="Bigger Pot">
+                <img src="../../src/assets/images/accessory-2.png" alt="Bigger Pot">
             </div>
             <div class="shop-info">
                 <div class="shop-title">Bigger Pot</div>
                 <div class="shop-description">Gives your plant more space to grow by moving it into a larger, stronger pot.</div>
-                <button class="add-button">
+                <button class="add-button"  onclick="goToShopFeedback()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                 </button>
             </div>
@@ -55,12 +59,12 @@
 
         <div class="shop-card">
             <div class="shop-image">
-                <img src="./assets/images/3.png" alt="Personalized Tag">
+                <img src="../../src/assets/images/accessory-3.png" alt="Personalized Tag">
             </div>
             <div class="shop-info">
                 <div class="shop-title">Personalized Tag</div>
                 <div class="shop-description">Adds a custom label with your plant's name, making it unique and more personal.</div>
-                <button class="add-button">
+                <button class="add-button" onclick="goToShopFeedback()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                 </button>
             </div>
@@ -68,27 +72,25 @@
 
         <div class="shop-card">
             <div class="shop-image">
-                <img src="./assets/images/4.png" alt="Decorative Pot">
+                <img src="../../src/assets/images/accessory-4.png" alt="Decorative Pot">
             </div>
             <div class="shop-info">
                 <div class="shop-title">Decorative Pot</div>
                 <div class="shop-description">Adds style and personality to your plant with colorful, artisan-inspired pots.</div>
-                <button class="add-button">
+                <button class="add-button" onclick="goToShopFeedback()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="#" class="nav-item" onclick="goToHome(event)">
             <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
         </a>
         <a href="#" class="nav-item" onclick="goToPlants(event)">
             <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-        </a>
-        <a href="#" class="nav-item active" onclick="goToShop(event)">
-            <span class="iconify nav-icon" data-icon="tabler:world"></span>
         </a>
         <a href="#" class="nav-item" onclick="goToProfile(event)">
             <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>

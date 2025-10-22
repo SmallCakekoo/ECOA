@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Your Garden</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
 </head>
@@ -19,20 +22,16 @@
         </div>
         <h1 class="header-title">Welcome to Your Garden</h1>
     </header>
-
     <div class="subtitle">Hi, your plants missed you.</div>
 
     <div class="plants-grid" id="plantsGrid"></div>
 
     <nav class="bottom-nav">
-        <a href="#" class="nav-item active" onclick="goToHome(event)">
+        <a href="#" class="nav-item" onclick="goToHome(event)">
             <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
         </a>
-        <a href="#" class="nav-item" onclick="goToPlants(event)">
+        <a href="#" class="nav-item active" onclick="goToPlants(event)">
             <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-        </a>
-        <a href="#" class="nav-item" onclick="goToShop(event)">
-            <span class="iconify nav-icon" data-icon="tabler:world"></span>
         </a>
         <a href="#" class="nav-item" onclick="goToProfile(event)">
             <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>

@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="header-content">
-            <button class="back-button" onclick="goBack()">
+            <button class="back-button" onclick="goToHome(event)">
                 <span class="iconify" data-icon="material-symbols:chevron-left-rounded"></span>
                 <span>Back</span>
             </button>
@@ -32,13 +32,13 @@
                 <p class="plant-description">
                     The Snake Plant is the ultimate survivor. Strong, stoic, and elegant, with tall leaves shaped like green spears brushed with yellow or silver.
                 </p>
-                <button class="adopt-button" onclick="adoptPlant()">
+                <button class="adopt-button" onclick="goToAdoptSuccess()">
                     <span class="iconify" data-icon="material-symbols:add"></span>
                     ¡Adopt me!
                 </button>
             </div>
             <div class="plant-image">
-                <img src="./assets/images/plant.png" alt="Snake Plant">
+                <img src="../../src/assets/images/plant.png" alt="Snake Plant">
             </div>
         </div>
 
@@ -65,7 +65,7 @@
                     </button>
                 </div>
                 <p class="state-message">
-                    "I'm feeling fresh and fully hydrated, enjoying just the right amount of sunshine. My nutrients are halfway there, so a little snack would make me happier. Overall, I'm in a great mood — relaxed, thriving, and grateful!"
+                    "I'm feeling fresh and fully hydrated, enjoying just the right amount of sunshine. My nutrients are halfway there, so a little snack would make me happier. Overall, I'm in a great mood – relaxed, thriving, and grateful!"
                 </p>
             </div>
         </div>
@@ -77,9 +77,6 @@
         </a>
         <a href="#" class="nav-item active" onclick="goToPlants(event)">
             <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-        </a>
-        <a href="#" class="nav-item" onclick="goToShop(event)">
-            <span class="iconify nav-icon" data-icon="tabler:world"></span>
         </a>
         <a href="#" class="nav-item" onclick="goToProfile(event)">
             <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
