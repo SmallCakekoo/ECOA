@@ -129,6 +129,7 @@ body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     transition: all 0.2s;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
 }
 
 .adopt-button:hover {
@@ -149,6 +150,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: -1;
 }
 
 .plant-image img {

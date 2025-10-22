@@ -1,96 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home - Plant Care</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-</head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <div class="header-top">
-        <span class="time" id="current-time">12:42</span>
-        <div class="status-icons">
-          <span class="iconify" data-icon="mdi:signal"></span>
-          <span class="iconify" data-icon="mdi:wifi"></span>
-          <span class="iconify" data-icon="mdi:battery"></span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - Plant Care</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-top">
+          <span class="time" id="current-time">12:42</span>
+          <div class="status-icons">
+            <span class="iconify" data-icon="mdi:signal"></span>
+            <span class="iconify" data-icon="mdi:wifi"></span>
+            <span class="iconify" data-icon="mdi:battery"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-bg">
+          <img src="../../src/assets/images/banner-image.png" alt="" />
+        </div>
+        <div class="hero-content">
+          <div class="temperature">10°C</div>
+          <div class="greeting">Good Morning, Cris</div>
+          <div class="subgreeting">Your plants missed you!</div>
         </div>
       </div>
-    </header>
 
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <div class="hero-bg"></div>
-      <div class="hero-content">
-        <div class="temperature">10°C</div>
-        <div class="greeting">Good Morning, Cris</div>
-        <div class="subgreeting">Your plants missed you!</div>
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Last Cared Plant -->
+        <div class="last-plant-card">
+          <div class="plant-image">
+            <img
+              src="../../src/assets/images/plant-9.png"
+              alt="Last Cared Plant"
+            />
+          </div>
+          <div class="plant-info">
+            <div class="plant-label">Your last cared plant:</div>
+            <div class="plant-name">Elian</div>
+          </div>
+          <div class="progress-circle">
+            <svg width="70" height="70">
+              <circle class="progress-bg" cx="35" cy="35" r="30"></circle>
+              <circle
+                class="progress-bar"
+                cx="35"
+                cy="35"
+                r="30"
+                stroke-dasharray="188.4"
+                stroke-dashoffset="25.1"
+                id="progressCircle"
+              ></circle>
+            </svg>
+            <div class="progress-text">87%</div>
+          </div>
+        </div>
+
+        <!-- Your Garden Card -->
+        <a href="../Garden/index.html" class="garden-link">
+          <div class="garden-card">
+            <div class="garden-image">
+              <img src="../../src/assets/images/your-garden-home.png" alt="" />
+            </div>
+            <div class="garden-content">
+              <div class="garden-title">Your Garden</div>
+              <div class="garden-subtitle">Take care of your plants daily</div>
+            </div>
+          </div>
+        </a>
+
+        <!-- Adopt Button -->
+        <button class="adopt-btn" id="adoptBtn">
+          <span style="font-size: 28px; font-weight: 300">+</span>
+          Adopt a new plant
+        </button>
+
+        <!-- Support Text -->
+        <div class="support-text">
+          <div class="support-thank">Thank you for your support</div>
+          <div class="support-stats" id="statsText">
+            3,452 plants adopted this week!
+          </div>
+        </div>
       </div>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="goToHome(event)">
+          <span
+            class="iconify nav-icon"
+            data-icon="material-symbols:home-rounded"
+          ></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToPlants(event)">
+          <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+        </a>
+        <a href="#" class="nav-item" onclick="goToProfile(event)">
+          <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+        </a>
+      </nav>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Last Cared Plant -->
-      <div class="last-plant-card">
-        <div class="plant-image"></div>
-        <div class="plant-info">
-          <div class="plant-label">Your last cared plant:</div>
-          <div class="plant-name">Elian</div>
-        </div>
-        <div class="progress-circle">
-          <svg width="70" height="70">
-            <circle class="progress-bg" cx="35" cy="35" r="30"></circle>
-            <circle class="progress-bar" cx="35" cy="35" r="30" 
-                    stroke-dasharray="188.4" 
-                    stroke-dashoffset="25.1" 
-                    id="progressCircle"></circle>
-          </svg>
-          <div class="progress-text">87%</div>
-        </div>
-      </div>
-
-      <!-- Your Garden Card -->
-      <div class="garden-card">
-        <div class="garden-image"></div>
-        <div class="garden-content">
-          <div class="garden-title">Your Garden</div>
-          <div class="garden-subtitle">Take care of your plants daily</div>
-        </div>
-      </div>
-
-      <!-- Adopt Button -->
-      <button class="adopt-btn" id="adoptBtn">
-        <span style="font-size: 28px; font-weight: 300;">+</span>
-        Adopt a new plant
-      </button>
-
-      <!-- Support Text -->
-      <div class="support-text">
-        <div class="support-thank">Thank you for your support</div>
-        <div class="support-stats" id="statsText">3,452 plants adopted this week!</div>
-      </div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-      <a href="#" class="nav-item active" onclick="goToHome(event)">
-        <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
-      </a>
-      <a href="#" class="nav-item" onclick="goToPlants(event)">
-        <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-      </a>
-      <a href="#" class="nav-item" onclick="goToProfile(event)">
-        <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
-      </a>
-    </nav>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
