@@ -1,5 +1,15 @@
+// Cargar el servicio de API
+const script = document.createElement('script');
+script.src = '../../src/api.js';
+document.head.appendChild(script);
+
 document.addEventListener('DOMContentLoaded', () => {
- 
+  // Verificar si ya está autenticado
+  if (window.AdminAPI && window.AdminAPI.isAuthenticated()) {
+    window.location.href = '../dashboard/index.html';
+    return;
+  }
+
   const togglePassword = document.getElementById('toggle-password');
   const passwordInput = document.getElementById('password');
   const eyeIcon = document.getElementById('eye-icon');
@@ -7,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (togglePassword && passwordInput && eyeIcon) {
     togglePassword.addEventListener('click', function(e) {
       e.preventDefault();
-      
       
       if (passwordInput.type === 'password') {
         // Mostrar contraseña
@@ -23,32 +32,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
- 
+  // Función para mostrar notificaciones
+  function showNotification(message, type = 'error') {
+    window.AdminUtils.showNotification(message, type);
+  }
+
+  // Función para mostrar loading
+  function showLoading(show = true) {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    window.AdminUtils.showButtonLoading(submitBtn, show, 'Iniciando sesión...');
+  }
+
   const loginForm = document.getElementById('login-form');
   
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
       
-      
-      console.log('Login attempt:', { email, password, remember });
-      
-      
-      window.location.href = '../dashboard/index.html';
+      // Validaciones básicas
+      if (!email || !password) {
+        showNotification('Por favor completa todos los campos');
+        return;
+      }
+
+      if (!email.includes('@')) {
+        showNotification('Por favor ingresa un email válido');
+        return;
+      }
+
+      showLoading(true);
+
+      try {
+        // Esperar a que se cargue la API
+        if (!window.AdminAPI) {
+          await new Promise(resolve => {
+            const checkAPI = () => {
+              if (window.AdminAPI) {
+                resolve();
+              } else {
+                setTimeout(checkAPI, 100);
+              }
+            };
+            checkAPI();
+          });
+        }
+
+        console.log('API cargada, iniciando login...');
+        const result = await window.AdminAPI.login(email, password);
+        
+        console.log('Resultado del login:', result);
+        
+        if (result && result.success) {
+          showNotification('¡Bienvenido al panel de administración!', 'success');
+          
+          console.log('Login exitoso, verificando autenticación...');
+          
+          // Verificar que la autenticación se guardó correctamente
+          const isAuth = window.AdminAPI.isAuthenticated();
+          console.log('¿Está autenticado después del login?', isAuth);
+          
+          if (isAuth) {
+            console.log('Redirigiendo a dashboard...');
+            // Redirigir inmediatamente
+            window.location.href = '../dashboard/index.html';
+          } else {
+            console.error('Error: No se pudo verificar la autenticación');
+            showNotification('Error al verificar la autenticación', 'error');
+          }
+        } else {
+          console.log('Login falló:', result);
+          showNotification('Error en el login', 'error');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showNotification(error.message || 'Error al iniciar sesión. Intenta nuevamente.');
+      } finally {
+        showLoading(false);
+      }
     });
   }
 
- 
   const forgotLink = document.getElementById('forgot-link');
   
   if (forgotLink) {
     forgotLink.addEventListener('click', (e) => {
       e.preventDefault();
-      alert('Password reset functionality would be implemented here.');
+      showNotification('Funcionalidad de recuperación de contraseña próximamente');
     });
   }
 });

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import { createServer } from "http";
 import { Server } from "socket.io";
+import cors from "cors";
 
 import usersRoutes from "./routes/users.router.js";
 import plantsRoutes from "./routes/plants.router.js";
@@ -18,6 +19,23 @@ import integrationsRoutes from "./routes/integrations.router.js";
 import { setupSocketIO } from "./services/sockets/sockets.service.js";
 
 const app = express();
+
+// Configurar CORS
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 // Middleware
 app.use(express.json());

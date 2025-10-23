@@ -512,3 +512,144 @@ body {
 .menu-item.active .menu-icon .iconify svg {
   color: #7EB234 !important;
 }
+
+/* Estilos para Plant Monitoring - Tabla como en la imagen */
+#recentPlants {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.plant-item {
+  display: table-row;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.plant-item:hover {
+  background-color: #f9fafb;
+}
+
+.plant-item:last-child {
+  border-bottom: none;
+}
+
+.plant-item.plant-header-row {
+  font-weight: 600;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  color: #374151;
+}
+
+.plant-item.plant-header-row:hover {
+  background: #f9fafb;
+}
+
+.plant-image {
+  display: table-cell;
+  width: 60px;
+  padding: 12px 8px 12px 0;
+  vertical-align: middle;
+}
+
+.plant-image img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+.plant-info {
+  display: table-cell;
+  padding: 12px 8px;
+  vertical-align: middle;
+  width: auto;
+}
+
+.plant-info h4 {
+  margin: 0 0 2px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.plant-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+.adopter-info {
+  display: table-cell;
+  padding: 12px 8px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.status-cell {
+  display: table-cell;
+  padding: 12px 8px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status.healthy {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status.needs_care {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.sick {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.status.dying {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.care-notes {
+  display: table-cell;
+  padding: 12px 8px 12px 0;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #6b7280;
+  font-style: italic;
+  width: auto;
+}
+
+/* Estilos específicos para encabezados */
+.plant-item.plant-header-row .plant-info,
+.plant-item.plant-header-row .adopter-info,
+.plant-item.plant-header-row .status-cell,
+.plant-item.plant-header-row .care-notes {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 8px;
+}
+
+.plant-item.plant-header-row .plant-image {
+  padding: 12px 8px 12px 0;
+}
