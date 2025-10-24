@@ -1,6 +1,6 @@
 // Configuración del panel de administración
 const AdminConfig = {
-  // URL del backend (Supabase)
+  // URL del backend (Supabase) - Usar backend directo de Vercel
   API_BASE_URL: 'https://ecoa-nine.vercel.app',
   
   // Configuración de autenticación

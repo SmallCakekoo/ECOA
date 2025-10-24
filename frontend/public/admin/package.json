@@ -1,0 +1,18 @@
+{
+  "name": "ecoa-admin-proxy",
+  "version": "1.0.0",
+  "description": "Proxy server para evitar CORS en ECOA Admin",
+  "main": "proxy-server.js",
+  "scripts": {
+    "start": "node proxy-server.js",
+    "dev": "nodemon proxy-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "http-proxy-middleware": "^2.0.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

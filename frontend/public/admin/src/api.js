@@ -49,9 +49,9 @@ class AdminAPI {
   // ===== AUTENTICACIÓN =====
   async login(email, password) {
     try {
-      // Validación básica
-      if (!email || !password) {
-        throw new Error('Email y contraseña son requeridos');
+      // Validación básica - solo email es requerido
+      if (!email) {
+        throw new Error('Email es requerido');
       }
 
       if (!email.includes('@')) {
@@ -62,15 +62,14 @@ class AdminAPI {
       const usersResponse = await this.request('/users');
       const users = usersResponse.data || usersResponse;
 
-      // Buscar un usuario que coincida con el email y la contraseña, y que sea admin
+      // Buscar un usuario que coincida con el email y que sea admin (sin verificar contraseña)
       const user = users.find(u => 
         u.email === email && 
-        u.password === password && 
-        u.role === 'admin'
+        u.rol === 'admin'
       );
 
       if (!user) {
-        throw new Error('Credenciales inválidas o usuario no autorizado. Solo usuarios con rol admin pueden acceder.');
+        throw new Error('Email no encontrado o usuario no autorizado. Solo usuarios con rol admin pueden acceder.');
       }
 
       // Generar token
@@ -358,15 +357,43 @@ class AdminAPI {
 
   // ===== SUBIDA DE ARCHIVOS =====
   async uploadImage(file) {
-    // Por ahora retornamos una URL simulada
-    // En producción esto debería subir a un servicio como Cloudinary o AWS S3
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        resolve(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`${this.baseURL}/api/upload/image`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          ...(this.token && { 'Authorization': `Bearer ${this.token}` }),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Retornar la URL completa de la imagen
+        return data.data.fullUrl;
+      } else {
+        throw new Error(data.message || 'Error al subir la imagen');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      
+      // Si falla la subida, usar base64 como fallback
+      console.log('Usando base64 como fallback...');
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
   }
 }
 

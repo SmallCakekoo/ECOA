@@ -82,7 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         console.log('API cargada, iniciando login...');
-        const result = await window.AdminAPI.login(email, password);
+        // Solo usar email, la contraseña no es necesaria
+        const result = await window.AdminAPI.login(email, '');
         
         console.log('Resultado del login:', result);
         
