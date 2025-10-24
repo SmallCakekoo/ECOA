@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Proxy</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Proxy Local</h1>
+    <p>Probando conectividad con el proxy local en puerto 3001</p>
+    
+    <div id="results"></div>
+    
+    <button onclick="testProxy()">Test Proxy</button>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testImages()">Test Images</button>
+    <button onclick="testAll()">Test All</button>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001';
+        
+        function addResult(message, isSuccess = true) {
+            const div = document.createElement('div');
+            div.className = `test ${isSuccess ? 'success' : 'error'}`;
+            div.innerHTML = `<strong>${isSuccess ? '✅' : '❌'}</strong> ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        async function testProxy() {
+            try {
+                addResult('🔄 Probando conectividad con proxy...');
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                addResult(`✅ Proxy funcionando: ${data.message}`);
+            } catch (error) {
+                addResult(`❌ Error conectando con proxy: ${error.message}`, false);
+            }
+        }
+        
+        async function testLogin() {
+            try {
+                addResult('🔄 Probando login con cristina123@gmail.com...');
+                const response = await fetch(`${API_BASE_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: 'cristina123@gmail.com' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    addResult(`✅ Login exitoso: ${data.message}`);
+                } else {
+                    addResult(`❌ Login falló: ${data.message}`, false);
+                }
+            } catch (error) {
+                addResult(`❌ Error en login: ${error.message}`, false);
+            }
+        }
+        
+        async function testImages() {
+            try {
+                addResult('🔄 Probando búsqueda de imágenes...');
+                const response = await fetch(`${API_BASE_URL}/api/integrations/perenual/search?q=ficus`);
+                const data = await response.json();
+                if (data.success && data.search_results.plants.length > 0) {
+                    addResult(`✅ Imágenes encontradas: ${data.search_results.plants.length} plantas`);
+                } else {
+                    addResult(`❌ No se encontraron imágenes`, false);
+                }
+            } catch (error) {
+                addResult(`❌ Error buscando imágenes: ${error.message}`, false);
+            }
+        }
+        
+        async function testAll() {
+            document.getElementById('results').innerHTML = '';
+            addResult('🚀 Iniciando pruebas completas...');
+            await testProxy();
+            await testLogin();
+            await testImages();
+            addResult('🏁 Pruebas completadas');
+        }
+    </script>
+</body>
+</html>

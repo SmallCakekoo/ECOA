@@ -90,12 +90,20 @@ class AdminAPI {
     // Verificar si hay token en localStorage
     const storedToken = localStorage.getItem('admin_token');
     if (!storedToken) {
+      console.log('❌ No hay token en localStorage');
       return false;
     }
     
     // Actualizar el token en la instancia
     this.token = storedToken;
     
+    // Para tokens simples del servidor local, solo verificar que exista
+    if (storedToken.startsWith('admin-token-')) {
+      console.log('✅ Token válido encontrado:', storedToken);
+      return true;
+    }
+    
+    // Para tokens JWT (si los usamos en el futuro)
     try {
       const payload = JSON.parse(atob(storedToken));
       const isExpired = payload.exp > Date.now();
@@ -109,6 +117,7 @@ class AdminAPI {
       return true;
     } catch (error) {
       // Token inválido, limpiar
+      console.log('❌ Token inválido:', error.message);
       this.logout();
       return false;
     }

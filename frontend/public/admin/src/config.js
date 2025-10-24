@@ -1,6 +1,6 @@
 // Configuración del panel de administración
 const AdminConfig = {
-  // URL del backend - Usar proxy local que maneja CORS
+  // URL del backend - Usar servidor local que funciona
   API_BASE_URL: 'http://localhost:3001',
   
   // Configuración de autenticación
