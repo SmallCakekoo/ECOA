@@ -79,6 +79,49 @@ export const UsersController = {
       return handleError(error, res);
     }
   },
+  login: async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email es requerido"
+        });
+      }
+
+      // Buscar usuario por email en la tabla de usuarios
+      const { data: users, error } = await findAllUsers();
+      if (error) throw error;
+      
+      const user = users.find(u => u.email === email && u.role === 'admin');
+      
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Credenciales inválidas o usuario no autorizado. Solo usuarios con rol admin pueden acceder."
+        });
+      }
+
+      // Generar token simple
+      const token = `admin-token-${Date.now()}-${user.id}`;
+      
+      return res.status(200).json({
+        success: true,
+        message: "Login exitoso",
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            role: user.role
+          },
+          token: token
+        }
+      });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  },
   remove: async (req, res) => {
     try {
       const { id } = req.params;

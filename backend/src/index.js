@@ -16,28 +16,24 @@ import devicesRoutes from "./routes/devices.router.js";
 import plantStatsRoutes from "./routes/plants_stats.router.js";
 import plantStatusRoutes from "./routes/plants_status.router.js";
 import integrationsRoutes from "./routes/integrations.router.js";
+import uploadRoutes from "./routes/upload.router.js";
 import { setupSocketIO } from "./services/sockets/sockets.service.js";
 
 const app = express();
 
-// Configurar CORS
-app.use(cors({
-  origin: '*', // Permitir todos los orígenes temporalmente
-  credentials: false, // Cambiar a false cuando usamos origin: '*'
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
-
-// Middleware adicional para CORS
+// Middleware CORS más agresivo para Vercel
 app.use((req, res, next) => {
-  // Configurar headers CORS
+  // Headers CORS obligatorios - DEBE ir primero
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, Pragma');
+  res.header('Access-Control-Expose-Headers', 'Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'false');
   res.header('Access-Control-Max-Age', '86400');
   
   // Manejar preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('🔄 Preflight request recibido:', req.method, req.url, 'Origin:', req.headers.origin);
     res.status(200).end();
     return;
   }
@@ -45,30 +41,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware específico para rutas de API
-app.use('/users', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  next();
-});
-
-app.use('/plants', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  next();
-});
-
-app.use('/donations', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  next();
-});
+// Configurar CORS con cors package como respaldo
+app.use(cors({
+  origin: '*',
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cache-Control', 'Pragma'],
+  exposedHeaders: ['Content-Length', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+}));
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Servir archivos estáticos (imágenes subidas)
+app.use('/uploads', express.static('uploads'));
 
 // Servidor y Socket.IO
 const httpServer = createServer(app);
@@ -89,6 +77,40 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware CORS específico para cada ruta
+app.use("/users", (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  next();
+});
+
+app.use("/plants", (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  next();
+});
+
+app.use("/donations", (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  next();
+});
+
 // Montar rutas
 app.use("/users", usersRoutes);
 app.use("/plants", plantsRoutes);
@@ -101,6 +123,7 @@ app.use("/devices", devicesRoutes);
 app.use("/plant_stats", plantStatsRoutes);
 app.use("/plant_status", plantStatusRoutes);
 app.use("/api/integrations", integrationsRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
