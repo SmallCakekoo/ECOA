@@ -1,7 +1,7 @@
 // Configuración del panel de administración
 const AdminConfig = {
-  // URL del backend - Usar Vercel directamente con CORS forzado
-  API_BASE_URL: 'https://ecoa-nine.vercel.app',
+  // URL del backend - Usar proxy local que maneja CORS
+  API_BASE_URL: 'http://localhost:3001',
   
   // Configuración de autenticación
   AUTH: {
