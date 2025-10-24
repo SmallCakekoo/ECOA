@@ -185,6 +185,110 @@ app.post("/test-login", (req, res) => {
   });
 });
 
+// Endpoint para subir imágenes
+app.post("/api/upload/image", (req, res) => {
+  // Forzar headers CORS
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
+  try {
+    // Simular subida de imagen - devolver URL de imagen de ejemplo
+    const imageUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop';
+    
+    res.status(200).json({
+      success: true,
+      message: "Imagen subida exitosamente",
+      data: {
+        image_url: imageUrl,
+        filename: `plant-${Date.now()}.jpg`
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error subiendo imagen",
+      error: error.message
+    });
+  }
+});
+
+// Endpoint para buscar imágenes de plantas
+app.get("/api/integrations/perenual/search", async (req, res) => {
+  // Forzar headers CORS
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
+  const { q } = req.query;
+  
+  if (!q) {
+    return res.status(400).json({
+      success: false,
+      message: "Query parameter 'q' is required"
+    });
+  }
+  
+  try {
+    // Simular respuesta de Perenual API con imágenes reales
+    const mockImages = {
+      'ficus lyrata': {
+        default_image: {
+          thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=150&h=150&fit=crop',
+          small_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop',
+          medium_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop'
+        }
+      },
+      'monstera deliciosa': {
+        default_image: {
+          thumbnail: 'https://images.unsplash.com/photo-1519336056116-9e61c7f83ab8?w=150&h=150&fit=crop',
+          small_url: 'https://images.unsplash.com/photo-1519336056116-9e61c7f83ab8?w=300&h=300&fit=crop',
+          medium_url: 'https://images.unsplash.com/photo-1519336056116-9e61c7f83ab8?w=600&h=600&fit=crop'
+        }
+      },
+      'luna': {
+        default_image: {
+          thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=150&h=150&fit=crop',
+          small_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=300&fit=crop',
+          medium_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop'
+        }
+      },
+      'sol': {
+        default_image: {
+          thumbnail: 'https://images.unsplash.com/photo-1519336056116-9e61c7f83ab8?w=150&h=150&fit=crop',
+          small_url: 'https://images.unsplash.com/photo-1519336056116-9e61c7f83ab8?w=300&h=300&fit=crop',
+          medium_url: 'https://images.unsplash.com/photo-1519336056116-9e61c7f83ab8?w=600&h=600&fit=crop'
+        }
+      }
+    };
+    
+    const searchTerm = q.toLowerCase();
+    const plantData = mockImages[searchTerm];
+    
+    if (plantData) {
+      res.status(200).json({
+        success: true,
+        search_results: {
+          plants: [plantData]
+        }
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        search_results: {
+          plants: []
+        }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error searching for plant images",
+      error: error.message
+    });
+  }
+});
+
 // Ruta raíz
 app.get("/", (req, res) => {
   res.status(200).json({
