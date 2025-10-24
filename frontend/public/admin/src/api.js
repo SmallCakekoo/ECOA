@@ -58,34 +58,21 @@ class AdminAPI {
         throw new Error('Email inválido');
       }
 
-      // Obtener usuarios de Supabase
-      const usersResponse = await this.request('/users');
-      const users = usersResponse.data || usersResponse;
+      // Usar el endpoint de login del backend
+      const response = await this.request('/users/login', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
 
-      // Buscar un usuario que coincida con el email y que sea admin (sin verificar contraseña)
-      const user = users.find(u => 
-        u.email === email && 
-        u.rol === 'admin'
-      );
+      if (response.success) {
+        this.token = response.data.token;
+        localStorage.setItem('admin_token', response.data.token);
+        localStorage.setItem('admin_user', JSON.stringify(response.data.user));
 
-      if (!user) {
-        throw new Error('Email no encontrado o usuario no autorizado. Solo usuarios con rol admin pueden acceder.');
+        return { success: true, data: response.data.user, token: response.data.token };
+      } else {
+        throw new Error(response.message || 'Error en el login');
       }
-
-      // Generar token
-      const token = btoa(JSON.stringify({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        exp: Date.now() + (24 * 60 * 60 * 1000) // Token válido por 24 horas
-      }));
-
-      this.token = token;
-      localStorage.setItem('admin_token', token);
-      localStorage.setItem('admin_user', JSON.stringify(user));
-
-      return { success: true, data: user, token };
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
