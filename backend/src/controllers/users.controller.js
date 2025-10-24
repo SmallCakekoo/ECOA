@@ -11,12 +11,23 @@ import { createUserModel, sanitizeUserUpdate } from "../models/users.model.js";
 const handleError = (error, res) => {
   const status = error?.status || 500;
   const message = error?.message || "Error interno del servidor";
+  
+  // Forzar headers CORS en errores
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
   return res.status(status).json({ success: false, message });
 };
 
 export const UsersController = {
   list: async (req, res) => {
     try {
+      // Forzar headers CORS
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+      
       const { data, error } = await findAllUsers();
       if (error) throw error;
       return res.status(200).json({ success: true, data, count: data.length });
@@ -81,6 +92,11 @@ export const UsersController = {
   },
   login: async (req, res) => {
     try {
+      // Forzar headers CORS
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+      
       const { email } = req.body;
       
       if (!email) {
