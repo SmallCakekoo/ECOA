@@ -127,11 +127,61 @@ app.use("/api/upload", uploadRoutes);
 
 // Ruta de salud del servidor
 app.get("/health", (req, res) => {
+  // Forzar headers CORS
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
   res.status(200).json({
     success: true,
     message: "Servidor ECOA funcionando correctamente",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+  });
+});
+
+// Endpoint de prueba CORS específico
+app.get("/test-cors", (req, res) => {
+  // Forzar headers CORS
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
+  res.status(200).json({
+    success: true,
+    message: "CORS funcionando correctamente",
+    timestamp: new Date().toISOString(),
+    cors: "enabled"
+  });
+});
+
+// Endpoint de login de prueba
+app.post("/test-login", (req, res) => {
+  // Forzar headers CORS
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
+  const { email } = req.body;
+  
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email es requerido"
+    });
+  }
+  
+  res.status(200).json({
+    success: true,
+    message: "Login de prueba exitoso",
+    data: {
+      user: {
+        id: 1,
+        email: email,
+        role: 'admin'
+      },
+      token: 'test-token-123'
+    }
   });
 });
 
