@@ -25,7 +25,7 @@ class AuthManager {
       if (window.AdminAPI) {
         if (!window.AdminAPI.isAuthenticated()) {
           console.log("❌ Usuario no autenticado, redirigiendo al login");
-          window.location.href = "/admin/screens/login";
+          window.location.href = "/admin/login";
         } else {
           console.log("✅ Usuario autenticado correctamente");
         }
