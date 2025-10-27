@@ -1,3 +1,54 @@
+const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"))
+console.log(USER_DATA);
+
+document.querySelector(".greeting").textContent = `Good Morning, ${USER_DATA.name}`
+
+;(async () => {
+  const response = await fetch(`http://localhost:3000/users/${USER_DATA.id}/plants`);
+  const { success, data: plants, count} = await response.json()
+    
+  if(!success || count === 0) return
+
+  const plant = getMostRecentPlant(plants)
+
+  document.querySelector(".subgreeting").style.display = "block"
+  document.querySelector(".last-plant-card").style.display = "flex"
+  document.querySelector(".plant-name").textContent = plant.name
+
+  fetchPlantMetrics(plant.id)
+
+})() 
+
+function getMostRecentPlant(plants) {
+  return [...plants].sort(
+    (a, b) => new Date(b.registration_date) - new Date(a.registration_date)
+  )[0];
+}
+
+async function fetchPlantMetrics(plantId) {
+  const response = await fetch(`http://localhost:3000/plant_status/${plantId}`);
+  const { success, data: plantMetrics } = await response.json();
+  console.log(plantMetrics, success);
+  
+
+  if (!success) throw new Error('Failed to load plant metrics');
+  const percent = (plantMetrics.mood_index * 100);
+
+  document.querySelector(".progress-text").textContent = percent + "%"
+  // Animar progreso circular
+  const circumference = 2 * Math.PI * 30;
+  const progressCircle = document.getElementById('progressCircle');
+  const offset = circumference - (percent / 100) * circumference;
+  progressCircle.style.strokeDashoffset = offset;
+}
+
+
+
+
+
+
+
+
 // Actualizar hora
 function updateTime() {
   const now = new Date();
@@ -8,12 +59,6 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 60000);
 
-// Animar progreso circular
-const circumference = 2 * Math.PI * 30;
-const progressCircle = document.getElementById('progressCircle');
-const percent = 87;
-const offset = circumference - (percent / 100) * circumference;
-progressCircle.style.strokeDashoffset = offset;
 
 // Funciones de navegación
 function goToHome(event) {

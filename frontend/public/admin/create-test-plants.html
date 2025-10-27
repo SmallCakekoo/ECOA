@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Plantas de Prueba - ECOA Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .plant-form {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .plant-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .plant-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Crear Plantas de Prueba - ECOA Admin</h1>
+        <p>Este formulario crea plantas de prueba con imágenes para probar el dashboard.</p>
+        
+        <div class="plant-form">
+            <h3>📝 Crear Nueva Planta</h3>
+            <form id="plantForm">
+                <div class="form-group">
+                    <label for="name">Nombre de la Planta:</label>
+                    <input type="text" id="name" name="name" placeholder="Ej: Luna" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="species">Especie:</label>
+                    <input type="text" id="species" name="species" placeholder="Ej: Ficus lyrata" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Descripción:</label>
+                    <textarea id="description" name="description" placeholder="Descripción de la planta..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imageUrl">URL de Imagen:</label>
+                    <select id="imageUrl" name="imageUrl">
+                        <option value="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop">🌿 Planta 1 (Unsplash)</option>
+                        <option value="https://images.unsplash.com/photo-1509423350716-97f2360ff5d5?w=400&h=400&fit=crop">🌱 Planta 2 (Unsplash)</option>
+                        <option value="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=400&fit=crop">🌵 Planta 3 (Unsplash)</option>
+                        <option value="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop">🌴 Planta 4 (Unsplash)</option>
+                        <option value="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop">🌳 Planta 5 (Unsplash)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="healthStatus">Estado de Salud:</label>
+                    <select id="healthStatus" name="healthStatus">
+                        <option value="healthy">Healthy</option>
+                        <option value="needs_care">Needs Care</option>
+                        <option value="sick">Sick</option>
+                        <option value="dying">Dying</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adopterName">Nombre del Adoptante (opcional):</label>
+                    <input type="text" id="adopterName" name="adopterName" placeholder="Dejar vacío si está disponible">
+                </div>
+                
+                <button type="submit">🌱 Crear Planta</button>
+                <button type="button" onclick="createSamplePlants()">🎲 Crear Plantas de Muestra</button>
+            </form>
+        </div>
+        
+        <div id="preview" class="result" style="display: none;">
+            <h3>👀 Vista Previa</h3>
+            <div id="plantPreview"></div>
+        </div>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001';
+        
+        // Obtener el primer usuario admin para usar como user_id
+        async function getAdminUserId() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const adminUser = data.data.find(user => user.rol === 'admin');
+                    return adminUser ? adminUser.id : null;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error obteniendo usuario admin:', error);
+                return null;
+            }
+        }
+        
+        // Crear planta individual
+        async function createPlant(plantData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/plants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(plantData)
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creando planta:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Manejar envío del formulario
+        document.getElementById('plantForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '🔄 Creando planta...';
+            
+            const adminUserId = await getAdminUserId();
+            if (!adminUserId) {
+                resultDiv.innerHTML = '<div class="error">❌ No se encontró usuario admin</div>';
+                return;
+            }
+            
+            const formData = new FormData(e.target);
+            const plantData = {
+                user_id: adminUserId,
+                name: formData.get('name'),
+                species: formData.get('species'),
+                description: formData.get('description'),
+                image_url: formData.get('imageUrl'),
+                health_status: formData.get('healthStatus'),
+                adopter_name: formData.get('adopterName') || null,
+                status: 'active'
+            };
+            
+            const result = await createPlant(plantData);
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Planta creada exitosamente!<br>
+                        <strong>Nombre:</strong> ${plantData.name}<br>
+                        <strong>Especie:</strong> ${plantData.species}<br>
+                        <strong>ID:</strong> ${result.data.id}
+                    </div>
+                `;
+                e.target.reset();
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.message || result.error}</div>`;
+            }
+        });
+        
+        // Crear plantas de muestra
+        async function createSamplePlants() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '🔄 Creando plantas de muestra...';
+            
+            const adminUserId = await getAdminUserId();
+            if (!adminUserId) {
+                resultDiv.innerHTML = '<div class="error">❌ No se encontró usuario admin</div>';
+                return;
+            }
+            
+            const samplePlants = [
+                {
+                    name: 'Luna',
+                    species: 'Ficus lyrata',
+                    description: 'Hermosa planta de interior con hojas grandes y verdes',
+                    image_url: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop',
+                    health_status: 'healthy',
+                    adopter_name: null
+                },
+                {
+                    name: 'Sol',
+                    species: 'Monstera deliciosa',
+                    description: 'Planta tropical con hojas perforadas características',
+                    image_url: 'https://images.unsplash.com/photo-1509423350716-97f2360ff5d5?w=400&h=400&fit=crop',
+                    health_status: 'healthy',
+                    adopter_name: null
+                },
+                {
+                    name: 'Estrella',
+                    species: 'Sansevieria trifasciata',
+                    description: 'Planta resistente perfecta para principiantes',
+                    image_url: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=400&fit=crop',
+                    health_status: 'needs_care',
+                    adopter_name: 'María García'
+                }
+            ];
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (const plant of samplePlants) {
+                const plantData = {
+                    ...plant,
+                    user_id: adminUserId,
+                    status: 'active'
+                };
+                
+                const result = await createPlant(plantData);
+                if (result.success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                }
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="${errorCount === 0 ? 'success' : 'error'}">
+                    ${errorCount === 0 ? '✅' : '⚠️'} Plantas de muestra creadas<br>
+                    <strong>Exitosas:</strong> ${successCount}<br>
+                    <strong>Con error:</strong> ${errorCount}
+                </div>
+            `;
+        }
+        
+        // Vista previa de la imagen
+        document.getElementById('imageUrl').addEventListener('change', (e) => {
+            const preview = document.getElementById('preview');
+            const plantPreview = document.getElementById('plantPreview');
+            
+            if (e.target.value) {
+                preview.style.display = 'block';
+                plantPreview.innerHTML = `
+                    <div class="plant-preview">
+                        <img src="${e.target.value}" alt="Vista previa">
+                        <div>
+                            <strong>Vista previa de la imagen</strong><br>
+                            <small>URL: ${e.target.value}</small>
+                        </div>
+                    </div>
+                `;
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

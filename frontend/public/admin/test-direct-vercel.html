@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vercel Directo</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; }
+        button { background: #7EB234; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .result { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Test Vercel Directo</h1>
+    <p>Este test se conecta directamente a Vercel sin proxy local.</p>
+    
+    <button id="testBtn">Probar Conexión</button>
+    <button id="statsBtn">Probar Estadísticas</button>
+    <button id="plantsBtn">Probar Plantas</button>
+    <div id="result"></div>
+
+    <script>
+        const result = document.getElementById('result');
+        const testBtn = document.getElementById('testBtn');
+        const statsBtn = document.getElementById('statsBtn');
+        const plantsBtn = document.getElementById('plantsBtn');
+
+        testBtn.addEventListener('click', async () => {
+            await testEndpoint('/health', 'Health Check');
+        });
+
+        statsBtn.addEventListener('click', async () => {
+            await testStats();
+        });
+
+        plantsBtn.addEventListener('click', async () => {
+            await testEndpoint('/plants', 'Plantas');
+        });
+
+        async function testEndpoint(endpoint, name) {
+            try {
+                const response = await fetch(`https://ecoa-nine.vercel.app${endpoint}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ ${name} funcionando:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ Error en ${name}:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Error de conexión en ${name}: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStats() {
+            try {
+                // Simular la función getStats del dashboard
+                const [users, plants, donations] = await Promise.all([
+                    fetch('https://ecoa-nine.vercel.app/users').then(r => r.json()),
+                    fetch('https://ecoa-nine.vercel.app/plants').then(r => r.json()),
+                    fetch('https://ecoa-nine.vercel.app/donations').then(r => r.json())
+                ]);
+
+                const stats = {
+                    users: { total: users.count || users.data?.length || 0 },
+                    plants: { total: plants.count || plants.data?.length || 0 },
+                    donations: { total: donations.count || donations.data?.length || 0 }
+                };
+
+                showResult(`✅ Estadísticas cargadas:<br><pre>${JSON.stringify(stats, null, 2)}</pre>`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Error cargando estadísticas: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            result.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        showResult('🔍 Haz clic en los botones para probar la conexión directa a Vercel.', 'success');
+    </script>
+</body>
+</html>

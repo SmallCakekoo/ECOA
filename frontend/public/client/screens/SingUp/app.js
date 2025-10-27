@@ -25,7 +25,7 @@ eyeIcons.forEach(eyeIcon => {
 const signupForm = document.getElementById('signupForm');
 const errorMessage = document.getElementById('errorMessage');
 
-signupForm.addEventListener('submit', (e) => {
+signupForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   
   const email = document.getElementById('email').value;
@@ -42,31 +42,28 @@ signupForm.addEventListener('submit', (e) => {
 
   // Ocultar mensaje de error si todo está bien
   errorMessage.classList.remove('show');
+
+  const response = await fetch('http://localhost:3000/users/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      name: username
+    }),
+  });
+
+  const data = await response.json()
   
-  // Obtener usuarios existentes del localStorage
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  
-  // Verificar si el usuario ya existe
-  const userExists = users.find(user => user.username === username || user.email === email);
-  
-  if (userExists) {
-    errorMessage.textContent = 'Username or email already exists!';
+  if (!data.success) {
+    errorMessage.textContent = data.message;
     errorMessage.classList.add('show');
     return;
   }
   
-  // Crear nuevo usuario
-  const newUser = {
-    email: email,
-    username: username,
-    password: password
-  };
-  
-  // Agregar el nuevo usuario al array
-  users.push(newUser);
-  
-  // Guardar en localStorage
-  localStorage.setItem('users', JSON.stringify(users));
+  localStorage.setItem("USER_DATA", JSON.stringify(data.data.user))
   
   // Mostrar mensaje de éxito y redirigir
   alert(`Account created successfully!\nEmail: ${email}\nUsername: ${username}`);

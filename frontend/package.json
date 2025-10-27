@@ -10,9 +10,13 @@
   },
   "author": "Ana Tobón, Cristina Jauregui, Sary Payán",
   "devDependencies": {
+    "nodemon": "^3.1.10",
     "vite": "^7.1.2"
   },
   "dependencies": {
     "eslint": "^9.35.0"
-  }
+  },
+  "description": "Aplicación web cliente para el sistema de monitoreo inteligente de plantas ECOA, construida con HTML5, CSS3, JavaScript ES6+ y Vite.",
+  "main": "vite.config.js",
+  "license": "ISC"
 }
