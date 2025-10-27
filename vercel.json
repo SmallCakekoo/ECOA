@@ -1,0 +1,81 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "cd frontend && npm install",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/client-Home.html"
+    },
+    {
+      "source": "/client/home",
+      "destination": "/client-Home.html"
+    },
+    {
+      "source": "/client/login",
+      "destination": "/client-LogIn.html"
+    },
+    {
+      "source": "/client/shop",
+      "destination": "/client-Shop.html"
+    },
+    {
+      "source": "/client/adopt",
+      "destination": "/client-Adopt.html"
+    },
+    {
+      "source": "/client/adoptdetail",
+      "destination": "/client-AdoptDetail.html"
+    },
+    {
+      "source": "/client/garden",
+      "destination": "/client-Garden.html"
+    },
+    {
+      "source": "/client/profile",
+      "destination": "/client-Profile.html"
+    },
+    {
+      "source": "/client/signup",
+      "destination": "/client-SingUp.html"
+    },
+    {
+      "source": "/client/virtualpet",
+      "destination": "/client-VirtualPet.html"
+    },
+    {
+      "source": "/client/adoptfeedback/error",
+      "destination": "/client-AdoptFeedback-error.html"
+    },
+    {
+      "source": "/client/adoptfeedback/success",
+      "destination": "/client-AdoptFeedback-success.html"
+    },
+    {
+      "source": "/client/shopfeedback/error",
+      "destination": "/client-ShopFeedback-error.html"
+    },
+    {
+      "source": "/client/shopfeedback/success",
+      "destination": "/client-ShopFeedback-success.html"
+    },
+    {
+      "source": "/admin/dashboard",
+      "destination": "/admin-dashboard.html"
+    },
+    {
+      "source": "/admin/login",
+      "destination": "/admin-login.html"
+    },
+    {
+      "source": "/admin/donationlog",
+      "destination": "/admin-donationlog.html"
+    },
+    {
+      "source": "/admin/plantcatalog",
+      "destination": "/admin-PlantCatalog.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}
