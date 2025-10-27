@@ -70,19 +70,19 @@ function goToHome(event) {
 function goToPlants(event) {
   if (event) event.preventDefault();
   console.log('Navegando a Virtual Pet');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
+  window.location.href = '/client/screens/VirtualPet';
 }
 
 function goToProfile(event) {
   if (event) event.preventDefault();
   console.log('Navegando a Profile');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
+  window.location.href = '/client/screens/Profile';
 }
 
 // Adopt button - Redirige a página de adopción
 document.getElementById('adoptBtn').addEventListener('click', () => {
   console.log('Adopt a new plant clicked');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Adopt';
+  window.location.href = '/client/screens/Adopt';
 });
 
 // Actualizar estadísticas aleatoriamente
