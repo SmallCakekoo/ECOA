@@ -1,86 +1,117 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="../../src/assets/images/flower-icon.png"
+    />
     <title>Plant - Adopt</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css" />
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <div class="header-top">
-            <span class="time" id="current-time">12:42</span>
-            <div class="status-icons">
-                <span class="iconify" data-icon="mdi:signal"></span>
-                <span class="iconify" data-icon="mdi:wifi"></span>
-                <span class="iconify" data-icon="mdi:battery"></span>
-            </div>
+      <div class="header-top">
+        <span class="time" id="current-time">12:42</span>
+        <div class="status-icons">
+          <span class="iconify" data-icon="mdi:signal"></span>
+          <span class="iconify" data-icon="mdi:wifi"></span>
+          <span class="iconify" data-icon="mdi:battery"></span>
         </div>
-        <div class="header-content">
-            <button class="back-button" onclick="goToHome(event)">
-                <span class="iconify" data-icon="material-symbols:chevron-left-rounded"></span>
-                <span>Back</span>
-            </button>
-        </div>
+      </div>
+      <div class="header-content">
+        <button class="back-button" onclick="goToHome(event)">
+          <span
+            class="iconify"
+            data-icon="material-symbols:chevron-left-rounded"
+          ></span>
+          <span>Back</span>
+        </button>
+      </div>
     </header>
 
     <div class="main-content">
-        <div class="plant-section">
-            <div class="plant-info">
-                <h1 class="plant-title">- Plant</h1>
-                <p class="plant-description">
-                    -
-                </p>
-                <button class="adopt-button" onclick="adoptPlant()">
-                    <span class="iconify" data-icon="material-symbols:add"></span>
-                    ¡Adopt me!
-                </button>
-            </div>
-            <div class="plant-image">
-                <img id="plant-image" src="../../src/assets/images/plant.png" alt="Snake Plant">
-            </div>
+      <div class="plant-section">
+        <div class="plant-info">
+          <h1 class="plant-title">- Plant</h1>
+          <p class="plant-description">-</p>
+          <button class="adopt-button" onclick="adoptPlant()">
+            <span class="iconify" data-icon="material-symbols:add"></span>
+            ¡Adopt me!
+          </button>
         </div>
-
-        <div class="more-about-section">
-            <h2 class="section-title">More About</h2>
-            <p class="about-text">-</p>
-
-            <div class="state-section">
-                <h3 class="state-title">State</h3>
-                <div class="state-buttons">
-                    <button class="state-button">
-                        <span class="iconify" data-icon="wi:day-sunny"></span>
-                    </button>
-                    <button class="state-button">
-                        <span class="iconify" data-icon="mdi:water-outline"></span>
-                    </button>
-                    <button class="state-button">
-                        <span class="iconify" data-icon="mdi:shower"></span>
-                    </button>
-                    <button class="state-button">
-                        <span class="iconify" data-icon="mdi:emoticon-happy-outline"></span>
-                    </button>
-                </div>
-                <p class="state-message">
-                    "I'm feeling fresh and fully hydrated, enjoying just the right amount of sunshine. My nutrients are halfway there, so a little snack would make me happier. Overall, I'm in a great mood – relaxed, thriving, and grateful!"
-                </p>
-            </div>
+        <div class="plant-image">
+          <img
+            id="plant-image"
+            src="../../src/assets/images/plant.png"
+            alt="Snake Plant"
+          />
         </div>
+      </div>
+
+      <div class="more-about-section">
+        <h2 class="section-title">More About</h2>
+        <p class="about-text">-</p>
+
+        <div class="state-section">
+          <h3 class="state-title">State</h3>
+          <div class="state-buttons">
+            <button class="state-button">
+              <span class="iconify" data-icon="wi:day-sunny"></span>
+            </button>
+            <button class="state-button">
+              <span class="iconify" data-icon="mdi:water-outline"></span>
+            </button>
+            <button class="state-button">
+              <span class="iconify" data-icon="mdi:shower"></span>
+            </button>
+            <button class="state-button">
+              <span
+                class="iconify"
+                data-icon="mdi:emoticon-happy-outline"
+              ></span>
+            </button>
+          </div>
+          <p class="state-message">
+            "I'm feeling fresh and fully hydrated, enjoying just the right
+            amount of sunshine. My nutrients are halfway there, so a little
+            snack would make me happier. Overall, I'm in a great mood – relaxed,
+            thriving, and grateful!"
+          </p>
+        </div>
+      </div>
     </div>
 
     <nav class="bottom-nav">
-        <a href="https://ecoa-frontend.vercel.app/client/screens/Home" class="nav-item" onclick="goToHome(event)">
-            <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
-        </a>
-        <a href="https://ecoa-frontend.vercel.app/client/screens/VirtualPet" class="nav-item active" onclick="goToPlants(event)">
-            <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-        </a>
-        <a href="https://ecoa-frontend.vercel.app/client/screens/Profile" class="nav-item" onclick="goToProfile(event)">
-            <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
-        </a>
+      <a
+        href="https://ecoa-frontend.vercel.app/client/screens/Home"
+        class="nav-item"
+        onclick="goToHome(event)"
+      >
+        <span
+          class="iconify nav-icon"
+          data-icon="material-symbols:home-rounded"
+        ></span>
+      </a>
+      <a
+        href="https://ecoa-frontend.vercel.app/client/screens/VirtualPet"
+        class="nav-item active"
+        onclick="goToPlants(event)"
+      >
+        <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+      </a>
+      <a
+        href="https://ecoa-frontend.vercel.app/client/screens/Profile"
+        class="nav-item"
+        onclick="goToProfile(event)"
+      >
+        <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+      </a>
     </nav>
 
     <script src="./app.js"></script>
-</body>
+  </body>
 </html>

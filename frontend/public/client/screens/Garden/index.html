@@ -1,43 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="../../src/assets/images/flower-icon.png"
+    />
     <title>Welcome to Your Garden</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
-        <div class="header-top">
-            <span class="time" id="current-time">12:42</span>
-            <div class="status-icons">
-                <span class="iconify" data-icon="mdi:signal"></span>
-                <span class="iconify" data-icon="mdi:wifi"></span>
-                <span class="iconify" data-icon="mdi:battery"></span>
-            </div>
+      <div class="header-top">
+        <span class="time" id="current-time">12:42</span>
+        <div class="status-icons">
+          <span class="iconify" data-icon="mdi:signal"></span>
+          <span class="iconify" data-icon="mdi:wifi"></span>
+          <span class="iconify" data-icon="mdi:battery"></span>
         </div>
-        <h1 class="header-title">Welcome to Your Garden</h1>
+      </div>
+      <h1 class="header-title">Welcome to Your Garden</h1>
     </header>
     <div class="subtitle">Hi, your plants missed you.</div>
 
     <div class="plants-grid" id="plantsGrid"></div>
 
     <nav class="bottom-nav">
-        <a href="https://ecoa-frontend.vercel.app/client/screens/Home" class="nav-item" onclick="goToHome(event)">
-            <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
-        </a>
-        <a href="https://ecoa-frontend.vercel.app/client/screens/Garden" class="nav-item active" onclick="goToPlants(event)">
-            <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-        </a>
-        <a href="https://ecoa-frontend.vercel.app/client/screens/Profile" class="nav-item" onclick="goToProfile(event)">
-            <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
-        </a>
+      <a
+        href="https://ecoa-frontend.vercel.app/client/screens/Home"
+        class="nav-item"
+        onclick="goToHome(event)"
+      >
+        <span
+          class="iconify nav-icon"
+          data-icon="material-symbols:home-rounded"
+        ></span>
+      </a>
+      <a
+        href="https://ecoa-frontend.vercel.app/client/screens/Garden"
+        class="nav-item active"
+        onclick="goToPlants(event)"
+      >
+        <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+      </a>
+      <a
+        href="https://ecoa-frontend.vercel.app/client/screens/Profile"
+        class="nav-item"
+        onclick="goToProfile(event)"
+      >
+        <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+      </a>
     </nav>
 
     <script src="./app.js"></script>
-</body>
+  </body>
 </html>
