@@ -1,9 +1,12 @@
+import crypto from "crypto";
+
 export function createUserModel(payload) {
   const { name, email, rol } = payload;
   if (!name) {
     throw new Error("Nombre es requerido");
   }
   return {
+    id: crypto.randomUUID(), // Generar UUID para el campo id
     name,
     email: email || null,
     rol: rol || "user",
