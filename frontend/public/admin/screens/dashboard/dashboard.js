@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Verificar autenticación
   if (!window.AdminAPI.isAuthenticated()) {
     console.log('No autenticado, redirigiendo al login');
-    window.location.href = '../login/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/admin/login';
     return;
   }
 
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.AuthManager.logout();
       } else {
         window.AdminAPI.logout();
-        window.location.href = '../login/index.html';
+        window.location.href = 'https://ecoa-frontend.vercel.app/admin/login';
       }
     });
   }
@@ -297,5 +297,3 @@ function showLoading(show = true) {
 function showNotification(message, type = 'error') {
   window.AdminUtils.showNotification(message, type);
 }
-
-

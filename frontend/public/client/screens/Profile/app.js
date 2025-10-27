@@ -36,12 +36,12 @@ window.addEventListener('DOMContentLoaded', loadUserData);
 // Funciones de navegación del navbar
 function goToHome() {
     console.log('Navegando a Home');
-    window.location.href = '../Home/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 }
 
 function goToPlants() {
     console.log('Navegando a Virtual Pet');
-    window.location.href = '../VirtualPet/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
 }
 
 function goToGlobe() {
@@ -109,6 +109,6 @@ function handleLogout() {
         alert('You have been logged out successfully');
         
         // Redirigir a la página de inicio de sesión
-        window.location.href = '../Login/index.html';
+        window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Login';
     }
 }

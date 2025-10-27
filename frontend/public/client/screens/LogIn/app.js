@@ -41,7 +41,7 @@ loginForm.addEventListener("submit", async (e) => {
   
   if (data.success) {
     // Si el usuario existe, redirigir a home
-    window.location.href = "../Home/index.html";
+    window.location.href = "https://ecoa-frontend.vercel.app/client/screens/Home";
   } else {
     // Si no existe, mostrar mensaje de error
     alert("Usuario o contraseña incorrectos");
@@ -52,5 +52,5 @@ loginForm.addEventListener("submit", async (e) => {
 const signupLink = document.getElementById("signupLink");
 signupLink.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location.href = "../SingUp/index.html";
+  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/SingUp";
 });

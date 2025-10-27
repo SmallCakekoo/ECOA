@@ -1,79 +1,24 @@
 import { defineConfig } from "vite";
 import path from "path";
-import { readdirSync, statSync, existsSync } from "fs";
+import { fileURLToPath } from "url";
 
-const { resolve } = path;
-
-// Función para encontrar todos los index.html recursivamente
-function getAllHtmlFiles(dir, baseDir = "", entries = {}) {
-  if (!existsSync(dir)) return entries;
-  
-  try {
-    const files = readdirSync(dir);
-
-    files.forEach((file) => {
-      const fullPath = resolve(dir, file);
-      
-      try {
-        const stat = statSync(fullPath);
-
-        if (stat.isDirectory()) {
-          // Recursivamente buscar en subdirectorios
-          getAllHtmlFiles(fullPath, `${baseDir}${file}/`, entries);
-        } else if (file === "index.html") {
-          // Crear nombre de entrada basado en la ruta
-          const entryName = baseDir ? baseDir.replace(/\//g, "-").slice(0, -1) : "root";
-          entries[entryName] = fullPath;
-          console.log(`✓ Found: ${entryName} -> ${fullPath}`);
-        }
-      } catch (err) {
-        console.warn(`⚠ Skipping ${fullPath}: ${err.message}`);
-      }
-    });
-  } catch (err) {
-    console.warn(`⚠ Cannot read directory ${dir}: ${err.message}`);
-  }
-
-  return entries;
-}
-
-// Buscar todos los archivos HTML automáticamente
-const publicDir = resolve(__dirname, "public");
-const clientDir = resolve(publicDir, "client/screens");
-const adminDir = resolve(publicDir, "admin/screens");
-
-console.log("\n🔍 Scanning for HTML files...\n");
-
-const allEntries = {
-  ...getAllHtmlFiles(clientDir, "client-"),
-  ...getAllHtmlFiles(adminDir, "admin-"),
-};
-
-console.log(`\n✅ Found ${Object.keys(allEntries).length} entry points\n`);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  root: publicDir,
-  
+  root: "./public", // apunta a la carpeta public
   server: {
     port: 5000,
-    open: "/client/screens/Home/index.html",
+    open: true,
   },
 
   build: {
-    outDir: resolve(__dirname, "dist"),
-    emptyOutDir: true,
-    
+    outDir: "../dist", // build final en frontend/dist
     rollupOptions: {
-      input: allEntries,  
-    },
-  },
-
-  resolve: {
-    alias: {
-      "@": publicDir,
-      "@client": resolve(publicDir, "client"),
-      "@admin": resolve(publicDir, "admin"),
-      "@screens": resolve(publicDir, "client/screens"),
+      input: {
+        client: path.resolve(__dirname, "public/client/screens/Home/index.html"),
+        admin: path.resolve(__dirname, "public/admin/screens/dashboard/index.html"),
+      },
     },
   },
 });

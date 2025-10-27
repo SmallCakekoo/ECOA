@@ -17,40 +17,41 @@ setInterval(updateTime, 60000);
 
 // Función para volver a Garden
 function goToGarden() {
-    window.location.href = '../Garden/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Garden';
 }
 
 // Funciones de navegación del navbar
 function goToHome(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     console.log('Navegando a Home');
-    window.location.href = '../Home/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 }
 
 function goToPlants(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     console.log('Navegando a Virtual Pet');
-    window.location.href = '../VirtualPet/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
 }
 
 function goToProfile(event) {
-    event.preventDefault();
-    window.location.href = '../Profile/index.html';
+    if (event) event.preventDefault();
+    console.log('Navegando a Profile');
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
 }
 
 // Funciones para los botones de accesorios
 function goToShopSuccess() {
     console.log('Navegando a Shop Feedback Success');
-    window.location.href = '../ShopFeedback/success/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/ShopFeedback/success';
 }
 
 function goToShopError() {
     console.log('Navegando a Shop Feedback Error');
-    window.location.href = '../ShopFeedback/error/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/ShopFeedback/error';
 }
 
 // Función para el botón View More
 function goToShop() {
     console.log('Navegando a Shop');
-    window.location.href = '../Shop/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Shop';
 }

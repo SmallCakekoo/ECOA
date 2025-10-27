@@ -82,38 +82,39 @@ setInterval(updateTime, 60000);
 
 // Funciones de navegación
 function goToHome(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Home');
-  window.location.href = '../Home/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 }
 
 function goToPlants(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Virtual Pet');
-  window.location.href = '../VirtualPet/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
 }
 
 function goToProfile(event) {
-    event.preventDefault();
-    window.location.href = '../Profile/index.html';
+  if (event) event.preventDefault();
+  console.log('Navegando a Profile');
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
 }
 
 // Función para volver atrás - va a Shop
 function goBack() {
   console.log('Volviendo a Shop...');
-  window.location.href = '../Shop/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Shop';
 }
 
 // Función para ver detalles de una planta (click en tarjeta)
 function selectPlant(id) {
   console.log('Ver detalles de planta:', id);
-  window.location.href = '../AdoptDetail/index.html?id='+id;
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptDetail?id=' + id;
 }
 
 // Función para adoptar una planta (click en botón +)
 async function adoptPlant(id) {
   console.log('Adoptando planta:', id);
-  const response = await fetch('http://localhost:3000/plants/'+id, {
+  const response = await fetch('http://localhost:3000/plants/' + id, {
     method: "PUT",
     headers: {
       'Content-Type': 'application/json',
@@ -127,8 +128,8 @@ async function adoptPlant(id) {
   console.log(success, plant);
   
   if (success) {
-    window.location.href = '../AdoptFeedback/success/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptFeedback/success';
   } else {
-    window.location.href = '../AdoptFeedback/error/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptFeedback/error';
   }
 }

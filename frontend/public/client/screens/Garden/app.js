@@ -19,20 +19,21 @@ setInterval(updateTime, 60000);
 
 // Funciones de navegación
 function goToHome(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     console.log('Navegando a Home');
-    window.location.href = '../Home/index.html';
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 }
 
 function goToPlants(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     console.log('Ya estás en Plants');
     // Ya estamos en esta página
 }
 
 function goToProfile(event) {
-    event.preventDefault();
-    window.location.href = '../Profile/index.html';
+    if (event) event.preventDefault();
+    console.log('Navegando a Profile');
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
 }
 
 function createPlantCard(plant, i) {
@@ -58,8 +59,8 @@ function createPlantCard(plant, i) {
     
     // Al hacer clic en una planta, ir a Virtual Pet
     card.onclick = function() {
-        console.log('Navegando a Virtual Pet con planta: ' + randomName);
-        window.location.href = '../VirtualPet/index.html';
+        console.log('Navegando a Virtual Pet con planta: ' + plant.name);
+        window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
     };
 
     return card
@@ -95,8 +96,8 @@ const plantsGrid = document.getElementById('plantsGrid');
     const addButton = document.createElement('div');
     addButton.className = 'plant-card add-button';
     addButton.onclick = function() {
-        console.log('Navegando a Shop para adoptar nueva planta');
-        window.location.href = '../Adopt/index.html';
+        console.log('Navegando a Adopt para adoptar nueva planta');
+        window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Adopt';
     };
     plantsGrid.appendChild(addButton);
     
@@ -123,5 +124,3 @@ const plantsGrid = document.getElementById('plantsGrid');
     // const { success: s, data} = await r.json()
     // console.log(s, data);
 })()
-
-
