@@ -54,7 +54,7 @@ signupForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({
         name: username,
         email: email,
-        rol: "user", // rol por defecto
+        rol: "donante", // rol por defecto
       }),
     });
 

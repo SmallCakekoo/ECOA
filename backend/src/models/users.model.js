@@ -9,7 +9,7 @@ export function createUserModel(payload) {
     id: crypto.randomUUID(), // Generar UUID para el campo id
     name,
     email: email || null,
-    rol: rol || "user",
+    rol: rol || "donante", // rol por defecto: donante
     // registration_date se agrega automáticamente con default: now() en la DB
   };
 }
