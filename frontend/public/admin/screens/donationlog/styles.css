@@ -5,7 +5,7 @@
   --text: #263238;
   --muted: #62727b;
   --card: #fff;
-  --shadow: 0 8px 20px rgba(0,0,0,.06);
+  --shadow: 0 8px 20px rgba(0, 0, 0, .06);
   --radius: 14px;
 }
 
@@ -65,12 +65,117 @@ body {
   font-family: 'Belanosima', sans-serif;
 }
 
+.topbar .profile {
+  position: relative;
+}
+
 .topbar .avatar {
   width: 42px;
   height: 42px;
   border-radius: 50%;
   background: url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop') center/cover no-repeat;
   border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.topbar .avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(126, 178, 52, 0.2);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.profile-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdown-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop') center/cover no-repeat;
+  flex-shrink: 0;
+}
+
+.dropdown-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.dropdown-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-email {
+  font-size: 13px;
+  color: #7f8c8d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #ecf0f1;
+  margin: 0 12px;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.logout-btn {
+  color: #e74c3c;
+  border-radius: 0 0 12px 12px;
+}
+
+.logout-btn:hover {
+  background: #fee;
 }
 
 .sidebar {
@@ -100,7 +205,7 @@ body {
 }
 
 .menu-item:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .menu-item.active {

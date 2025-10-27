@@ -35,6 +35,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Event listeners para dropdown de perfil
+  setupProfileDropdown();
+
   // Event listeners para logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
@@ -48,6 +51,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
+
+// Función para configurar el dropdown del perfil
+function setupProfileDropdown() {
+  const avatar = document.getElementById("profileAvatar");
+  const dropdown = document.getElementById("profileDropdown");
+
+  if (!avatar || !dropdown) return;
+
+  // Cargar información del usuario
+  const user = window.AdminAPI.getCurrentUser();
+  if (user) {
+    const userNameEl = document.getElementById("userName");
+    const userEmailEl = document.getElementById("userEmail");
+    if (userNameEl) userNameEl.textContent = user.name || "Administrador";
+    if (userEmailEl) userEmailEl.textContent = user.email || "admin@ecoa.org";
+  }
+
+  // Toggle dropdown al hacer clic en el avatar
+  avatar.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("active");
+  });
+
+  // Cerrar dropdown al hacer clic fuera
+  document.addEventListener("click", (e) => {
+    if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove("active");
+    }
+  });
+
+  // Cerrar dropdown al hacer scroll
+  window.addEventListener("scroll", () => {
+    dropdown.classList.remove("active");
+  });
+}
 
 async function initializeApp() {
   try {
