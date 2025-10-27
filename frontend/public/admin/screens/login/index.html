@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
@@ -6,7 +6,10 @@
     <title>Admin Portal - Iniciar sesión</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="../../src/styles.css" />
@@ -15,7 +18,11 @@
     <main class="page">
       <section class="card">
         <div class="logo-circle" aria-hidden="true">
-          <img src="../../../client/src/assets/images/flower-icon.png" alt="Logo ECOA" class="logo-img" />
+          <img
+            src="../../../client/src/assets/images/flower-icon.png"
+            alt="Logo ECOA"
+            class="logo-img"
+          />
         </div>
         <h1 class="title">Welcome Back!</h1>
         <p class="subtitle">Admin Portal</p>
@@ -23,16 +30,48 @@
         <form class="form" id="login-form" autocomplete="on">
           <label class="label" for="email">Email Address</label>
           <div class="input-wrap">
-            <span class="iconify icon" data-icon="material-symbols-light:mail" style="font-size: 20px; color: #7EB234;"></span>
-            <input id="email" name="email" type="email" placeholder="admin@foundation.org" required />
+            <span
+              class="iconify icon"
+              data-icon="material-symbols-light:mail"
+              style="font-size: 20px; color: #7eb234"
+            ></span>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="admin@foundation.org"
+              required
+            />
           </div>
 
-          <label class="label" for="password">Password (Opcional)</label>
+          <label class="label" for="password"
+            >Password (No requerido - Autenticación por email)</label
+          >
           <div class="input-wrap">
-            <span class="iconify icon" data-icon="mdi:lock-outline" style="font-size: 20px; color: #7EB234;"></span>
-            <input id="password" name="password" type="password" placeholder="No es necesario para admin" />
-            <button class="icon trailing" type="button" id="toggle-password" aria-label="Toggle password visibility">
-              <span class="iconify" id="eye-icon" data-icon="mdi:eye-off-outline" style="font-size: 20px; color: #7EB234;"></span>
+            <span
+              class="iconify icon"
+              data-icon="mdi:lock-outline"
+              style="font-size: 20px; color: #7eb234"
+            ></span>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Autenticación simulada"
+              autocomplete="current-password"
+            />
+            <button
+              class="icon trailing"
+              type="button"
+              id="toggle-password"
+              aria-label="Toggle password visibility"
+            >
+              <span
+                class="iconify"
+                id="eye-icon"
+                data-icon="mdi:eye-off-outline"
+                style="font-size: 20px; color: #7eb234"
+              ></span>
             </button>
           </div>
 
@@ -46,7 +85,9 @@
 
           <button type="submit" class="btn-primary">Sign In</button>
 
-          <p class="help">Need help? <a class="link" href="#">Contact Support</a></p>
+          <p class="help">
+            Need help? <a class="link" href="#">Contact Support</a>
+          </p>
         </form>
       </section>
 
