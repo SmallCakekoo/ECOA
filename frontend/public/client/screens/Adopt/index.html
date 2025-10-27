@@ -1,55 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adopt a new plant</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-</head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <div class="header-top">
-        <span class="time" id="current-time">12:42</span>
-        <div class="status-icons">
-          <span class="iconify" data-icon="mdi:signal"></span>
-          <span class="iconify" data-icon="mdi:wifi"></span>
-          <span class="iconify" data-icon="mdi:battery"></span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adopt a new plant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Belanosima:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-top">
+          <span class="time" id="current-time">12:42</span>
+          <div class="status-icons">
+            <span class="iconify" data-icon="mdi:signal"></span>
+            <span class="iconify" data-icon="mdi:wifi"></span>
+            <span class="iconify" data-icon="mdi:battery"></span>
+          </div>
         </div>
-      </div>
-      <button class="back-button" onclick="goBack()">
-        <span class="iconify" data-icon="mingcute:left-fill"></span>
-        <span>Adopt a new plant</span>
-      </button>
-    </header>
+        <button class="back-button" onclick="goBack()">
+          <span class="iconify" data-icon="mingcute:left-fill"></span>
+          <span>Adopt a new plant</span>
+        </button>
+      </header>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <p class="intro-text">Choose a plant and give it a new home:</p>
-      <div class="plant-cards">
-        
+      <!-- Main Content -->
+      <div class="main-content">
+        <p class="intro-text">Choose a plant and give it a new home:</p>
+        <div class="plant-cards"></div>
       </div>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <a
+          href="https://ecoa-frontend.vercel.app/client/screens/Home"
+          class="nav-item"
+          onclick="goToHome(event)"
+        >
+          <span
+            class="iconify nav-icon"
+            data-icon="material-symbols:home-rounded"
+          ></span>
+        </a>
+        <a
+          href="https://ecoa-frontend.vercel.app/client/screens/VirtualPet"
+          class="nav-item active"
+          onclick="goToPlants(event)"
+        >
+          <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
+        </a>
+        <a
+          href="https://ecoa-frontend.vercel.app/client/screens/Profile"
+          class="nav-item"
+          onclick="goToProfile(event)"
+        >
+          <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
+        </a>
+      </nav>
     </div>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-      <a href="https://ecoa-frontend.vercel.app/client/screens/Home" class="nav-item" onclick="goToHome(event)">
-        <span class="iconify nav-icon" data-icon="material-symbols:home-rounded"></span>
-      </a>
-      <a href="https://ecoa-frontend.vercel.app/client/screens/VirtualPet" class="nav-item active" onclick="goToPlants(event)">
-        <span class="iconify nav-icon" data-icon="mdi:sprout"></span>
-      </a>
-      <a href="https://ecoa-frontend.vercel.app/client/screens/Profile" class="nav-item" onclick="goToProfile(event)">
-        <span class="iconify nav-icon" data-icon="tdesign:user-filled"></span>
-      </a>
-    </nav>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <script src="./app.js"></script>
+  </body>
 </html>

@@ -133,6 +133,47 @@ console.log(`\n✅ Found ${Object.keys(htmlEntries).length} HTML files`);
 console.log(`✅ Found ${Object.keys(jsEntries).length} JS files`);
 console.log(`✅ Total entry points: ${Object.keys(allEntries).length}\n`);
 
+// Plugin para convertir rutas relativas de scripts a absolutas
+function fixScriptPaths() {
+  return {
+    name: "fix-script-paths",
+    transformIndexHtml(html, ctx) {
+      // Obtener la ruta del archivo HTML relativa al dist
+      const filePath = ctx.path;
+
+      // Convertir rutas relativas de scripts a absolutas
+      // Patrón: <script src="./archivo.js"></script> o <script src="../../src/archivo.js"></script>
+      html = html.replace(
+        /<script\s+src="(\.\.[\/\\].*?\.js|\.\/.*?\.js)">/g,
+        (match, relativePath) => {
+          // Obtener el directorio del archivo HTML
+          const dir = filePath.substring(0, filePath.lastIndexOf("/"));
+
+          // Construir la ruta absoluta
+          let absolutePath;
+          if (relativePath.startsWith("./")) {
+            // ./app.js -> /client/screens/Home/app.js
+            absolutePath = `${dir}/${relativePath.substring(2)}`;
+          } else if (relativePath.startsWith("../")) {
+            // ../../src/config.js -> /admin/src/config.js
+            const parts = dir.split("/").filter((p) => p);
+            const upCount = (relativePath.match(/\.\.\//g) || []).length;
+            const fileName = relativePath.replace(/\.\.\//g, "");
+
+            // Remover tantos directorios como ../ haya
+            const newParts = parts.slice(0, parts.length - upCount);
+            absolutePath = `/${newParts.join("/")}/${fileName}`;
+          }
+
+          return `<script src="${absolutePath}">`;
+        }
+      );
+
+      return html;
+    },
+  };
+}
+
 export default defineConfig({
   root: publicDir,
 
@@ -140,6 +181,8 @@ export default defineConfig({
     port: 5000,
     open: "/client/screens/Home/index.html",
   },
+
+  plugins: [fixScriptPaths()],
 
   build: {
     outDir: resolve(__dirname, "dist"),
