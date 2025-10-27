@@ -1,12 +1,26 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // Verificar autenticación
-  if (!window.AdminAPI.isAuthenticated()) {
-    console.log("No autenticado, redirigiendo al login");
+  console.log("🚀 Dashboard cargando...");
+
+  // Verificar que AdminAPI esté disponible
+  if (!window.AdminAPI) {
+    console.error("❌ AdminAPI no está disponible");
     window.location.href = "https://ecoa-frontend.vercel.app/admin/login";
     return;
   }
 
-  console.log("Usuario autenticado, inicializando dashboard");
+  console.log("✅ AdminAPI disponible");
+
+  // Verificar autenticación
+  const isAuth = window.AdminAPI.isAuthenticated();
+  console.log("🔐 ¿Está autenticado?", isAuth);
+
+  if (!isAuth) {
+    console.log("❌ No autenticado, redirigiendo al login");
+    window.location.href = "https://ecoa-frontend.vercel.app/admin/login";
+    return;
+  }
+
+  console.log("✅ Usuario autenticado, inicializando dashboard");
 
   // Inicializar la aplicación
   await initializeApp();

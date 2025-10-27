@@ -1,9 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Verificar si ya está autenticado
   if (window.AdminAPI && window.AdminAPI.isAuthenticated()) {
-    window.location.href = "/admin/dashboard";
+    console.log("✅ Ya autenticado, redirigiendo a dashboard...");
+    window.location.href = "https://ecoa-frontend.vercel.app/admin/dashboard";
     return;
   }
+
+  console.log("❌ No autenticado, mostrando formulario de login");
 
   const togglePassword = document.getElementById("toggle-password");
   const passwordInput = document.getElementById("password");
@@ -97,13 +100,17 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("¿Está autenticado después del login?", isAuth);
 
             if (isAuth) {
-              console.log("Redirigiendo a dashboard...");
+              console.log(
+                "✅ Autenticación verificada, redirigiendo a dashboard..."
+              );
               // Pequeño delay para mostrar el mensaje de éxito
               setTimeout(() => {
-                window.location.href = "/admin/dashboard";
+                console.log("🔄 Ejecutando redirección a dashboard...");
+                window.location.href =
+                  "https://ecoa-frontend.vercel.app/admin/dashboard";
               }, 500);
             } else {
-              console.error("Error: No se pudo verificar la autenticación");
+              console.error("❌ Error: No se pudo verificar la autenticación");
               showNotification("Error al verificar la autenticación", "error");
             }
           } else {
