@@ -22,21 +22,21 @@ function goBack() {
 
 // Funciones de navegación
 function goToHome(event) {
-  event.preventDefault();
-  window.location.href = "../Home/index.html";
+  if (event) event.preventDefault();
+  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/Home";
 }
 
 function goToPlants(event) {
-  event.preventDefault();
-  window.location.href = "../VirtualPet/index.html";
+  if (event) event.preventDefault();
+  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/VirtualPet";
 }
 
 function goToProfile(event) {
-  event.preventDefault();
-  window.location.href = "../Profile/index.html";
+  if (event) event.preventDefault();
+  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/Profile";
 }
 
 // Función para ir a Shop Feedback Success
 function goToShopFeedback() {
-  window.location.href = "../ShopFeedback/success/index.html";
+  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/ShopFeedback/success";
 }

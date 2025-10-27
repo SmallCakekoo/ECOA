@@ -69,12 +69,12 @@ signupForm.addEventListener('submit', async (e) => {
   alert(`Account created successfully!\nEmail: ${email}\nUsername: ${username}`);
   
   // Redirigir a la página de Home
-  window.location.href = '../Home/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 });
 
 // Handle signin link - Sign In
 const signinLink = document.getElementById('signinLink');
 signinLink.addEventListener('click', (e) => {
   e.preventDefault();
-  window.location.href = '../LogIn/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/LogIn';
 });

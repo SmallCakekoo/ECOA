@@ -18,21 +18,21 @@ setInterval(updateTime, 60000);
 
 // Funciones de navegación
 function goToHome(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Home');
-  window.location.href = '../../Home/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 }
 
 function goToPlants(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Virtual Pet');
-  window.location.href = '../../VirtualPet/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
 }
 
 function goToProfile(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Profile');
-  window.location.href = '../../Profile/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
 }
 
 // Función para volver atrás - va a la página anterior
@@ -44,5 +44,5 @@ function goBack() {
 // Función para ir a Garden
 function goToGarden() {
   console.log('Yendo a Garden...');
-  window.location.href = '../../Garden/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Garden';
 }

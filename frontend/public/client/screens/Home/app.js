@@ -62,26 +62,27 @@ setInterval(updateTime, 60000);
 
 // Funciones de navegación
 function goToHome(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Home');
-  window.location.href = '../Home/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
 }
 
 function goToPlants(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   console.log('Navegando a Virtual Pet');
-  window.location.href = '../VirtualPet/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
 }
 
 function goToProfile(event) {
-    event.preventDefault();
-    window.location.href = '../Profile/index.html';
+  if (event) event.preventDefault();
+  console.log('Navegando a Profile');
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
 }
 
 // Adopt button - Redirige a página de adopción
 document.getElementById('adoptBtn').addEventListener('click', () => {
   console.log('Adopt a new plant clicked');
-  window.location.href = '../Adopt/index.html';
+  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Adopt';
 });
 
 // Actualizar estadísticas aleatoriamente

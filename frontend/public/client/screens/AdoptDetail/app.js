@@ -1,7 +1,3 @@
-
-
-
-
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"))
 
 const params = new URLSearchParams(window.location.search);
@@ -125,24 +121,24 @@ setInterval(updateTime, 60000);
 
 // Funciones de navegación
 function goToHome(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     window.history.back();
 }
 
 function goToPlants(event) {
-    event.preventDefault();
-    window.location.href = '../VirtualPet/index.html';
+    if (event) event.preventDefault();
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
 }
 
 function goToProfile(event) {
-    event.preventDefault();
-    window.location.href = '../Profile/index.html';
+    if (event) event.preventDefault();
+    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
 }
 
 // Función para ir a la página de éxito de adopción
 async function adoptPlant() {
     console.log('Adoptando planta:', plantId);
-    const response = await fetch('http://localhost:3000/plants/'+plantId, {
+    const response = await fetch('http://localhost:3000/plants/' + plantId, {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',
@@ -156,8 +152,8 @@ async function adoptPlant() {
     console.log(success, plant);
     
     if (success) {
-      window.location.href = '../AdoptFeedback/success/index.html';
+      window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptFeedback/success';
     } else {
-      window.location.href = '../AdoptFeedback/error/index.html';
+      window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptFeedback/error';
     }
   }
