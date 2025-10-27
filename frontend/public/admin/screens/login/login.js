@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Verificar si ya está autenticado
   if (window.AdminAPI && window.AdminAPI.isAuthenticated()) {
     console.log("✅ Ya autenticado, redirigiendo a dashboard...");
-    window.location.href = "https://ecoa-frontend.vercel.app/admin/dashboard";
+    window.location.href = "/admin/dashboard";
     return;
   }
 
@@ -106,8 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
               // Pequeño delay para mostrar el mensaje de éxito
               setTimeout(() => {
                 console.log("🔄 Ejecutando redirección a dashboard...");
-                window.location.href =
-                  "https://ecoa-frontend.vercel.app/admin/dashboard";
+                window.location.href = "/admin/dashboard";
               }, 500);
             } else {
               console.error("❌ Error: No se pudo verificar la autenticación");

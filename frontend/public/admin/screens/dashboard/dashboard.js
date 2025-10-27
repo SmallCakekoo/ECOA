@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Verificar que AdminAPI esté disponible
   if (!window.AdminAPI) {
     console.error("❌ AdminAPI no está disponible");
-    window.location.href = "https://ecoa-frontend.vercel.app/admin/login";
+    window.location.href = "/admin/login";
     return;
   }
 
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!isAuth) {
     console.log("❌ No autenticado, redirigiendo al login");
-    window.location.href = "https://ecoa-frontend.vercel.app/admin/login";
+    window.location.href = "/admin/login";
     return;
   }
 
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.AuthManager.logout();
       } else {
         window.AdminAPI.logout();
-        window.location.href = "https://ecoa-frontend.vercel.app/admin/login";
+        window.location.href = "/admin/login";
       }
     });
   }
