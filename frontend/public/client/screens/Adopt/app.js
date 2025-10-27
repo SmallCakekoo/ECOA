@@ -1,27 +1,27 @@
-const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"))
+const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 function createPlantCard(plant, index) {
   // contenedor principal
-  const card = document.createElement('div');
-  card.className = 'plant-card';
+  const card = document.createElement("div");
+  card.className = "plant-card";
   card.onclick = () => selectPlant(plant.id);
 
   // imagen
-  const img = document.createElement('img');
+  const img = document.createElement("img");
   img.src = `http://localhost:3000/api/upload/plants/${plant.id}.png`;
   img.alt = `${plant.name} Plant`;
   img.className = `plant-image plant-image${index}`;
 
   // contenedor de información
-  const info = document.createElement('div');
-  info.className = 'plant-info';
+  const info = document.createElement("div");
+  info.className = "plant-info";
 
-  const name = document.createElement('div');
-  name.className = 'plant-name';
+  const name = document.createElement("div");
+  name.className = "plant-name";
   name.textContent = plant.name;
 
-  const description = document.createElement('div');
-  description.className = 'plant-description';
+  const description = document.createElement("div");
+  description.className = "plant-description";
   description.textContent = `Especie: ${plant.species}. Super resistant, purifies the air.`;
 
   // agregar name y description a info
@@ -29,9 +29,9 @@ function createPlantCard(plant, index) {
   info.appendChild(description);
 
   // botón
-  const button = document.createElement('button');
-  button.className = 'add-button';
-  button.textContent = '+';
+  const button = document.createElement("button");
+  button.className = "add-button";
+  button.textContent = "+";
   button.onclick = (event) => {
     event.stopPropagation();
     adoptPlant(plant.id);
@@ -46,90 +46,86 @@ function createPlantCard(plant, index) {
 }
 
 (async () => {
-  const response = await fetch('http://localhost:3000/plants');
-  const { success, data: plants} = await response.json()
+  const response = await fetch("http://localhost:3000/plants");
+  const { success, data: plants } = await response.json();
   console.log(success, plants);
 
-  if(!success) return
+  if (!success) return;
 
   plants.forEach((plant, index) => {
     const card = createPlantCard(plant, index + 1);
     document.querySelector(".plant-cards").appendChild(card);
   });
-})()
-
-
-
-
+})();
 
 // Actualizar hora
 function updateTime() {
   var now = new Date();
   var hours = now.getHours().toString();
   var minutes = now.getMinutes().toString();
-  
-  if (hours.length === 1) hours = '0' + hours;
-  if (minutes.length === 1) minutes = '0' + minutes;
-  
-  var timeElement = document.getElementById('current-time');
+
+  if (hours.length === 1) hours = "0" + hours;
+  if (minutes.length === 1) minutes = "0" + minutes;
+
+  var timeElement = document.getElementById("current-time");
   if (timeElement) {
-    timeElement.textContent = hours + ':' + minutes;
+    timeElement.textContent = hours + ":" + minutes;
   }
 }
 
 updateTime();
 setInterval(updateTime, 60000);
 
-// Funciones de navegación
-function goToHome(event) {
+// Funciones de navegación (expuestas globalmente para onclick)
+window.goToHome = function (event) {
   if (event) event.preventDefault();
-  console.log('Navegando a Home');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
-}
+  console.log("Navegando a Home");
+  window.location.href = "/client/screens/Home";
+};
 
-function goToPlants(event) {
+window.goToPlants = function (event) {
   if (event) event.preventDefault();
-  console.log('Navegando a Virtual Pet');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/VirtualPet';
-}
+  console.log("Navegando a Virtual Pet");
+  window.location.href = "/client/screens/VirtualPet";
+};
 
-function goToProfile(event) {
+window.goToProfile = function (event) {
   if (event) event.preventDefault();
-  console.log('Navegando a Profile');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Profile';
-}
+  console.log("Navegando a Profile");
+  window.location.href = "/client/screens/Profile";
+};
 
 // Función para volver atrás - va a Shop
-function goBack() {
-  console.log('Volviendo a Shop...');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Shop';
-}
+window.goBack = function () {
+  console.log("Volviendo a Shop...");
+  window.location.href = "/client/screens/Shop";
+};
 
 // Función para ver detalles de una planta (click en tarjeta)
-function selectPlant(id) {
-  console.log('Ver detalles de planta:', id);
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptDetail?id=' + id;
-}
+window.selectPlant = function (id) {
+  console.log("Ver detalles de planta:", id);
+  window.location.href = "/client/screens/AdoptDetail?id=" + id;
+};
 
 // Función para adoptar una planta (click en botón +)
-async function adoptPlant(id) {
-  console.log('Adoptando planta:', id);
-  const response = await fetch('http://localhost:3000/plants/' + id, {
+window.adoptPlant = async function (id) {
+  console.log("Adoptando planta:", id);
+  const response = await fetch("http://localhost:3000/plants/" + id, {
     method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      user_id: USER_DATA.id
-    })
+      user_id: USER_DATA.id,
+    }),
   });
-  
-  const { success, data: plant} = await response.json()
+
+  const { success, data: plant } = await response.json();
   console.log(success, plant);
-  
+
   if (success) {
-    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptFeedback/success';
+    window.location.href = "/client/screens/AdoptFeedback/success";
   } else {
-    window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/AdoptFeedback/error';
+    window.location.href = "/client/screens/AdoptFeedback/error";
   }
-}
+};

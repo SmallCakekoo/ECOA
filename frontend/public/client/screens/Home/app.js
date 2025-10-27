@@ -1,23 +1,38 @@
-const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"))
+const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 console.log(USER_DATA);
 
-document.querySelector(".greeting").textContent = `Good Morning, ${USER_DATA.name}`
+// Verificar si hay datos de usuario
+if (USER_DATA && USER_DATA.name) {
+  document.querySelector(
+    ".greeting"
+  ).textContent = `Good Morning, ${USER_DATA.name}`;
 
-;(async () => {
-  const response = await fetch(`http://localhost:3000/users/${USER_DATA.id}/plants`);
-  const { success, data: plants, count} = await response.json()
-    
-  if(!success || count === 0) return
+  // Cargar plantas del usuario
+  (async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/users/${USER_DATA.id}/plants`
+      );
+      const { success, data: plants, count } = await response.json();
 
-  const plant = getMostRecentPlant(plants)
+      if (!success || count === 0) return;
 
-  document.querySelector(".subgreeting").style.display = "block"
-  document.querySelector(".last-plant-card").style.display = "flex"
-  document.querySelector(".plant-name").textContent = plant.name
+      const plant = getMostRecentPlant(plants);
 
-  fetchPlantMetrics(plant.id)
+      document.querySelector(".subgreeting").style.display = "block";
+      document.querySelector(".last-plant-card").style.display = "flex";
+      document.querySelector(".plant-name").textContent = plant.name;
 
-})() 
+      fetchPlantMetrics(plant.id);
+    } catch (error) {
+      console.error("Error loading plants:", error);
+    }
+  })();
+} else {
+  // Si no hay usuario logueado, mostrar mensaje por defecto
+  document.querySelector(".greeting").textContent = `Good Morning, Guest`;
+  console.warn("No user data found. Please log in.");
+}
 
 function getMostRecentPlant(plants) {
   return [...plants].sort(
@@ -29,67 +44,59 @@ async function fetchPlantMetrics(plantId) {
   const response = await fetch(`http://localhost:3000/plant_status/${plantId}`);
   const { success, data: plantMetrics } = await response.json();
   console.log(plantMetrics, success);
-  
 
-  if (!success) throw new Error('Failed to load plant metrics');
-  const percent = (plantMetrics.mood_index * 100);
+  if (!success) throw new Error("Failed to load plant metrics");
+  const percent = plantMetrics.mood_index * 100;
 
-  document.querySelector(".progress-text").textContent = percent + "%"
+  document.querySelector(".progress-text").textContent = percent + "%";
   // Animar progreso circular
   const circumference = 2 * Math.PI * 30;
-  const progressCircle = document.getElementById('progressCircle');
+  const progressCircle = document.getElementById("progressCircle");
   const offset = circumference - (percent / 100) * circumference;
   progressCircle.style.strokeDashoffset = offset;
 }
 
-
-
-
-
-
-
-
 // Actualizar hora
 function updateTime() {
   const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+  document.getElementById("current-time").textContent = `${hours}:${minutes}`;
 }
 updateTime();
 setInterval(updateTime, 60000);
 
-
-// Funciones de navegación
-function goToHome(event) {
+// Funciones de navegación (expuestas globalmente para onclick)
+window.goToHome = function (event) {
   if (event) event.preventDefault();
-  console.log('Navegando a Home');
-  window.location.href = 'https://ecoa-frontend.vercel.app/client/screens/Home';
-}
+  console.log("Navegando a Home");
+  window.location.href = "/client/screens/Home";
+};
 
-function goToPlants(event) {
+window.goToPlants = function (event) {
   if (event) event.preventDefault();
-  console.log('Navegando a Virtual Pet');
-  window.location.href = '/client/screens/VirtualPet';
-}
+  console.log("Navegando a Virtual Pet");
+  window.location.href = "/client/screens/VirtualPet";
+};
 
-function goToProfile(event) {
+window.goToProfile = function (event) {
   if (event) event.preventDefault();
-  console.log('Navegando a Profile');
-  window.location.href = '/client/screens/Profile';
-}
+  console.log("Navegando a Profile");
+  window.location.href = "/client/screens/Profile";
+};
 
 // Adopt button - Redirige a página de adopción
-document.getElementById('adoptBtn').addEventListener('click', () => {
-  console.log('Adopt a new plant clicked');
-  window.location.href = '/client/screens/Adopt';
+document.getElementById("adoptBtn").addEventListener("click", () => {
+  console.log("Adopt a new plant clicked");
+  window.location.href = "/client/screens/Adopt";
 });
 
 // Actualizar estadísticas aleatoriamente
 function updateStats() {
   const randomPlants = Math.floor(Math.random() * 1000) + 3000;
-  document.getElementById('statsText').textContent = 
-    `${randomPlants.toLocaleString()} plants adopted this week!`;
+  document.getElementById(
+    "statsText"
+  ).textContent = `${randomPlants.toLocaleString()} plants adopted this week!`;
 }
 
 // Actualizar cada 10 segundos

@@ -15,28 +15,28 @@ updateTime();
 // Actualizar la hora cada minuto
 setInterval(updateTime, 60000);
 
-// Función para volver atrás
-function goBack() {
+// Función para volver atrás (expuesta globalmente)
+window.goBack = function () {
   window.history.back();
-}
+};
 
-// Funciones de navegación
-function goToHome(event) {
+// Funciones de navegación (expuestas globalmente)
+window.goToHome = function (event) {
   if (event) event.preventDefault();
-  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/Home";
-}
+  window.location.href = "/client/screens/Home";
+};
 
-function goToPlants(event) {
+window.goToPlants = function (event) {
   if (event) event.preventDefault();
-  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/VirtualPet";
-}
+  window.location.href = "/client/screens/VirtualPet";
+};
 
-function goToProfile(event) {
+window.goToProfile = function (event) {
   if (event) event.preventDefault();
-  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/Profile";
-}
+  window.location.href = "/client/screens/Profile";
+};
 
-// Función para ir a Shop Feedback Success
-function goToShopFeedback() {
-  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/ShopFeedback/success";
-}
+// Función para ir a Shop Feedback Success (expuesta globalmente)
+window.goToShopFeedback = function () {
+  window.location.href = "/client/screens/ShopFeedback/success";
+};
