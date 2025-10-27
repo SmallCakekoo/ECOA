@@ -13,7 +13,8 @@ class AuthManager {
 
   checkAuth() {
     // Solo verificar si no estamos en la página de login
-    if (window.location.pathname.includes("/login")) {
+    const pathname = window.location.pathname;
+    if (pathname.includes("/login") || pathname.includes("/admin/login")) {
       console.log("✅ Estamos en la página de login, no verificar auth");
       return;
     }
@@ -38,22 +39,22 @@ class AuthManager {
   }
 
   // Función para verificar autenticación en cualquier momento
-  static verifyAuth() {
+  verifyAuth() {
     if (window.AdminAPI && !window.AdminAPI.isAuthenticated()) {
       console.log("❌ Verificación falló, redirigiendo al login");
-      window.location.href = "/admin/screens/login";
+      window.location.href = "/admin/login";
       return false;
     }
     return true;
   }
 
   // Función para logout
-  static logout() {
+  logout() {
     console.log("🚪 Cerrando sesión...");
     if (window.AdminAPI) {
       window.AdminAPI.logout();
     }
-    window.location.href = "/admin/screens/login";
+    window.location.href = "/admin/login";
   }
 }
 
