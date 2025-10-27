@@ -8,7 +8,7 @@ function createPlantCard(plant, index) {
 
   // imagen
   const img = document.createElement("img");
-  img.src = `http://localhost:3000/api/upload/plants/${plant.id}.png`;
+  img.src = `https://ecoa-nine.vercel.app/api/upload/plants/${plant.id}.png`;
   img.alt = `${plant.name} Plant`;
   img.className = `plant-image plant-image${index}`;
 
@@ -46,7 +46,7 @@ function createPlantCard(plant, index) {
 }
 
 (async () => {
-  const response = await fetch("http://localhost:3000/plants");
+  const response = await fetch("https://ecoa-nine.vercel.app/plants");
   const { success, data: plants } = await response.json();
   console.log(success, plants);
 
@@ -110,7 +110,7 @@ window.selectPlant = function (id) {
 // Función para adoptar una planta (click en botón +)
 window.adoptPlant = async function (id) {
   console.log("Adoptando planta:", id);
-  const response = await fetch("http://localhost:3000/plants/" + id, {
+  const response = await fetch("https://ecoa-nine.vercel.app/plants/" + id, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

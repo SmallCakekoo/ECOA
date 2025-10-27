@@ -17,7 +17,9 @@ const plantId = params.get("id");
 })();
 
 async function fetchPlantData(plantId) {
-  const response = await fetch(`http://localhost:3000/plants/${plantId}`);
+  const response = await fetch(
+    `https://ecoa-nine.vercel.app/plants/${plantId}`
+  );
   const { success, data: plant } = await response.json();
 
   if (!success) throw new Error("Failed to load plant data");
@@ -29,14 +31,16 @@ async function fetchPlantData(plantId) {
   ).textContent = `The ${plant.name} Plant is the ultimate survivor. Strong, stoic, and elegant, with tall leaves shaped like green spears brushed with yellow or silver.`;
   document.querySelector(
     "#plant-image"
-  ).src = `http://localhost:3000/api/upload/plants/${plant.id}.png`;
+  ).src = `https://ecoa-nine.vercel.app/api/upload/plants/${plant.id}.png`;
   document.querySelector(
     ".about-text"
   ).textContent = `The ${plant.name} Plant is often called the ultimate survivor among houseplants. Native to West Africa, it has earned a reputation for being almost indestructible. Its tall, upright leaves rise like green spears, sometimes edged or streaked with silver, cream, or yellow, giving it a striking architectural look that fits both modern and traditional interiors.`;
 }
 
 async function fetchPlantMetrics(plantId) {
-  const response = await fetch(`http://localhost:3000/plant_stats/${plantId}`);
+  const response = await fetch(
+    `https://ecoa-nine.vercel.app/plant_stats/${plantId}`
+  );
   const { success, data: plantMetrics } = await response.json();
 
   if (!success) throw new Error("Failed to load plant metrics");
@@ -49,7 +53,9 @@ async function fetchPlantMetrics(plantId) {
 }
 
 async function fetchPlantStatus(plantId) {
-  const response = await fetch(`http://localhost:3000/plant_status/${plantId}`);
+  const response = await fetch(
+    `https://ecoa-nine.vercel.app/plant_status/${plantId}`
+  );
   const { success, data: plantStatus } = await response.json();
 
   if (!success) throw new Error("Failed to load plant status");
@@ -140,15 +146,18 @@ window.goToProfile = function (event) {
 // Función para ir a la página de éxito de adopción (expuesta globalmente)
 window.adoptPlant = async function () {
   console.log("Adoptando planta:", plantId);
-  const response = await fetch("http://localhost:3000/plants/" + plantId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_id: USER_DATA.id,
-    }),
-  });
+  const response = await fetch(
+    "https://ecoa-nine.vercel.app/plants/" + plantId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: USER_DATA.id,
+      }),
+    }
+  );
 
   const { success, data: plant } = await response.json();
   console.log(success, plant);

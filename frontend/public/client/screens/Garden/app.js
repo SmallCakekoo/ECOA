@@ -41,7 +41,7 @@ function createPlantCard(plant, i) {
   card.className = "plant-card";
   card.innerHTML = `
         <div class="card-background"></div>
-        <img class="plant-image" src="http://localhost:3000/api/upload/plants/${plant.id}.png" alt="Planta ${i}">
+        <img class="plant-image" src="https://ecoa-nine.vercel.app/api/upload/plants/${plant.id}.png" alt="Planta ${i}">
         <div class="card-overlay">
             <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">
@@ -72,14 +72,16 @@ const plantsGrid = document.getElementById("plantsGrid");
 
 (async () => {
   const response = await fetch(
-    `http://localhost:3000/users/${USER_DATA.id}/plants`
+    `https://ecoa-nine.vercel.app/users/${USER_DATA.id}/plants`
   );
   const { success, data: plants } = await response.json();
 
   if (!success) return;
 
   const promises = plants.map(async (plant, index) => {
-    const res = await fetch(`http://localhost:3000/plant_stats/${plant.id}`);
+    const res = await fetch(
+      `https://ecoa-nine.vercel.app/plant_stats/${plant.id}`
+    );
     const { data: plantMetrics = {} } = await res.json();
 
     const card = createPlantCard(
