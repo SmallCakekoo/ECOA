@@ -59,90 +59,175 @@ class AdminAPI {
   // ===== AUTENTICACIÓN =====
   async login(email, password) {
     try {
-      // Validación básica - solo email es requerido
+      // Validación básica
       if (!email) {
         throw new Error("Email es requerido");
+      }
+
+      if (!password) {
+        throw new Error("Contraseña es requerida");
       }
 
       if (!email.includes("@")) {
         throw new Error("Email inválido");
       }
 
-      // Obtener todos los usuarios para verificar que exista y tenga rol admin
-      const response = await this.request("/users");
+      // Si está configurado Supabase, usar Supabase Auth
+      if (window.AdminConfig?.AUTH?.USE_SUPABASE && window.SupabaseClient) {
+        console.log("🔐 Autenticando con Supabase...");
 
-      if (!response.success || !response.data) {
-        throw new Error("Error al verificar credenciales");
-      }
-
-      // Buscar el usuario por email
-      const user = response.data.find((u) => u.email === email);
-
-      if (!user) {
-        throw new Error("Usuario no encontrado");
-      }
-
-      // Verificar que el usuario tenga rol "admin"
-      if (user.rol !== "admin") {
-        throw new Error(
-          "Acceso denegado: Solo administradores pueden acceder a este panel"
+        // Intentar login con Supabase
+        const supabaseResult = await window.SupabaseClient.signInWithEmail(
+          email,
+          password
         );
+
+        if (!supabaseResult.success) {
+          throw new Error("Credenciales incorrectas");
+        }
+
+        // Verificar que el usuario tenga rol de admin en la base de datos
+        const userRole = await window.SupabaseClient.getUserRole(
+          supabaseResult.data.id
+        );
+
+        if (userRole !== "admin") {
+          // Cerrar sesión si no es admin
+          await window.SupabaseClient.signOut();
+          throw new Error(
+            "Acceso denegado: Solo administradores pueden acceder a este panel"
+          );
+        }
+
+        // Buscar el usuario completo en la tabla users
+        const userData = await window.SupabaseClient.getUserByEmail(email);
+
+        // Guardar token y usuario
+        this.token = supabaseResult.session.access_token;
+        localStorage.setItem("admin_token", this.token);
+        localStorage.setItem("admin_user", JSON.stringify(userData));
+        localStorage.setItem(
+          "admin_session",
+          JSON.stringify(supabaseResult.session)
+        );
+
+        return {
+          success: true,
+          data: userData,
+          token: this.token,
+          session: supabaseResult.session,
+        };
+      } else {
+        // Método de autenticación tradicional (sin contraseña real)
+        console.log("🔐 Autenticando con método tradicional...");
+
+        // Obtener todos los usuarios para verificar que exista y tenga rol admin
+        const response = await this.request("/users");
+
+        if (!response.success || !response.data) {
+          throw new Error("Error al verificar credenciales");
+        }
+
+        // Buscar el usuario por email
+        const user = response.data.find((u) => u.email === email);
+
+        if (!user) {
+          throw new Error("Usuario no encontrado");
+        }
+
+        // Verificar que el usuario tenga rol "admin"
+        if (user.rol !== "admin") {
+          throw new Error(
+            "Acceso denegado: Solo administradores pueden acceder a este panel"
+          );
+        }
+
+        // Generar token simple para el admin
+        const token = `admin-token-${Date.now()}-${user.id}`;
+
+        this.token = token;
+        localStorage.setItem("admin_token", token);
+        localStorage.setItem("admin_user", JSON.stringify(user));
+
+        return { success: true, data: user, token: token };
       }
-
-      // Generar token simple para el admin
-      const token = `admin-token-${Date.now()}-${user.id}`;
-
-      this.token = token;
-      localStorage.setItem("admin_token", token);
-      localStorage.setItem("admin_user", JSON.stringify(user));
-
-      return { success: true, data: user, token: token };
     } catch (error) {
       console.error("Error en login:", error);
       throw error;
     }
   }
 
-  logout() {
+  async logout() {
+    // Si está usando Supabase, cerrar sesión
+    if (window.AdminConfig?.AUTH?.USE_SUPABASE && window.SupabaseClient) {
+      try {
+        await window.SupabaseClient.signOut();
+      } catch (error) {
+        console.error("Error al cerrar sesión de Supabase:", error);
+      }
+    }
+
     this.token = null;
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
+    localStorage.removeItem("admin_session");
   }
 
-  isAuthenticated() {
-    // Verificar si hay token en localStorage
-    const storedToken = localStorage.getItem("admin_token");
-    if (!storedToken) {
-      console.log("❌ No hay token en localStorage");
-      return false;
-    }
+  async isAuthenticated() {
+    // Si está usando Supabase, verificar sesión
+    if (window.AdminConfig?.AUTH?.USE_SUPABASE && window.SupabaseClient) {
+      try {
+        const session = await window.SupabaseClient.getSession();
 
-    // Actualizar el token en la instancia
-    this.token = storedToken;
+        if (!session) {
+          console.log("❌ No hay sesión de Supabase");
+          return false;
+        }
 
-    // Para tokens simples del servidor local, solo verificar que exista
-    if (storedToken.startsWith("admin-token-")) {
-      console.log("✅ Token válido encontrado:", storedToken);
-      return true;
-    }
-
-    // Para tokens JWT (si los usamos en el futuro)
-    try {
-      const payload = JSON.parse(atob(storedToken));
-      const isExpired = payload.exp > Date.now();
-
-      if (!isExpired) {
-        // Token expirado, limpiar
-        this.logout();
+        // Actualizar el token en la instancia
+        this.token = session.access_token;
+        console.log("✅ Sesión de Supabase válida");
+        return true;
+      } catch (error) {
+        console.error("❌ Error verificando sesión de Supabase:", error);
+        return false;
+      }
+    } else {
+      // Método tradicional
+      // Verificar si hay token en localStorage
+      const storedToken = localStorage.getItem("admin_token");
+      if (!storedToken) {
+        console.log("❌ No hay token en localStorage");
         return false;
       }
 
-      return true;
-    } catch (error) {
-      // Token inválido, limpiar
-      console.log("❌ Token inválido:", error.message);
-      this.logout();
-      return false;
+      // Actualizar el token en la instancia
+      this.token = storedToken;
+
+      // Para tokens simples del servidor local, solo verificar que exista
+      if (storedToken.startsWith("admin-token-")) {
+        console.log("✅ Token válido encontrado:", storedToken);
+        return true;
+      }
+
+      // Para tokens JWT
+      try {
+        const payload = JSON.parse(atob(storedToken.split(".")[1]));
+        const isExpired = payload.exp && payload.exp * 1000 < Date.now();
+
+        if (isExpired) {
+          // Token expirado, limpiar
+          await this.logout();
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        // Token inválido, limpiar
+        console.log("❌ Token inválido:", error.message);
+        await this.logout();
+        return false;
+      }
     }
   }
 

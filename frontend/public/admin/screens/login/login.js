@@ -1,9 +1,12 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Verificar si ya está autenticado
-  if (window.AdminAPI && window.AdminAPI.isAuthenticated()) {
-    console.log("✅ Ya autenticado, redirigiendo a dashboard...");
-    window.location.href = "/admin/dashboard";
-    return;
+  if (window.AdminAPI) {
+    const isAuth = await window.AdminAPI.isAuthenticated();
+    if (isAuth) {
+      console.log("✅ Ya autenticado, redirigiendo a dashboard...");
+      window.location.href = "/admin/dashboard";
+      return;
+    }
   }
 
   console.log("❌ No autenticado, mostrando formulario de login");
@@ -80,7 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         console.log("API cargada, iniciando login...");
-        // Solo usar email (la contraseña no se usa en autenticación simulada)
+
+        // Usar email y contraseña para autenticación
         const result = await window.AdminAPI.login(email, password);
 
         console.log("Resultado del login:", result);
@@ -96,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Login exitoso, verificando autenticación...");
 
             // Verificar que la autenticación se guardó correctamente
-            const isAuth = window.AdminAPI.isAuthenticated();
+            const isAuth = await window.AdminAPI.isAuthenticated();
             console.log("¿Está autenticado después del login?", isAuth);
 
             if (isAuth) {
