@@ -187,6 +187,7 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
+    minify: false, // Desactivar minificación para evitar colisiones de variables
 
     rollupOptions: {
       input: allEntries,
