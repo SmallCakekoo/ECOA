@@ -25,7 +25,7 @@ class AuthManager {
       if (window.AdminAPI) {
         if (!window.AdminAPI.isAuthenticated()) {
           console.log("❌ Usuario no autenticado, redirigiendo al login");
-          window.location.href = "/admin/login";
+          window.location.href = "/admin/screens/login";
         } else {
           console.log("✅ Usuario autenticado correctamente");
         }
@@ -41,7 +41,7 @@ class AuthManager {
   static verifyAuth() {
     if (window.AdminAPI && !window.AdminAPI.isAuthenticated()) {
       console.log("❌ Verificación falló, redirigiendo al login");
-      window.location.href = "/admin/login";
+      window.location.href = "/admin/screens/login";
       return false;
     }
     return true;
@@ -53,7 +53,7 @@ class AuthManager {
     if (window.AdminAPI) {
       window.AdminAPI.logout();
     }
-    window.location.href = "/admin/login";
+    window.location.href = "/admin/screens/login";
   }
 }
 
