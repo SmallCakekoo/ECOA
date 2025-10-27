@@ -1,21 +1,13 @@
 // Configuración del panel de administración
 const AdminConfig = {
-  // URL del backend - Usar servidor local que funciona
-  API_BASE_URL: "http://localhost:3001",
-
-  // Configuración de Supabase
-  SUPABASE: {
-    URL: "https://your-project.supabase.co", // ⚠️ REEMPLAZAR con tu URL de Supabase
-    ANON_KEY: "your-anon-key-here", // ⚠️ REEMPLAZAR con tu clave anónima de Supabase
-  },
+  // URL del backend - Servidor en producción
+  API_BASE_URL: "https://ecoa-nine.vercel.app",
 
   // Configuración de autenticación
   AUTH: {
     TOKEN_KEY: "admin_token",
     USER_KEY: "admin_user",
-    SESSION_KEY: "admin_session",
     TOKEN_EXPIRY_HOURS: 24,
-    USE_SUPABASE: true, // Activar autenticación con Supabase
   },
 
   // Configuración de paginación
