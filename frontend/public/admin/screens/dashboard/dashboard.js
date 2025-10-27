@@ -57,7 +57,12 @@ function setupProfileDropdown() {
   const avatar = document.getElementById("profileAvatar");
   const dropdown = document.getElementById("profileDropdown");
 
-  if (!avatar || !dropdown) return;
+  console.log("🎯 Configurando dropdown de perfil", { avatar, dropdown });
+
+  if (!avatar || !dropdown) {
+    console.warn("⚠️ Avatar o dropdown no encontrado");
+    return;
+  }
 
   // Cargar información del usuario
   const user = window.AdminAPI.getCurrentUser();
@@ -172,7 +177,9 @@ async function loadRecentPlants() {
           for (const searchTerm of searchTerms) {
             try {
               const perenualResponse = await fetch(
-                `http://localhost:3001/api/integrations/perenual/search?q=${encodeURIComponent(
+                `${
+                  window.AdminConfig.API_BASE_URL
+                }/api/integrations/perenual/search?q=${encodeURIComponent(
                   searchTerm
                 )}&limit=1`
               );
