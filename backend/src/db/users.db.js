@@ -36,9 +36,19 @@ export async function findPlantsByUserId(userId) {
   return await supabase.from("plants").select("*").eq("user_id", userId);
 }
 
+export async function findUserByEmail(email) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .single();
+  return { data, error };
+}
+
 export default {
   findAllUsers,
   findUserById,
+  findUserByEmail,
   insertUser,
   updateUser,
   deleteUser,

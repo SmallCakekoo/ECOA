@@ -1,24 +1,21 @@
 export function createUserModel(payload) {
-  const { name, email, avatar_url, level, experience_points } = payload;
-  if (!name || !email) {
-    throw new Error("Nombre y email son requeridos");
+  const { name, email, rol } = payload;
+  if (!name) {
+    throw new Error("Nombre es requerido");
   }
   return {
     name,
-    email,
-    avatar_url: avatar_url || null,
-    level: level || 1,
-    experience_points: experience_points || 0,
-    created_at: new Date().toISOString(),
+    email: email || null,
+    rol: rol || "user",
+    // registration_date se agrega automáticamente con default: now() en la DB
   };
 }
 
 export function sanitizeUserUpdate(payload) {
-  const allowed = ["name", "email", "avatar_url", "level", "experience_points"];
+  const allowed = ["name", "email", "rol"];
   const update = {};
   allowed.forEach((k) => {
     if (payload[k] !== undefined) update[k] = payload[k];
   });
-  update.updated_at = new Date().toISOString();
   return update;
 }
