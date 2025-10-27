@@ -7,127 +7,73 @@ const { resolve } = path;
 // Función para encontrar todos los index.html recursivamente
 function getAllHtmlFiles(dir, baseDir = "", entries = {}) {
   if (!existsSync(dir)) return entries;
+  
+  try {
+    const files = readdirSync(dir);
 
-  const files = readdirSync(dir);
+    files.forEach((file) => {
+      const fullPath = resolve(dir, file);
+      
+      try {
+        const stat = statSync(fullPath);
 
-  files.forEach((file) => {
-    const fullPath = resolve(dir, file);
-    const stat = statSync(fullPath);
-
-    if (stat.isDirectory()) {
-      // Recursivamente buscar en subdirectorios
-      getAllHtmlFiles(fullPath, `${baseDir}${file}/`, entries);
-    } else if (file === "index.html") {
-      // Crear nombre de entrada basado en la ruta
-      const entryName = baseDir
-        ? baseDir.replace(/\//g, "-").slice(0, -1)
-        : "root";
-      entries[entryName] = fullPath;
-    }
-  });
+        if (stat.isDirectory()) {
+          // Recursivamente buscar en subdirectorios
+          getAllHtmlFiles(fullPath, `${baseDir}${file}/`, entries);
+        } else if (file === "index.html") {
+          // Crear nombre de entrada basado en la ruta
+          const entryName = baseDir ? baseDir.replace(/\//g, "-").slice(0, -1) : "root";
+          entries[entryName] = fullPath;
+          console.log(`✓ Found: ${entryName} -> ${fullPath}`);
+        }
+      } catch (err) {
+        console.warn(`⚠ Skipping ${fullPath}: ${err.message}`);
+      }
+    });
+  } catch (err) {
+    console.warn(`⚠ Cannot read directory ${dir}: ${err.message}`);
+  }
 
   return entries;
 }
 
-export default defineConfig({
-  root: resolve(__dirname, "public"),
+// Buscar todos los archivos HTML automáticamente
+const publicDir = resolve(__dirname, "public");
+const clientDir = resolve(publicDir, "client/screens");
+const adminDir = resolve(publicDir, "admin/screens");
 
+console.log("\n🔍 Scanning for HTML files...\n");
+
+const allEntries = {
+  ...getAllHtmlFiles(clientDir, "client-"),
+  ...getAllHtmlFiles(adminDir, "admin-"),
+};
+
+console.log(`\n✅ Found ${Object.keys(allEntries).length} entry points\n`);
+
+export default defineConfig({
+  root: publicDir,
+  
   server: {
     port: 5000,
-    open: "/client/screens/Home/index.html", // abre Home como página principal
+    open: "/client/screens/Home/index.html",
   },
 
   build: {
     outDir: resolve(__dirname, "../dist"),
     emptyOutDir: true,
-
+    
     rollupOptions: {
-      input: {
-        // CLIENT - Screens principales
-        "client-adopt": resolve(
-          __dirname,
-          "public/client/screens/Adopt/index.html"
-        ),
-        "client-adoptdetail": resolve(
-          __dirname,
-          "public/client/screens/AdoptDetail/index.html"
-        ),
-        "client-garden": resolve(
-          __dirname,
-          "public/client/screens/Garden/index.html"
-        ),
-        "client-home": resolve(
-          __dirname,
-          "public/client/screens/Home/index.html"
-        ),
-        "client-login": resolve(
-          __dirname,
-          "public/client/screens/Login/index.html"
-        ),
-        "client-profile": resolve(
-          __dirname,
-          "public/client/screens/Profile/index.html"
-        ),
-        "client-shop": resolve(
-          __dirname,
-          "public/client/screens/Shop/index.html"
-        ),
-        "client-singup": resolve(
-          __dirname,
-          "public/client/screens/SingUp/index.html"
-        ),
-        "client-virtualpet": resolve(
-          __dirname,
-          "public/client/screens/VirtualPet/index.html"
-        ),
-
-        // CLIENT - Feedback screens (error/success dentro de AdoptFeedback)
-        "client-adoptfeedback-error": resolve(
-          __dirname,
-          "public/client/screens/AdoptFeedback/error/index.html"
-        ),
-        "client-adoptfeedback-success": resolve(
-          __dirname,
-          "public/client/screens/AdoptFeedback/success/index.html"
-        ),
-
-        // CLIENT - Shop Feedback screens
-        "client-shopfeedback-error": resolve(
-          __dirname,
-          "public/client/screens/ShopFeedback/error/index.html"
-        ),
-        "client-shopfeedback-success": resolve(
-          __dirname,
-          "public/client/screens/ShopFeedback/success/index.html"
-        ),
-
-        // ADMIN - Screens
-        "admin-dashboard": resolve(
-          __dirname,
-          "public/admin/screens/dashboard/index.html"
-        ),
-        "admin-donationlog": resolve(
-          __dirname,
-          "public/admin/screens/donationlog/index.html"
-        ),
-        "admin-login": resolve(
-          __dirname,
-          "public/admin/screens/login/index.html"
-        ),
-        "admin-plantcatalog": resolve(
-          __dirname,
-          "public/admin/screens/PlantCatalog/index.html"
-        ),
-      },
+      input: allEntries,  // ← Aquí usa las entradas automáticas
     },
   },
 
   resolve: {
     alias: {
-      "@": resolve(__dirname, "public"),
-      "@client": resolve(__dirname, "public/client"),
-      "@admin": resolve(__dirname, "public/admin"),
-      "@screens": resolve(__dirname, "public/client/screens"),
+      "@": publicDir,
+      "@client": resolve(publicDir, "client"),
+      "@admin": resolve(publicDir, "admin"),
+      "@screens": resolve(publicDir, "client/screens"),
     },
   },
 });
