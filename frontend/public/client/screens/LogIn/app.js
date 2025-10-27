@@ -12,7 +12,8 @@ const togglePassword = document.getElementById("togglePassword");
 const passwordInput = document.getElementById("password");
 
 togglePassword.addEventListener("click", () => {
-  const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+  const type =
+    passwordInput.getAttribute("type") === "password" ? "text" : "password";
   passwordInput.setAttribute("type", type);
 });
 
@@ -20,31 +21,35 @@ togglePassword.addEventListener("click", () => {
 const loginForm = document.getElementById("loginForm");
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
-  const email = document.getElementById("username").value;
+
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const response = await fetch('http://localhost:3000/users/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email,
-      password,
-    }),
-  });
-  const data = await response.json()
-  console.log(data);
+  try {
+    const response = await fetch("http://localhost:3000/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        // password no se envía ya que la autenticación es simulada
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
 
-  localStorage.setItem("USER_DATA", JSON.stringify(data.data.user))
-  
-  if (data.success) {
-    // Si el usuario existe, redirigir a home
-    window.location.href = "https://ecoa-frontend.vercel.app/client/screens/Home";
-  } else {
-    // Si no existe, mostrar mensaje de error
-    alert("Usuario o contraseña incorrectos");
+    if (data.success && data.data && data.data.user) {
+      localStorage.setItem("USER_DATA", JSON.stringify(data.data.user));
+      // Si el usuario existe, redirigir a home
+      window.location.href = "/client/screens/Home";
+    } else {
+      // Si no existe, mostrar mensaje de error
+      alert(data.message || "User not found");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("An error occurred. Please try again.");
   }
 });
 
@@ -52,5 +57,5 @@ loginForm.addEventListener("submit", async (e) => {
 const signupLink = document.getElementById("signupLink");
 signupLink.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location.href = "https://ecoa-frontend.vercel.app/client/screens/SingUp";
+  window.location.href = "/client/screens/SingUp";
 });

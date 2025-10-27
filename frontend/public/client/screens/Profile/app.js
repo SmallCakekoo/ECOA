@@ -19,16 +19,26 @@ setInterval(updateTime, 60000);
 
 // Cargar información del usuario desde localStorage
 async function loadUserData() {
+  if (!USER_DATA) {
+    console.error("No user data found");
+    window.location.href = "/client/screens/LogIn";
+    return;
+  }
+
   document.getElementById("userName").textContent = USER_DATA.name;
   // document.getElementById('profileImage').src = 'user-profile.jpg'; TODO: set USER_DATA.img when db holds it
 
-  const response = await fetch(
-    `http://localhost:3000/users/${USER_DATA.id}/plants`
-  );
-  const { success, count } = await response.json();
-  console.log(success, count);
+  try {
+    const response = await fetch(
+      `http://localhost:3000/users/${USER_DATA.id}/plants`
+    );
+    const { success, count } = await response.json();
+    console.log(success, count);
 
-  if (success) document.getElementById("plantsCount").textContent = count;
+    if (success) document.getElementById("plantsCount").textContent = count;
+  } catch (error) {
+    console.error("Error loading user plants:", error);
+  }
 }
 
 // Cargar datos al iniciar
