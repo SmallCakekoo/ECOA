@@ -1,0 +1,419 @@
+/* Estilos compartidos para el panel de administración */
+
+/* Spinner para loading */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Notificaciones */
+.notification {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #7EB234;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Botones de acción */
+.btn-edit {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.btn-edit:hover {
+  background: #2980b9;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.btn-approve {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.btn-approve:hover {
+  background: #229954;
+}
+
+.btn-reject {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.btn-reject:hover {
+  background: #c0392b;
+}
+
+.btn-pending {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease;
+}
+
+.btn-pending:hover {
+  background: #e67e22;
+}
+
+/* Estados de plantas */
+.plant-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plant-status.healthy {
+  background: #d4edda;
+  color: #155724;
+}
+
+.plant-status.needs_care {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.plant-status.sick {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.plant-status.dying {
+  background: #f5c6cb;
+  color: #721c24;
+}
+
+/* Estados de donaciones */
+.donation-status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.donation-status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.donation-status.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.donation-status.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.donation-status.completed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.donation-status.cancelled {
+  background: #f5c6cb;
+  color: #721c24;
+}
+
+/* Métricas de plantas */
+.plant-metrics {
+  margin: 12px 0;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #666;
+  min-width: 40px;
+}
+
+.metric-bar {
+  flex: 1;
+  height: 4px;
+  background: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.metric-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7EB234, #6EA32E);
+  transition: width 0.3s ease;
+}
+
+/* Tarjetas de plantas */
+.plant-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.plant-image {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.plant-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plant-info {
+  padding: 16px;
+}
+
+.plant-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.plant-info .species {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.plant-info .description {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+}
+
+.plant-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Tarjetas de donaciones */
+.donation-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.donation-info {
+  padding: 20px;
+}
+
+.donation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.donation-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.donation-details {
+  margin-bottom: 16px;
+}
+
+.donation-details p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.donation-details strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.donation-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Estados vacíos */
+.no-plants,
+.no-donations {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-plants p,
+.no-donations p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Errores de formulario */
+.field-error {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .plant-actions,
+  .donation-actions {
+    flex-direction: column;
+  }
+  
+  .donation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .donation-status {
+    align-self: flex-start;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}

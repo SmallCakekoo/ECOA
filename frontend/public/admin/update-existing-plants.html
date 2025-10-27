@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualizar Plantas Existentes - ECOA Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .plant-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .plant-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .plant-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .plant-info {
+            flex: 1;
+        }
+        .plant-info h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        .plant-info p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .image-selector {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .image-option {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .image-option.selected {
+            border-color: #007bff;
+        }
+        .image-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Actualizar Plantas Existentes - ECOA Admin</h1>
+        <p>Este formulario actualiza las plantas existentes con imágenes para que se vean en el dashboard.</p>
+        
+        <button onclick="loadExistingPlants()">🔄 Cargar Plantas Existentes</button>
+        <button onclick="updateAllPlants()">🎨 Actualizar Todas las Plantas</button>
+        
+        <div id="plantsList" class="result"></div>
+        <div id="updateResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001';
+        let existingPlants = [];
+        
+        // Imágenes de muestra para asignar
+        const sampleImages = [
+            { url: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop', name: 'Planta 1' },
+            { url: 'https://images.unsplash.com/photo-1509423350716-97f2360ff5d5?w=400&h=400&fit=crop', name: 'Planta 2' },
+            { url: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=400&fit=crop', name: 'Planta 3' },
+            { url: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=400&fit=crop', name: 'Planta 4' },
+            { url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop', name: 'Planta 5' }
+        ];
+        
+        async function loadExistingPlants() {
+            const resultDiv = document.getElementById('plantsList');
+            resultDiv.innerHTML = '🔄 Cargando plantas existentes...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/plants`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    existingPlants = data.data;
+                    let html = `<h3>🌱 Plantas Existentes (${existingPlants.length})</h3>`;
+                    
+                    existingPlants.forEach((plant, index) => {
+                        const hasImage = plant.image_url && plant.image_url.trim() !== '';
+                        const currentImage = hasImage ? plant.image_url : '../../src/plant-placeholder.svg';
+                        
+                        html += `
+                            <div class="plant-card">
+                                <div class="plant-image">
+                                    <img src="${currentImage}" alt="${plant.name}" onerror="this.src='../../src/plant-placeholder.svg'">
+                                </div>
+                                <div class="plant-info">
+                                    <h4>${plant.name} (${plant.species})</h4>
+                                    <p>ID: ${plant.id}</p>
+                                    <p>Imagen actual: ${hasImage ? '✅ Tiene imagen' : '❌ Sin imagen'}</p>
+                                    <div class="image-selector">
+                                        <p>Seleccionar nueva imagen:</p>
+                                        ${sampleImages.map((img, imgIndex) => `
+                                            <div class="image-option" onclick="selectImage(${index}, ${imgIndex})" data-plant="${index}" data-image="${imgIndex}">
+                                                <img src="${img.url}" alt="${img.name}">
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Error: ${data.message || 'No se pudieron cargar las plantas'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error de conexión: ${error.message}</div>`;
+            }
+        }
+        
+        function selectImage(plantIndex, imageIndex) {
+            // Remover selección anterior
+            document.querySelectorAll(`[data-plant="${plantIndex}"]`).forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Seleccionar nueva imagen
+            document.querySelector(`[data-plant="${plantIndex}"][data-image="${imageIndex}"]`).classList.add('selected');
+            
+            // Actualizar la imagen en el array
+            existingPlants[plantIndex].selectedImageUrl = sampleImages[imageIndex].url;
+        }
+        
+        async function updatePlant(plantId, updateData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/plants/${plantId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error actualizando planta:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function updateAllPlants() {
+            const resultDiv = document.getElementById('updateResult');
+            resultDiv.innerHTML = '🔄 Actualizando plantas...';
+            
+            let successCount = 0;
+            let errorCount = 0;
+            let results = [];
+            
+            for (let i = 0; i < existingPlants.length; i++) {
+                const plant = existingPlants[i];
+                
+                // Si no tiene imagen seleccionada, asignar una aleatoria
+                let imageUrl = plant.selectedImageUrl;
+                if (!imageUrl) {
+                    const randomImage = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+                    imageUrl = randomImage.url;
+                }
+                
+                const updateData = {
+                    image_url: imageUrl,
+                    health_status: plant.health_status || 'healthy'
+                };
+                
+                const result = await updatePlant(plant.id, updateData);
+                
+                if (result.success) {
+                    successCount++;
+                    results.push(`✅ ${plant.name}: Actualizada con imagen`);
+                } else {
+                    errorCount++;
+                    results.push(`❌ ${plant.name}: ${result.message || result.error}`);
+                }
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="${errorCount === 0 ? 'success' : 'error'}">
+                    <h3>${errorCount === 0 ? '✅' : '⚠️'} Actualización Completada</h3>
+                    <p><strong>Exitosas:</strong> ${successCount} | <strong>Con error:</strong> ${errorCount}</p>
+                    <details>
+                        <summary>Ver detalles</summary>
+                        <ul>
+                            ${results.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </details>
+                </div>
+            `;
+            
+            // Recargar las plantas para mostrar los cambios
+            setTimeout(() => {
+                loadExistingPlants();
+            }, 1000);
+        }
+        
+        // Cargar plantas automáticamente al abrir la página
+        window.onload = loadExistingPlants;
+    </script>
+</body>
+</html>

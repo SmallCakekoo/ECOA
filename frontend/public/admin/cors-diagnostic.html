@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico CORS - ECOA Backend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .info { color: #007bff; font-weight: bold; }
+        button {
+            background: #7EB234;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #6EA32E; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico CORS - ECOA Backend</h1>
+    
+    <div class="test-section">
+        <h2>1. Información del Backend</h2>
+        <p><strong>URL del Backend:</strong> <span id="backend-url">https://ecoa-nine.vercel.app</span></p>
+        <p><strong>Origen Actual:</strong> <span id="current-origin"></span></p>
+        <button onclick="checkBackendInfo()">Verificar Información</button>
+        <div id="backend-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test de Conexión Básica</h2>
+        <button onclick="testBasicConnection()">Probar Conexión</button>
+        <div id="basic-connection"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test de Headers CORS</h2>
+        <button onclick="testCORSHeaders()">Verificar Headers CORS</button>
+        <div id="cors-headers"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test de Endpoint /users</h2>
+        <button onclick="testUsersEndpoint()">Probar Endpoint Users</button>
+        <div id="users-endpoint"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Test de Login Completo</h2>
+        <input type="email" id="email" placeholder="Email" value="admin@ecoa.com" style="padding: 8px; margin: 5px; width: 200px;">
+        <input type="password" id="password" placeholder="Contraseña" value="admin123" style="padding: 8px; margin: 5px; width: 200px;">
+        <button onclick="testLogin()">Probar Login</button>
+        <div id="login-test"></div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://ecoa-nine.vercel.app';
+        
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const statusClass = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            const statusIndicator = type === 'error' ? 'status-error' : type === 'success' ? 'status-success' : type === 'warning' ? 'status-warning' : '';
+            
+            element.innerHTML = `<div class="${statusClass}"><span class="status-indicator ${statusIndicator}"></span>${message}</div>`;
+        }
+
+        function checkBackendInfo() {
+            const currentOrigin = window.location.origin;
+            document.getElementById('current-origin').textContent = currentOrigin;
+            
+            log('backend-info', `
+                <strong>Información del Diagnóstico:</strong><br>
+                • Backend URL: ${BACKEND_URL}<br>
+                • Origen actual: ${currentOrigin}<br>
+                • User Agent: ${navigator.userAgent}<br>
+                • Timestamp: ${new Date().toISOString()}
+            `, 'info');
+        }
+
+        async function testBasicConnection() {
+            log('basic-connection', '🔄 Probando conexión básica...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('basic-connection', `
+                        ✅ <strong>Conexión exitosa!</strong><br>
+                        Status: ${response.status}<br>
+                        Respuesta: <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    log('basic-connection', `
+                        ❌ <strong>Error ${response.status}</strong><br>
+                        Mensaje: ${data.message || response.statusText}
+                    `, 'error');
+                }
+            } catch (error) {
+                log('basic-connection', `
+                    ❌ <strong>Error de conexión:</strong><br>
+                    Tipo: ${error.name}<br>
+                    Mensaje: ${error.message}<br>
+                    <br><strong>Posibles causas:</strong><br>
+                    • CORS no configurado<br>
+                    • Backend no funcionando<br>
+                    • URL incorrecta
+                `, 'error');
+            }
+        }
+
+        async function testCORSHeaders() {
+            log('cors-headers', '🔄 Verificando headers CORS...');
+            
+            try {
+                // Hacer una petición OPTIONS para verificar CORS
+                const response = await fetch(`${BACKEND_URL}/users`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials')
+                };
+                
+                log('cors-headers', `
+                    <strong>Headers CORS encontrados:</strong><br>
+                    <pre>${JSON.stringify(corsHeaders, null, 2)}</pre>
+                    <br><strong>Status:</strong> ${response.status}
+                `, corsHeaders['Access-Control-Allow-Origin'] ? 'success' : 'warning');
+                
+            } catch (error) {
+                log('cors-headers', `
+                    ❌ <strong>Error verificando CORS:</strong><br>
+                    ${error.message}
+                `, 'error');
+            }
+        }
+
+        async function testUsersEndpoint() {
+            log('users-endpoint', '🔄 Probando endpoint /users...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/users`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('users-endpoint', `
+                        ✅ <strong>Endpoint /users funcionando!</strong><br>
+                        Total usuarios: ${data.count || data.length || 0}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    log('users-endpoint', `
+                        ❌ <strong>Error en endpoint /users</strong><br>
+                        Status: ${response.status}<br>
+                        Mensaje: ${data.error || data.message || response.statusText}
+                    `, 'error');
+                }
+            } catch (error) {
+                log('users-endpoint', `
+                    ❌ <strong>Error de conexión:</strong><br>
+                    ${error.message}
+                `, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log('login-test', '🔄 Probando login...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/users`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const users = data.data || data;
+                    const user = users.find(u => 
+                        u.email === email && 
+                        u.password === password && 
+                        u.role === 'admin'
+                    );
+                    
+                    if (user) {
+                        log('login-test', `
+                            ✅ <strong>Login exitoso!</strong><br>
+                            Usuario: ${user.name}<br>
+                            Email: ${user.email}<br>
+                            Rol: ${user.role}<br>
+                            ID: ${user.id}
+                        `, 'success');
+                    } else {
+                        log('login-test', `
+                            ❌ <strong>Credenciales inválidas</strong><br>
+                            Usuarios disponibles: ${users.length}<br>
+                            <pre>${JSON.stringify(users.map(u => ({ email: u.email, role: u.role })), null, 2)}</pre>
+                        `, 'error');
+                    }
+                } else {
+                    log('login-test', `
+                        ❌ <strong>Error obteniendo usuarios</strong><br>
+                        Status: ${response.status}<br>
+                        Mensaje: ${data.error || data.message || response.statusText}
+                    `, 'error');
+                }
+            } catch (error) {
+                log('login-test', `
+                    ❌ <strong>Error de conexión:</strong><br>
+                    ${error.message}
+                `, 'error');
+            }
+        }
+
+        // Ejecutar diagnóstico automático al cargar
+        window.onload = function() {
+            checkBackendInfo();
+        };
+    </script>
+</body>
+</html>

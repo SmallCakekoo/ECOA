@@ -54,8 +54,8 @@
             <div class="metric-header">
               <div class="metric-title">Total Adoptions</div>
             </div>
-            <div class="metric-value">1,247</div>
-            <div class="metric-subtext">+12% this month</div>
+            <div class="metric-value" id="totalUsers">0</div>
+            <div class="metric-subtext" id="newUsers">0 nuevos este mes</div>
             <div class="metric-badge">
               <span class="iconify" data-icon="mdi:heart" style="font-size: 24px; color: #1D2607;"></span>
             </div>
@@ -65,8 +65,8 @@
             <div class="metric-header">
               <div class="metric-title">Total Donations</div>
             </div>
-            <div class="metric-value">$12mill</div>
-            <div class="metric-subtext">+8% this month</div>
+            <div class="metric-value" id="totalAmount">$0</div>
+            <div class="metric-subtext" id="activeDonations">0 donaciones activas</div>
             <div class="metric-badge">
               <span class="iconify" data-icon="material-symbols:attach-money-rounded" style="font-size: 28px; color: #1D2607;"></span>
             </div>
@@ -76,8 +76,8 @@
             <div class="metric-header">
               <div class="metric-title">Plants in Catalog</div>
             </div>
-            <div class="metric-value">892</div>
-            <div class="metric-subtext">+15 new plants</div>
+            <div class="metric-value" id="totalPlants">0</div>
+            <div class="metric-subtext" id="availablePlants">0 disponibles</div>
             <div class="metric-badge">
               <span class="iconify" data-icon="fa6-solid:seedling" style="font-size: 24px; color: #1D2607;"></span>
             </div>
@@ -87,7 +87,7 @@
             <div class="metric-header">
               <div class="metric-title">Health Score</div>
             </div>
-            <div class="metric-value">94%</div>
+            <div class="metric-value" id="healthScore">94%</div>
             <div class="metric-subtext">Excellent condition</div>
             <div class="metric-badge">
               <span class="iconify" data-icon="octicon-graph-16" style="font-size: 24px; color: #1D2607;"></span>
@@ -112,18 +112,18 @@
               </div>
               
               <div class="form-group">
-                <label class="label" for="plantId">ID</label>
-                <input id="plantId" class="input" placeholder="PLT-010214" />
-              </div>
-              
-              <div class="form-group">
                 <label class="label" for="plantName">Name</label>
-                <input id="plantName" class="input" placeholder="Add a name here" />
+                <input id="plantName" name="plantName" class="input" placeholder="Add a name here" required />
               </div>
               
               <div class="form-group">
-                <label class="label" for="plantSpecies">Species</label>
-                <input id="plantSpecies" class="input" placeholder="e.g., Monstera Deliciosa" />
+                <label class="label" for="species">Species</label>
+                <input id="species" name="species" class="input" placeholder="e.g., Monstera Deliciosa" required />
+              </div>
+              
+              <div class="form-group">
+                <label class="label" for="description">Description</label>
+                <textarea id="description" name="description" class="input" placeholder="Plant description..." rows="3"></textarea>
               </div>
               
               <div class="form-group">
@@ -138,50 +138,15 @@
                 </div>
               </div>
               
-              <button class="btn" type="submit">Register Plant</button>
+              <button class="btn" type="submit">Crear Planta</button>
             </form>
           </div>
 
           <div class="panel-right">
             <div class="panel">
               <h2 class="panel-title">Plant Monitoring</h2>
-              <div class="table">
-                <div class="table-head">
-                  <div>Plant</div>
-                  <div>Adopter</div>
-                  <div>Status</div>
-                  <div>Care Notes</div>
-                </div>
-                
-                <div class="table-row">
-                  <div class="plant-cell">
-                    <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=200&auto=format&fit=crop')"></div>
-                    <div>Monstera #010214</div>
-                  </div>
-                  <div>Sarah</div>
-                  <div><span class="status status-healthy">Healthy</span></div>
-                  <div class="care-notes">Watered yesterday</div>
-                </div>
-                
-                <div class="table-row">
-                  <div class="plant-cell">
-                    <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1593691509543-c55fb32d8de5?q=80&w=200&auto=format&fit=crop')"></div>
-                    <div>Snake Plant #045124</div>
-                  </div>
-                  <div>Mike</div>
-                  <div><span class="status status-recovering">Recovering</span></div>
-                  <div class="care-notes">Schedule watering</div>
-                </div>
-                
-                <div class="table-row">
-                  <div class="plant-cell">
-                    <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1463154545680-d59320fd685d?q=80&w=200&auto=format&fit=crop')"></div>
-                    <div>Fiddle Leaf #078241</div>
-                  </div>
-                  <div>Emma</div>
-                  <div><span class="status status-healthy">Healthy</span></div>
-                  <div class="care-notes">New growth spotted</div>
-                </div>
+              <div id="recentPlants">
+                <!-- Las plantas recientes se cargarán aquí dinámicamente -->
               </div>
               <a class="more" href="#">See more...</a>
             </div>
@@ -235,6 +200,13 @@
       </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <script src="../../src/config.js"></script>
+    <script src="../../src/utils.js"></script>
     <script src="./dashboard.js"></script>
   </body>
 </html>

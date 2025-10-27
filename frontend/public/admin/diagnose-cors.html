@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico CORS</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 20px; }
+        button { background: #7EB234; color: white; border: none; padding: 15px 25px; border-radius: 5px; cursor: pointer; margin: 10px; font-size: 16px; }
+        .result { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; }
+        .step { margin: 20px 0; padding: 15px; border-left: 4px solid #7EB234; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico Completo de CORS</h1>
+    <p>Vamos a diagnosticar paso a paso por qué no funciona el CORS.</p>
+    
+    <div class="step">
+        <h3>Paso 1: Verificar si Vercel está funcionando</h3>
+        <button id="testVercelBasic">Test Básico Vercel</button>
+        <button id="testVercelHealth">Test /health Vercel</button>
+    </div>
+    
+    <div class="step">
+        <h3>Paso 2: Verificar headers CORS</h3>
+        <button id="testCorsHeaders">Test Headers CORS</button>
+        <button id="testPreflight">Test Preflight OPTIONS</button>
+    </div>
+    
+    <div class="step">
+        <h3>Paso 3: Verificar endpoints específicos</h3>
+        <button id="testUsers">Test /users</button>
+        <button id="testPlants">Test /plants</button>
+        <button id="testLogin">Test /users/login</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        const result = document.getElementById('result');
+        const API_URL = 'https://ecoa-nine.vercel.app';
+
+        // Event listeners
+        document.getElementById('testVercelBasic').addEventListener('click', () => testVercelBasic());
+        document.getElementById('testVercelHealth').addEventListener('click', () => testVercelHealth());
+        document.getElementById('testCorsHeaders').addEventListener('click', () => testCorsHeaders());
+        document.getElementById('testPreflight').addEventListener('click', () => testPreflight());
+        document.getElementById('testUsers').addEventListener('click', () => testUsers());
+        document.getElementById('testPlants').addEventListener('click', () => testPlants());
+        document.getElementById('testLogin').addEventListener('click', () => testLogin());
+
+        async function testVercelBasic() {
+            try {
+                showResult('🔄 Probando conexión básica con Vercel...', 'warning');
+                
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                const data = await response.json();
+                showResult(`✅ Vercel funcionando:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Error Vercel básico: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVercelHealth() {
+            try {
+                showResult('🔄 Probando /health...', 'warning');
+                
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ /health OK:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ /health Error: ${response.status} - ${response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Error /health: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCorsHeaders() {
+            try {
+                showResult('🔄 Probando headers CORS...', 'warning');
+                
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                const headers = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                    'Status': response.status
+                };
+                
+                showResult(`📋 Headers CORS:<br><pre>${JSON.stringify(headers, null, 2)}</pre>`, 'info');
+                
+            } catch (error) {
+                showResult(`❌ Error headers: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPreflight() {
+            try {
+                showResult('🔄 Probando preflight OPTIONS...', 'warning');
+                
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'OPTIONS',
+                    mode: 'cors',
+                    headers: {
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                const headers = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                    'Status': response.status
+                };
+                
+                showResult(`📋 Preflight OPTIONS:<br><pre>${JSON.stringify(headers, null, 2)}</pre>`, 'info');
+                
+            } catch (error) {
+                showResult(`❌ Error preflight: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUsers() {
+            try {
+                showResult('🔄 Probando /users...', 'warning');
+                
+                const response = await fetch(`${API_URL}/users`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ /users OK:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ /users Error: ${response.status} - ${response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Error /users: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPlants() {
+            try {
+                showResult('🔄 Probando /plants...', 'warning');
+                
+                const response = await fetch(`${API_URL}/plants`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ /plants OK:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ /plants Error: ${response.status} - ${response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Error /plants: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            try {
+                showResult('🔄 Probando /users/login...', 'warning');
+                
+                const response = await fetch(`${API_URL}/users/login`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@ecoa.com'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ /users/login OK:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ /users/login Error: ${response.status} - ${response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Error /users/login: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            result.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        showResult('🔍 Haz clic en los botones para diagnosticar el problema de CORS paso a paso.', 'info');
+    </script>
+</body>
+</html>

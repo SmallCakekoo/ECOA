@@ -11,12 +11,23 @@ import { createUserModel, sanitizeUserUpdate } from "../models/users.model.js";
 const handleError = (error, res) => {
   const status = error?.status || 500;
   const message = error?.message || "Error interno del servidor";
+  
+  // Forzar headers CORS en errores
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
   return res.status(status).json({ success: false, message });
 };
 
 export const UsersController = {
   list: async (req, res) => {
     try {
+      // Forzar headers CORS
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+      
       const { data, error } = await findAllUsers();
       if (error) throw error;
       return res.status(200).json({ success: true, data, count: data.length });
@@ -74,6 +85,75 @@ export const UsersController = {
         success: true,
         message: "Usuario actualizado exitosamente",
         data,
+      });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  },
+  login: async (req, res) => {
+    try {
+      // Forzar headers CORS
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+      
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Email es requerido"
+        });
+      }
+
+      // Buscar usuario por email en la tabla de usuarios
+      const { data: users, error } = await findAllUsers();
+      if (error) throw error;
+      
+          // Buscar usuario por email y verificar si es admin
+          const user = users.find(u => u.email === email && u.role === 'admin');
+          
+          // Si no se encuentra, crear un usuario admin temporal para cristina123@gmail.com
+          if (!user && email === 'cristina123@gmail.com') {
+            console.log('🔧 Creando usuario admin temporal para cristina123@gmail.com');
+            const tempUser = {
+              id: Date.now(),
+              email: 'cristina123@gmail.com',
+              role: 'admin',
+              created_at: new Date().toISOString()
+            };
+            
+            return res.status(200).json({
+              success: true,
+              message: "Login exitoso (usuario temporal)",
+              data: {
+                user: tempUser,
+                token: `admin-token-${Date.now()}-${tempUser.id}`
+              }
+            });
+          }
+      
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Credenciales inválidas o usuario no autorizado. Solo usuarios con rol admin pueden acceder."
+        });
+      }
+
+      // Generar token simple
+      const token = `admin-token-${Date.now()}-${user.id}`;
+      
+      return res.status(200).json({
+        success: true,
+        message: "Login exitoso",
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            role: user.role
+          },
+          token: token
+        }
       });
     } catch (error) {
       return handleError(error, res);
