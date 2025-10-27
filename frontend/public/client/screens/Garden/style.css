@@ -28,7 +28,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-top {
@@ -116,10 +116,10 @@ body {
     left: 50%;
     transform: translateX(-38%);
     width: auto;
-    height: 320px;
-    object-fit: none;
+    height: 160px;
+    object-fit: contain;
     z-index: 2;
-    scale: 130%;
+    scale: 100%;
 }
 
 .card-overlay {
@@ -136,7 +136,7 @@ body {
     font-size: 20px;
     font-weight: 700;
     margin-bottom: 10px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     text-align: center;
 }
 
@@ -192,7 +192,7 @@ body {
     justify-content: center;
     align-items: center;
     border-radius: 50px;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
     margin: 20px auto;
     width: 70%;
     max-width: 450px;
@@ -236,23 +236,19 @@ body {
     transform: translateX(-50%);
     width: 60%;
     height: 4px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.9),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.9),
+            transparent);
     border-radius: 0 0 10px 10px;
     box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
 }
 
 /* Zona de luz más amplia para el icono activo */
 .nav-item.active {
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.25) 0%,
-        transparent 50%
-    );
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            transparent 50%);
 }
 
 .nav-item:hover {
@@ -278,37 +274,37 @@ body {
         gap: 50px 15px;
         padding: 20px;
     }
-    
+
     .plant-card {
         height: 150px;
     }
-    
+
     .add-button {
         height: 150px;
     }
-    
+
     .plant-name {
         font-size: 18px;
     }
-    
+
     .plant-stats {
         font-size: 13px;
     }
-    
+
     .header-title {
         font-size: 24px;
     }
-    
+
     .subtitle {
         font-size: 16px;
     }
-    
+
     .bottom-nav {
         height: 65px;
         width: 80%;
         max-width: 350px;
     }
-    
+
     .nav-icon {
         font-size: 28px;
     }

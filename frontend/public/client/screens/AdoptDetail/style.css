@@ -155,7 +155,7 @@ body {
 
 .plant-image img {
     width: 100%;
-    max-width: 400px;
+    max-width: 250px;
     height: auto;
     object-fit: contain;
 }
@@ -289,22 +289,18 @@ body {
     transform: translateX(-50%);
     width: 60%;
     height: 4px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.9),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.9),
+            transparent);
     border-radius: 0 0 10px 10px;
     box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
 }
 
 .nav-item.active {
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.25) 0%,
-        transparent 50%
-    );
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            transparent 50%);
 }
 
 .nav-item:hover {
@@ -392,9 +388,10 @@ body {
     }
 
     .plant-image img {
-        max-width: 350px;
+        max-width: 200px;
         margin-left: auto;
         display: block;
+        object-fit: contain;
     }
 
     .more-about-section {
