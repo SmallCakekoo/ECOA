@@ -6,7 +6,10 @@
     <title>Ecoa Admin · Donation Log</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Belanosima:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="../../src/styles.css" />
@@ -15,7 +18,10 @@
     <header class="topbar">
       <div class="brand">
         <div class="brand-icon">
-          <img src="../../../client/src/assets/images/flower-icon.png" alt="Logo" />
+          <img
+            src="../../../client/src/assets/images/flower-icon.png"
+            alt="Logo"
+          />
         </div>
         <div class="brand-name">Ecoa Admin</div>
       </div>
@@ -23,25 +29,46 @@
         <div class="avatar"></div>
       </div>
     </header>
-    
+
     <div class="app">
       <aside class="sidebar">
         <nav class="menu">
-          <a class="menu-item" href="https://ecoa-frontend.vercel.app/admin/dashboard">
+          <a
+            class="menu-item"
+            href="https://ecoa-frontend.vercel.app/admin/dashboard"
+          >
             <span class="menu-icon">
-              <span class="iconify" data-icon="octicon-graph-16" style="font-size: 20px;"></span>
+              <span
+                class="iconify"
+                data-icon="octicon-graph-16"
+                style="font-size: 20px"
+              ></span>
             </span>
             <span class="menu-text">Dashboard</span>
           </a>
-          <a class="menu-item" href="https://ecoa-frontend.vercel.app/admin/plantcatalog">
+          <a
+            class="menu-item"
+            href="https://ecoa-frontend.vercel.app/admin/plantcatalog"
+          >
             <span class="menu-icon">
-              <span class="iconify" data-icon="bxs:leaf" style="font-size: 20px;"></span>
+              <span
+                class="iconify"
+                data-icon="bxs:leaf"
+                style="font-size: 20px"
+              ></span>
             </span>
             <span class="menu-text">Plant Catalog</span>
           </a>
-          <a class="menu-item active" href="https://ecoa-frontend.vercel.app/admin/donationlog">
+          <a
+            class="menu-item active"
+            href="https://ecoa-frontend.vercel.app/admin/donationlog"
+          >
             <span class="menu-icon">
-              <span class="iconify" data-icon="material-symbols:attach-money-rounded" style="font-size: 24px;"></span>
+              <span
+                class="iconify"
+                data-icon="material-symbols:attach-money-rounded"
+                style="font-size: 24px"
+              ></span>
             </span>
             <span class="menu-text">Donations</span>
           </a>
@@ -52,7 +79,9 @@
         <header class="page-header">
           <div>
             <h1 class="title">Donation Log</h1>
-            <p class="subtitle">Track and analyze eco-friendly donations and their impact</p>
+            <p class="subtitle">
+              Track and analyze eco-friendly donations and their impact
+            </p>
           </div>
         </header>
 
@@ -61,28 +90,44 @@
             <div class="metric-title">Total Donations</div>
             <div class="metric-value">$12 mill</div>
             <div class="metric-badge">
-              <span class="iconify" data-icon="fa-solid:hand-holding-heart" style="font-size: 24px; color: #1D2607;"></span>
+              <span
+                class="iconify"
+                data-icon="fa-solid:hand-holding-heart"
+                style="font-size: 24px; color: #1d2607"
+              ></span>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Total Donors</div>
             <div class="metric-value">92</div>
             <div class="metric-badge">
-              <span class="iconify" data-icon="fa:users" style="font-size: 24px; color: #1D2607;"></span>
+              <span
+                class="iconify"
+                data-icon="fa:users"
+                style="font-size: 24px; color: #1d2607"
+              ></span>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-title">This Month</div>
             <div class="metric-value">$1 mill</div>
             <div class="metric-badge">
-              <span class="iconify" data-icon="ri:calendar-fill" style="font-size: 24px; color: #1D2607;"></span>
+              <span
+                class="iconify"
+                data-icon="ri:calendar-fill"
+                style="font-size: 24px; color: #1d2607"
+              ></span>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-title">Avg. Donation</div>
             <div class="metric-value">12</div>
             <div class="metric-badge">
-              <span class="iconify" data-icon="octicon-graph-16" style="font-size: 24px; color: #1D2607;"></span>
+              <span
+                class="iconify"
+                data-icon="octicon-graph-16"
+                style="font-size: 24px; color: #1d2607"
+              ></span>
             </div>
           </div>
         </section>
@@ -91,29 +136,73 @@
           <div class="panel recent">
             <h2 class="panel-title">Recent Donations</h2>
             <div class="table">
-              <div class="thead"><div>Donor Name</div><div>Amount</div><div>Date Added</div></div>
+              <div class="thead">
+                <div>Donor Name</div>
+                <div>Amount</div>
+                <div>Date Added</div>
+              </div>
               <div class="trow">
-                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=100&auto=format&fit=crop')"></div> Sarah Chen</div>
+                <div class="cell donor">
+                  <div
+                    class="avatar"
+                    style="
+                      --img: url('https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=100&auto=format&fit=crop');
+                    "
+                  ></div>
+                  Sarah Chen
+                </div>
                 <div class="cell amount">$250</div>
                 <div class="cell date">Jun 15, 2024</div>
               </div>
               <div class="trow">
-                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop')"></div> Mike Rodriguez</div>
+                <div class="cell donor">
+                  <div
+                    class="avatar"
+                    style="
+                      --img: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop');
+                    "
+                  ></div>
+                  Mike Rodriguez
+                </div>
                 <div class="cell amount">$180</div>
                 <div class="cell date">Jun 12, 2024</div>
               </div>
               <div class="trow">
-                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100&auto=format&fit=crop')"></div> Emma Wilson</div>
+                <div class="cell donor">
+                  <div
+                    class="avatar"
+                    style="
+                      --img: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100&auto=format&fit=crop');
+                    "
+                  ></div>
+                  Emma Wilson
+                </div>
                 <div class="cell amount">$320</div>
                 <div class="cell date">Jun 10, 2024</div>
               </div>
               <div class="trow">
-                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=100&auto=format&fit=crop')"></div> David Park</div>
+                <div class="cell donor">
+                  <div
+                    class="avatar"
+                    style="
+                      --img: url('https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=100&auto=format&fit=crop');
+                    "
+                  ></div>
+                  David Park
+                </div>
                 <div class="cell amount">$95</div>
                 <div class="cell date">Jun 8, 2024</div>
               </div>
               <div class="trow">
-                <div class="cell donor"><div class="avatar" style="--img:url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop')"></div> Lisa Thompson</div>
+                <div class="cell donor">
+                  <div
+                    class="avatar"
+                    style="
+                      --img: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop');
+                    "
+                  ></div>
+                  Lisa Thompson
+                </div>
                 <div class="cell amount">$450</div>
                 <div class="cell date">May 5, 2024</div>
               </div>
@@ -131,7 +220,11 @@
               <h2 class="panel-title">Quick Actions</h2>
               <button class="qa-item">
                 <span class="qa-icon">
-                  <span class="iconify" data-icon="fa6-solid:file-export" style="font-size: 22px; color: #1D2607;"></span>
+                  <span
+                    class="iconify"
+                    data-icon="fa6-solid:file-export"
+                    style="font-size: 22px; color: #1d2607"
+                  ></span>
                 </span>
                 <span>
                   <div class="qa-title">Export Data</div>
@@ -140,7 +233,11 @@
               </button>
               <button class="qa-item">
                 <span class="qa-icon">
-                  <span class="iconify" data-icon="fa:bar-chart" style="font-size: 22px; color: #1D2607;"></span>
+                  <span
+                    class="iconify"
+                    data-icon="fa:bar-chart"
+                    style="font-size: 22px; color: #1d2607"
+                  ></span>
                 </span>
                 <span>
                   <div class="qa-title">View Analytics</div>
@@ -152,7 +249,11 @@
             <div class="panel chart">
               <h2 class="panel-title">Donation Distribution</h2>
               <div class="donut">
-                <img class="donut-img" src="../../src/grafico circulo.png" alt="Donation Distribution" />
+                <img
+                  class="donut-img"
+                  src="../../src/grafico circulo.png"
+                  alt="Donation Distribution"
+                />
                 <ul class="legend">
                   <li><span class="dot dot-june"></span> June</li>
                   <li><span class="dot dot-may"></span> May</li>
@@ -167,6 +268,8 @@
     </div>
 
     <script src="../../src/config.js"></script>
+    <script src="../../src/api.js"></script>
+    <script src="../../src/auth.js"></script>
     <script src="../../src/utils.js"></script>
     <script src="./donationlog.js"></script>
   </body>

@@ -1,8 +1,3 @@
-// Cargar el servicio de API
-const script = document.createElement("script");
-script.src = "../../src/api.js";
-document.head.appendChild(script);
-
 document.addEventListener("DOMContentLoaded", () => {
   // Verificar si ya está autenticado
   if (window.AdminAPI && window.AdminAPI.isAuthenticated()) {
