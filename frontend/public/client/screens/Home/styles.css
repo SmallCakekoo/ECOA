@@ -120,6 +120,7 @@ body {
   font-size: 18px;
   font-weight: 400;
   opacity: 0.9;
+  display: none;
 }
 
 /* Main Content */
@@ -135,13 +136,13 @@ body {
   background: linear-gradient(135deg, #7eb234 0%, #659437 100%);
   border-radius: 20px;
   padding: 20px;
-  display: flex;
   align-items: center;
   gap: 20px;
   margin-bottom: 20px;
   box-shadow: 0 8px 20px rgba(126, 178, 52, 0.3);
   position: relative;
   overflow: hidden;
+  display: none;
 }
 
 .last-plant-card::before {

@@ -18,21 +18,28 @@ togglePassword.addEventListener("click", () => {
 
 // Handle form submission - Sign In
 const loginForm = document.getElementById("loginForm");
-loginForm.addEventListener("submit", (e) => {
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   
-  const username = document.getElementById("username").value;
+  const email = document.getElementById("username").value;
   const password = document.getElementById("password").value;
+
+  const response = await fetch('http://localhost:3000/users/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+  const data = await response.json()
+  console.log(data);
+
+  localStorage.setItem("USER_DATA", JSON.stringify(data.data.user))
   
-  // Obtener usuarios registrados
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-  
-  // Verificar si el usuario existe
-  const userExists = users.find(
-    (user) => user.username === username && user.password === password
-  );
-  
-  if (userExists) {
+  if (data.success) {
     // Si el usuario existe, redirigir a home
     window.location.href = "../Home/index.html";
   } else {

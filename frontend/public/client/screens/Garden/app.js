@@ -1,3 +1,5 @@
+const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
+
 // Actualizar la hora actual
 function updateTime() {
     const now = new Date();
@@ -33,34 +35,22 @@ function goToProfile(event) {
     window.location.href = '../Profile/index.html';
 }
 
-// Nombres aleatorios
-const names = ['Julio', 'María', 'Pedro', 'Ana', 'Luis', 'Carmen', 'Carlos', 'Rosa', 'Diego', 'Elena'];
-
-// Generar plantas
-const plantsGrid = document.getElementById('plantsGrid');
-
-// Crear 10 tarjetas de plantas
-for (let i = 1; i <= 10; i++) {
+function createPlantCard(plant, i) {
     const card = document.createElement('div');
     card.className = 'plant-card';
-    
-    const randomName = names[Math.floor(Math.random() * names.length)];
-    const randomSun = Math.floor(Math.random() * 51) + 30; // 30-80%
-    const randomWater = Math.floor(Math.random() * 51) + 30; // 30-80%
-    
     card.innerHTML = `
         <div class="card-background"></div>
-        <img class="plant-image" src="../../src/assets/images/plant-${i}.png" alt="Planta ${i}">
+        <img class="plant-image" src="http://localhost:3000/api/upload/plants/${plant.id}.png" alt="Planta ${i}">
         <div class="card-overlay">
-            <div class="plant-name">${randomName}</div>
+            <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">
                 <div class="stat">
                     <span class="iconify" data-icon="solar:sun-linear"></span>
-                    ${randomSun}%
+                    ${plant.light}%
                 </div>
                 <div class="stat">
                     <span class="iconify" data-icon="lets-icons:water-light"></span>
-                    ${randomWater}%
+                    ${plant.soil_moisture}%
                 </div>
             </div>
         </div>
@@ -71,15 +61,67 @@ for (let i = 1; i <= 10; i++) {
         console.log('Navegando a Virtual Pet con planta: ' + randomName);
         window.location.href = '../VirtualPet/index.html';
     };
-    
-    plantsGrid.appendChild(card);
+
+    return card
 }
 
-// Botón de agregar - Redirige a Shop
-const addButton = document.createElement('div');
-addButton.className = 'plant-card add-button';
-addButton.onclick = function() {
-    console.log('Navegando a Shop para adoptar nueva planta');
-    window.location.href = '../Adopt/index.html';
-};
-plantsGrid.appendChild(addButton);
+// Generar plantas
+const plantsGrid = document.getElementById('plantsGrid');
+
+(async () => {
+    const response = await fetch(`http://localhost:3000/users/${USER_DATA.id}/plants`);
+    const { success, data: plants} = await response.json()
+    
+    if(!success) return
+    
+    const promises = plants.map(async (plant, index) => {
+        const res = await fetch(`http://localhost:3000/plant_stats/${plant.id}`);
+        const {data: plantMetrics = {}} = await res.json()
+
+        const card = createPlantCard({
+            ...plant, 
+            soil_moisture: plantMetrics.soil_moisture || 0,
+            light: plantMetrics.light || 0,
+        },
+        index
+        );
+
+        plantsGrid.appendChild(card);
+    });
+
+    await Promise.allSettled(promises)
+    
+    // Botón de agregar - Redirige a Shop
+    const addButton = document.createElement('div');
+    addButton.className = 'plant-card add-button';
+    addButton.onclick = function() {
+        console.log('Navegando a Shop para adoptar nueva planta');
+        window.location.href = '../Adopt/index.html';
+    };
+    plantsGrid.appendChild(addButton);
+    
+    // CREATE PLANT STAT
+    // const r = await fetch(`http://localhost:3000/plant_stats`, {
+    //     method: "POST",
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     body: JSON.stringify({
+    //         "plant_id": "bc847426-4203-4d18-aa12-21864906fe08",
+    //         "soil_moisture": 44,
+    //         "temperature": 26.2,
+    //         "light": 70.5,
+    //       })
+    // });
+    // const { success: s, data} = await r.json()
+    // console.log(s, data);
+
+    // DELETE PLANT STAT
+    // const r = await fetch(`http://localhost:3000/plant_stats/35f62fc2-9f08-41fc-9633-efe6832a9d60`, {
+    //     method: "DELETE",
+    // });
+    // const { success: s, data} = await r.json()
+    // console.log(s, data);
+})()
+
+

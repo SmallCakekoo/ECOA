@@ -1,3 +1,5 @@
+const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"))
+
 // Actualizar la hora actual
 function updateTime() {
     const now = new Date();
@@ -16,14 +18,16 @@ updateTime();
 setInterval(updateTime, 60000);
 
 // Cargar información del usuario desde localStorage
-function loadUserData() {
-    const userName = localStorage.getItem('userName') || 'Julianana :)';
-    const userImage = localStorage.getItem('userImage') || 'user-profile.jpg';
-    const plantsCount = localStorage.getItem('plantsCount') || '132,643';
+async function loadUserData() {
 
-    document.getElementById('userName').textContent = userName;
-    document.getElementById('profileImage').src = userImage;
-    document.getElementById('plantsCount').textContent = plantsCount;
+    document.getElementById('userName').textContent = USER_DATA.name;
+    // document.getElementById('profileImage').src = 'user-profile.jpg'; TODO: set USER_DATA.img when db holds it
+
+    const response = await fetch(`http://localhost:3000/users/${USER_DATA.id}/plants`);
+    const { success, count } = await response.json()
+    console.log(success, count);
+    
+    if(success) document.getElementById('plantsCount').textContent = count;
 }
 
 // Cargar datos al iniciar
@@ -94,6 +98,8 @@ function handleLogout() {
         localStorage.removeItem('userToken');
         localStorage.removeItem('userId');
         localStorage.removeItem('isLoggedIn');
+
+        localStorage.removeItem("USER_DATA")
         
         // Opcional: Mantener algunos datos si quieres que persistan
         // localStorage.removeItem('userName');
