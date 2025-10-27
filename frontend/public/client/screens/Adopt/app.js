@@ -1,5 +1,15 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
+// Función para obtener la URL de la imagen de la planta
+function getPlantImageUrl(plant) {
+  // Si la planta tiene una imagen en la BD, usarla
+  if (plant.image) {
+    return plant.image;
+  }
+  // Imagen por defecto
+  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+}
+
 function createPlantCard(plant, index) {
   // contenedor principal
   const card = document.createElement("div");
@@ -8,9 +18,14 @@ function createPlantCard(plant, index) {
 
   // imagen
   const img = document.createElement("img");
-  img.src = `https://ecoa-nine.vercel.app/api/upload/plants/${plant.id}.png`;
+  img.src = getPlantImageUrl(plant);
   img.alt = `${plant.name} Plant`;
   img.className = `plant-image plant-image${index}`;
+  // Manejar error de carga de imagen
+  img.onerror = function () {
+    this.src =
+      "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+  };
 
   // contenedor de información
   const info = document.createElement("div");
@@ -46,16 +61,36 @@ function createPlantCard(plant, index) {
 }
 
 (async () => {
-  const response = await fetch("https://ecoa-nine.vercel.app/plants");
-  const { success, data: plants } = await response.json();
-  console.log(success, plants);
+  try {
+    // Obtener solo plantas no adoptadas o sin usuario asignado
+    const response = await fetch("https://ecoa-nine.vercel.app/plants");
+    const { success, data: plants } = await response.json();
+    console.log("Plantas disponibles:", success, plants);
 
-  if (!success) return;
+    if (!success) return;
 
-  plants.forEach((plant, index) => {
-    const card = createPlantCard(plant, index + 1);
-    document.querySelector(".plant-cards").appendChild(card);
-  });
+    // Filtrar plantas no adoptadas
+    const availablePlants = plants.filter(
+      (plant) => !plant.is_adopted || plant.user_id === null
+    );
+    console.log("Plantas disponibles para adopción:", availablePlants);
+
+    if (availablePlants.length === 0) {
+      document.querySelector(".plant-cards").innerHTML = `
+        <p style="text-align: center; width: 100%; padding: 2rem; color: #666;">
+          No hay plantas disponibles para adopción en este momento.
+        </p>
+      `;
+      return;
+    }
+
+    availablePlants.forEach((plant, index) => {
+      const card = createPlantCard(plant, index + 1);
+      document.querySelector(".plant-cards").appendChild(card);
+    });
+  } catch (error) {
+    console.error("Error cargando plantas:", error);
+  }
 })();
 
 // Actualizar hora
@@ -95,10 +130,10 @@ window.goToProfile = function (event) {
   window.location.href = "/client/screens/Profile";
 };
 
-// Función para volver atrás - va a Shop
+// Función para volver atrás - va a Home
 window.goBack = function () {
-  console.log("Volviendo a Shop...");
-  window.location.href = "/client/screens/Shop";
+  console.log("Volviendo a Home...");
+  window.location.href = "/client/screens/Home";
 };
 
 // Función para ver detalles de una planta (click en tarjeta)
@@ -110,22 +145,29 @@ window.selectPlant = function (id) {
 // Función para adoptar una planta (click en botón +)
 window.adoptPlant = async function (id) {
   console.log("Adoptando planta:", id);
-  const response = await fetch("https://ecoa-nine.vercel.app/plants/" + id, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_id: USER_DATA.id,
-    }),
-  });
 
-  const { success, data: plant } = await response.json();
-  console.log(success, plant);
+  try {
+    const response = await fetch("https://ecoa-nine.vercel.app/plants/" + id, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: USER_DATA.id,
+        is_adopted: true, // Marcar como adoptada
+      }),
+    });
 
-  if (success) {
-    window.location.href = "/client/screens/AdoptFeedback/success";
-  } else {
+    const { success, data: plant } = await response.json();
+    console.log("Adopción exitosa:", success, plant);
+
+    if (success) {
+      window.location.href = "/client/screens/AdoptFeedback/success";
+    } else {
+      window.location.href = "/client/screens/AdoptFeedback/error";
+    }
+  } catch (error) {
+    console.error("Error adoptando planta:", error);
     window.location.href = "/client/screens/AdoptFeedback/error";
   }
 };

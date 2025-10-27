@@ -36,12 +36,22 @@ window.goToProfile = function (event) {
   window.location.href = "/client/screens/Profile";
 };
 
+// Función para obtener la URL de la imagen de la planta
+function getPlantImageUrl(plant) {
+  if (plant.image) {
+    return plant.image;
+  }
+  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+}
+
 function createPlantCard(plant, i) {
   const card = document.createElement("div");
   card.className = "plant-card";
   card.innerHTML = `
         <div class="card-background"></div>
-        <img class="plant-image" src="https://ecoa-nine.vercel.app/api/upload/plants/${plant.id}.png" alt="Planta ${i}">
+        <img class="plant-image" src="${getPlantImageUrl(
+          plant
+        )}" alt="Planta ${i}" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'">
         <div class="card-overlay">
             <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">

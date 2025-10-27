@@ -4,6 +4,14 @@ const params = new URLSearchParams(window.location.search);
 
 const plantId = params.get("id");
 
+// Función para obtener la URL de la imagen de la planta
+function getPlantImageUrl(plant) {
+  if (plant.image) {
+    return plant.image;
+  }
+  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
+}
+
 (async function hydratePlantPage() {
   try {
     await Promise.all([
@@ -26,15 +34,20 @@ async function fetchPlantData(plantId) {
 
   document.title = `${plant.name} Plant - Adopt`;
   document.querySelector(".plant-title").textContent = `${plant.name} Plant`;
-  document.querySelector(
-    ".plant-description"
-  ).textContent = `The ${plant.name} Plant is the ultimate survivor. Strong, stoic, and elegant, with tall leaves shaped like green spears brushed with yellow or silver.`;
-  document.querySelector(
-    "#plant-image"
-  ).src = `https://ecoa-nine.vercel.app/api/upload/plants/${plant.id}.png`;
-  document.querySelector(
-    ".about-text"
-  ).textContent = `The ${plant.name} Plant is often called the ultimate survivor among houseplants. Native to West Africa, it has earned a reputation for being almost indestructible. Its tall, upright leaves rise like green spears, sometimes edged or streaked with silver, cream, or yellow, giving it a striking architectural look that fits both modern and traditional interiors.`;
+  document.querySelector(".plant-description").textContent =
+    plant.description ||
+    `The ${plant.name} Plant is the ultimate survivor. Strong, stoic, and elegant, with tall leaves shaped like green spears brushed with yellow or silver.`;
+
+  const plantImage = document.querySelector("#plant-image");
+  plantImage.src = getPlantImageUrl(plant);
+  plantImage.onerror = function () {
+    this.src =
+      "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
+  };
+
+  document.querySelector(".about-text").textContent =
+    plant.description ||
+    `The ${plant.name} Plant is often called the ultimate survivor among houseplants. Native to West Africa, it has earned a reputation for being almost indestructible. Its tall, upright leaves rise like green spears, sometimes edged or streaked with silver, cream, or yellow, giving it a striking architectural look that fits both modern and traditional interiors.`;
 }
 
 async function fetchPlantMetrics(plantId) {
@@ -146,25 +159,32 @@ window.goToProfile = function (event) {
 // Función para ir a la página de éxito de adopción (expuesta globalmente)
 window.adoptPlant = async function () {
   console.log("Adoptando planta:", plantId);
-  const response = await fetch(
-    "https://ecoa-nine.vercel.app/plants/" + plantId,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user_id: USER_DATA.id,
-      }),
+
+  try {
+    const response = await fetch(
+      "https://ecoa-nine.vercel.app/plants/" + plantId,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: USER_DATA.id,
+          is_adopted: true, // Marcar como adoptada
+        }),
+      }
+    );
+
+    const { success, data: plant } = await response.json();
+    console.log("Adopción exitosa:", success, plant);
+
+    if (success) {
+      window.location.href = "/client/screens/AdoptFeedback/success";
+    } else {
+      window.location.href = "/client/screens/AdoptFeedback/error";
     }
-  );
-
-  const { success, data: plant } = await response.json();
-  console.log(success, plant);
-
-  if (success) {
-    window.location.href = "/client/screens/AdoptFeedback/success";
-  } else {
+  } catch (error) {
+    console.error("Error adoptando planta:", error);
     window.location.href = "/client/screens/AdoptFeedback/error";
   }
 };
