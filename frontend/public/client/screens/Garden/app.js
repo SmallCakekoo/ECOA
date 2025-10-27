@@ -67,11 +67,15 @@ function createPlantCard(plant, i) {
         </div>
     `;
 
-  // Al hacer clic en una planta, ir a Virtual Pet
+  // Al hacer clic en una planta, ir a Virtual Pet con el ID
   card.onclick = function () {
-    console.log("Navegando a Virtual Pet con planta: " + plant.name);
-    window.location.href =
-      "https://ecoa-frontend.vercel.app/client/screens/VirtualPet";
+    console.log(
+      "Navegando a Virtual Pet con planta:",
+      plant.name,
+      "ID:",
+      plant.id
+    );
+    window.location.href = `/client/screens/VirtualPet?id=${plant.id}`;
   };
 
   return card;

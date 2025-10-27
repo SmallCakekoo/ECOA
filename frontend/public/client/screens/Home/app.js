@@ -20,7 +20,21 @@ if (USER_DATA && USER_DATA.name) {
       const plant = getMostRecentPlant(plants);
 
       document.querySelector(".subgreeting").style.display = "block";
-      document.querySelector(".last-plant-card").style.display = "flex";
+      const lastPlantCard = document.querySelector(".last-plant-card");
+      lastPlantCard.style.display = "flex";
+      lastPlantCard.style.cursor = "pointer";
+
+      // Al hacer clic en la tarjeta, ir a VirtualPet con el ID de la planta
+      lastPlantCard.onclick = function () {
+        console.log(
+          "Navegando a VirtualPet con planta:",
+          plant.name,
+          "ID:",
+          plant.id
+        );
+        window.location.href = `/client/screens/VirtualPet?id=${plant.id}`;
+      };
+
       document.querySelector(".plant-name").textContent = plant.name;
 
       fetchPlantMetrics(plant.id);
@@ -77,8 +91,8 @@ window.goToHome = function (event) {
 
 window.goToPlants = function (event) {
   if (event) event.preventDefault();
-  console.log("Navegando a Virtual Pet");
-  window.location.href = "/client/screens/VirtualPet";
+  console.log("Navegando a Garden (todas las plantas)");
+  window.location.href = "/client/screens/Garden";
 };
 
 window.goToProfile = function (event) {
