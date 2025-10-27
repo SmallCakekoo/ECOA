@@ -45,15 +45,16 @@ signupForm.addEventListener("submit", async (e) => {
   errorMessage.classList.remove("show");
 
   try {
-    const response = await fetch("https://ecoa-nine.vercel.app/users/signup", {
+    // POST directo a la tabla users
+    const response = await fetch("https://ecoa-nine.vercel.app/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email,
         name: username,
-        // password no se envía ya que la autenticación es simulada
+        email: email,
+        rol: "user", // rol por defecto
       }),
     });
 
@@ -65,8 +66,8 @@ signupForm.addEventListener("submit", async (e) => {
       return;
     }
 
-    if (data.data && data.data.user) {
-      localStorage.setItem("USER_DATA", JSON.stringify(data.data.user));
+    if (data.data) {
+      localStorage.setItem("USER_DATA", JSON.stringify(data.data));
 
       // Mostrar mensaje de éxito y redirigir
       alert(

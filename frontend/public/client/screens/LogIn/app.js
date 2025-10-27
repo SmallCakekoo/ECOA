@@ -26,26 +26,25 @@ loginForm.addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   try {
-    const response = await fetch("https://ecoa-nine.vercel.app/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        // password no se envía ya que la autenticación es simulada
-      }),
-    });
+    // Obtener todos los usuarios y buscar por email
+    const response = await fetch("https://ecoa-nine.vercel.app/users");
     const data = await response.json();
     console.log(data);
 
-    if (data.success && data.data && data.data.user) {
-      localStorage.setItem("USER_DATA", JSON.stringify(data.data.user));
-      // Si el usuario existe, redirigir a home
-      window.location.href = "/client/screens/Home";
+    if (data.success && data.data) {
+      // Buscar usuario por email
+      const user = data.data.find((u) => u.email === email);
+
+      if (user) {
+        localStorage.setItem("USER_DATA", JSON.stringify(user));
+        // Si el usuario existe, redirigir a home
+        window.location.href = "/client/screens/Home";
+      } else {
+        // Si no existe, mostrar mensaje de error
+        alert("User not found. Please sign up first.");
+      }
     } else {
-      // Si no existe, mostrar mensaje de error
-      alert(data.message || "User not found");
+      alert("Error loading users");
     }
   } catch (error) {
     console.error("Login error:", error);
