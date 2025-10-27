@@ -11,6 +11,7 @@ export default defineConfig({
     port: 5000,
     open: true,
   },
+
   build: {
     outDir: "../dist", // build final en frontend/dist
     rollupOptions: {

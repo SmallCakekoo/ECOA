@@ -1,0 +1,81 @@
+{
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/client/screens/Home/index.html"
+    },
+    {
+      "source": "/client/home",
+      "destination": "/client/screens/Home/index.html"
+    },
+    {
+      "source": "/client/login",
+      "destination": "/client/screens/LogIn/index.html"
+    },
+    {
+      "source": "/client/shop",
+      "destination": "/client/screens/Shop/index.html"
+    },
+    {
+      "source": "/client/adopt",
+      "destination": "/client/screens/Adopt/index.html"
+    },
+    {
+      "source": "/client/adoptdetail",
+      "destination": "/client/screens/AdoptDetail/index.html"
+    },
+    {
+      "source": "/client/garden",
+      "destination": "/client/screens/Garden/index.html"
+    },
+    {
+      "source": "/client/profile",
+      "destination": "/client/screens/Profile/index.html"
+    },
+    {
+      "source": "/client/signup",
+      "destination": "/client/screens/SingUp/index.html"
+    },
+    {
+      "source": "/client/virtualpet",
+      "destination": "/client/screens/VirtualPet/index.html"
+    },
+    {
+      "source": "/client/adoptfeedback/error",
+      "destination": "/client/screens/AdoptFeedback/error/index.html"
+    },
+    {
+      "source": "/client/adoptfeedback/success",
+      "destination": "/client/screens/AdoptFeedback/success/index.html"
+    },
+    {
+      "source": "/client/shopfeedback/error",
+      "destination": "/client/screens/ShopFeedback/error/index.html"
+    },
+    {
+      "source": "/client/shopfeedback/success",
+      "destination": "/client/screens/ShopFeedback/success/index.html"
+    },
+    {
+      "source": "/admin/dashboard",
+      "destination": "/admin/screens/dashboard/index.html"
+    },
+    {
+      "source": "/admin/login",
+      "destination": "/admin/screens/login/index.html"
+    },
+    {
+      "source": "/admin/donationlog",
+      "destination": "/admin/screens/donationlog/index.html"
+    },
+    {
+      "source": "/admin/plantcatalog",
+      "destination": "/admin/screens/PlantCatalog/index.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}
