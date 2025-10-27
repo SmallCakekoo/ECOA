@@ -26,7 +26,7 @@ function getPlantImageUrl(plant) {
 
 async function fetchPlantData(plantId) {
   const response = await fetch(
-    `https://ecoa-nine.vercel.app/plants/${plantId}`
+    `https://ecoa-five.vercel.app/plants/${plantId}`
   );
   const { success, data: plant } = await response.json();
 
@@ -52,7 +52,7 @@ async function fetchPlantData(plantId) {
 
 async function fetchPlantMetrics(plantId) {
   const response = await fetch(
-    `https://ecoa-nine.vercel.app/plant_stats/${plantId}`
+    `https://ecoa-five.vercel.app/plant_stats/${plantId}`
   );
   const { success, data: plantMetrics } = await response.json();
 
@@ -67,7 +67,7 @@ async function fetchPlantMetrics(plantId) {
 
 async function fetchPlantStatus(plantId) {
   const response = await fetch(
-    `https://ecoa-nine.vercel.app/plant_status/${plantId}`
+    `https://ecoa-five.vercel.app/plant_status/${plantId}`
   );
   const { success, data: plantStatus } = await response.json();
 
@@ -162,7 +162,7 @@ window.adoptPlant = async function () {
 
   try {
     const response = await fetch(
-      "https://ecoa-nine.vercel.app/plants/" + plantId,
+      "https://ecoa-five.vercel.app/plants/" + plantId,
       {
         method: "PUT",
         headers: {

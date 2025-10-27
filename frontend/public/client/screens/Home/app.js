@@ -11,7 +11,7 @@ if (USER_DATA && USER_DATA.name) {
   (async () => {
     try {
       const response = await fetch(
-        `https://ecoa-nine.vercel.app/users/${USER_DATA.id}/plants`
+        `https://ecoa-five.vercel.app/users/${USER_DATA.id}/plants`
       );
       const { success, data: plants, count } = await response.json();
 
@@ -56,7 +56,7 @@ function getMostRecentPlant(plants) {
 
 async function fetchPlantMetrics(plantId) {
   const response = await fetch(
-    `https://ecoa-nine.vercel.app/plant_status/${plantId}`
+    `https://ecoa-five.vercel.app/plant_status/${plantId}`
   );
   const { success, data: plantMetrics } = await response.json();
   console.log(plantMetrics, success);

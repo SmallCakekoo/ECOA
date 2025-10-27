@@ -63,7 +63,7 @@ function createPlantCard(plant, index) {
 (async () => {
   try {
     // Obtener solo plantas no adoptadas o sin usuario asignado
-    const response = await fetch("https://ecoa-nine.vercel.app/plants");
+    const response = await fetch("https://ecoa-five.vercel.app/plants");
     const { success, data: plants } = await response.json();
     console.log("Plantas disponibles:", success, plants);
 
@@ -147,7 +147,7 @@ window.adoptPlant = async function (id) {
   console.log("Adoptando planta:", id);
 
   try {
-    const response = await fetch("https://ecoa-nine.vercel.app/plants/" + id, {
+    const response = await fetch("https://ecoa-five.vercel.app/plants/" + id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

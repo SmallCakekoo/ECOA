@@ -86,7 +86,7 @@ const plantsGrid = document.getElementById("plantsGrid");
 
 (async () => {
   const response = await fetch(
-    `https://ecoa-nine.vercel.app/users/${USER_DATA.id}/plants`
+    `https://ecoa-five.vercel.app/users/${USER_DATA.id}/plants`
   );
   const { success, data: plants } = await response.json();
 
@@ -94,7 +94,7 @@ const plantsGrid = document.getElementById("plantsGrid");
 
   const promises = plants.map(async (plant, index) => {
     const res = await fetch(
-      `https://ecoa-nine.vercel.app/plant_stats/${plant.id}`
+      `https://ecoa-five.vercel.app/plant_stats/${plant.id}`
     );
     const { data: plantMetrics = {} } = await res.json();
 
@@ -118,7 +118,7 @@ const plantsGrid = document.getElementById("plantsGrid");
   addButton.onclick = function () {
     console.log("Navegando a Adopt para adoptar nueva planta");
     window.location.href =
-      "https://ecoa-frontend.vercel.app/client/screens/Adopt";
+      "https://ecoa-frontend-two.vercel.app/client/screens/Adopt";
   };
   plantsGrid.appendChild(addButton);
 

@@ -40,7 +40,7 @@ setInterval(updateTime, 60000);
   try {
     // Cargar datos básicos de la planta
     const plantResponse = await fetch(
-      `https://ecoa-nine.vercel.app/plants/${plantId}`
+      `https://ecoa-five.vercel.app/plants/${plantId}`
     );
     const { success: plantSuccess, data: plant } = await plantResponse.json();
 
@@ -69,7 +69,7 @@ setInterval(updateTime, 60000);
     // Cargar métricas (plant_stats)
     try {
       const statsResponse = await fetch(
-        `https://ecoa-nine.vercel.app/plant_stats/${plantId}`
+        `https://ecoa-five.vercel.app/plant_stats/${plantId}`
       );
       const { success: statsSuccess, data: stats } = await statsResponse.json();
 
@@ -99,7 +99,7 @@ setInterval(updateTime, 60000);
     // Cargar estado (plant_status)
     try {
       const statusResponse = await fetch(
-        `https://ecoa-nine.vercel.app/plant_status/${plantId}`
+        `https://ecoa-five.vercel.app/plant_status/${plantId}`
       );
       const { success: statusSuccess, data: status } =
         await statusResponse.json();

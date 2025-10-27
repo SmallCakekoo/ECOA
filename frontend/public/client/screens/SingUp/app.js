@@ -46,7 +46,7 @@ signupForm.addEventListener("submit", async (e) => {
 
   try {
     // POST directo a la tabla users
-    const response = await fetch("https://ecoa-nine.vercel.app/users", {
+    const response = await fetch("https://ecoa-five.vercel.app/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
