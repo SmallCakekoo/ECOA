@@ -5,7 +5,7 @@ let allPlants = [];
 document.addEventListener("DOMContentLoaded", async () => {
   // Verificar autenticación
   if (!window.AdminAPI.isAuthenticated()) {
-    window.location.href = "/admin/login";
+    window.location.href = "/admin/screens/login";
     return;
   }
 
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.AuthManager.logout();
       } else {
         window.AdminAPI.logout();
-        window.location.href = "/admin/login";
+        window.location.href = "/admin/screens/login";
       }
     });
   }
