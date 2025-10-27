@@ -5,75 +5,75 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/client-Home.html"
+      "destination": "/client/screens/Home/index.html"
     },
     {
       "source": "/client/home",
-      "destination": "/client-Home.html"
+      "destination": "/client/screens/Home/index.html"
     },
     {
       "source": "/client/login",
-      "destination": "/client-LogIn.html"
+      "destination": "/client/screens/LogIn/index.html"
     },
     {
       "source": "/client/shop",
-      "destination": "/client-Shop.html"
+      "destination": "/client/screens/Shop/index.html"
     },
     {
       "source": "/client/adopt",
-      "destination": "/client-Adopt.html"
+      "destination": "/client/screens/Adopt/index.html"
     },
     {
       "source": "/client/adoptdetail",
-      "destination": "/client-AdoptDetail.html"
+      "destination": "/client/screens/AdoptDetail/index.html"
     },
     {
       "source": "/client/garden",
-      "destination": "/client-Garden.html"
+      "destination": "/client/screens/Garden/index.html"
     },
     {
       "source": "/client/profile",
-      "destination": "/client-Profile.html"
+      "destination": "/client/screens/Profile/index.html"
     },
     {
       "source": "/client/signup",
-      "destination": "/client-SingUp.html"
+      "destination": "/client/screens/SingUp/index.html"
     },
     {
       "source": "/client/virtualpet",
-      "destination": "/client-VirtualPet.html"
+      "destination": "/client/screens/VirtualPet/index.html"
     },
     {
       "source": "/client/adoptfeedback/error",
-      "destination": "/client-AdoptFeedback-error.html"
+      "destination": "/client/screens/AdoptFeedback/error/index.html"
     },
     {
       "source": "/client/adoptfeedback/success",
-      "destination": "/client-AdoptFeedback-success.html"
+      "destination": "/client/screens/AdoptFeedback/success/index.html"
     },
     {
       "source": "/client/shopfeedback/error",
-      "destination": "/client-ShopFeedback-error.html"
+      "destination": "/client/screens/ShopFeedback/error/index.html"
     },
     {
       "source": "/client/shopfeedback/success",
-      "destination": "/client-ShopFeedback-success.html"
+      "destination": "/client/screens/ShopFeedback/success/index.html"
     },
     {
       "source": "/admin/dashboard",
-      "destination": "/admin-dashboard.html"
+      "destination": "/admin/screens/dashboard/index.html"
     },
     {
       "source": "/admin/login",
-      "destination": "/admin-login.html"
+      "destination": "/admin/screens/login/index.html"
     },
     {
       "source": "/admin/donationlog",
-      "destination": "/admin-donationlog.html"
+      "destination": "/admin/screens/donationlog/index.html"
     },
     {
       "source": "/admin/plantcatalog",
-      "destination": "/admin-PlantCatalog.html"
+      "destination": "/admin/screens/PlantCatalog/index.html"
     }
   ],
   "cleanUrls": true,

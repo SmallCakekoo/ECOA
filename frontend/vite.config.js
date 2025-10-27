@@ -38,7 +38,6 @@ function getAllHtmlFiles(dir, baseDir = "", entries = {}) {
 }
 
 // Buscar todos los archivos HTML automáticamente
-const rootDir = resolve(__dirname);
 const publicDir = resolve(__dirname, "public");
 const clientDir = resolve(publicDir, "client/screens");
 const adminDir = resolve(publicDir, "admin/screens");
@@ -53,25 +52,19 @@ const allEntries = {
 console.log(`\n✅ Found ${Object.keys(allEntries).length} entry points\n`);
 
 export default defineConfig({
-  root: rootDir,  // ← Cambio importante: root en la raíz del proyecto
-  publicDir: publicDir,  // ← Especificar dónde están los assets
+  root: publicDir,
   
   server: {
     port: 5000,
-    open: "/public/client/screens/Home/index.html",
+    open: "/client/screens/Home/index.html",
   },
 
   build: {
     outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
+    
     rollupOptions: {
-      input: allEntries,
-      output: {
-        // Aplanar la estructura - todos los HTML en la raíz
-        entryFileNames: '[name].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
+      input: allEntries,  
     },
   },
 
