@@ -1,5 +1,11 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 const API_BASE_URL = "https://ecoa-nine.vercel.app";
+
+function resolvePlantImage(plant) {
+  const url = plant.image || plant.image_url;
+  if (!url) return "/client/src/assets/images/plant.png";
+  return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+}
 console.log(USER_DATA);
 
 // Verificar si hay datos de usuario
@@ -11,9 +17,7 @@ if (USER_DATA && USER_DATA.name) {
   // Cargar plantas del usuario
   (async () => {
     try {
-      const response = await fetch(
-        `https://ecoa-five.vercel.app/users/${USER_DATA.id}/plants`
-      );
+      const response = await fetch(`${API_BASE_URL}/users/${USER_DATA.id}/plants`);
       const { success, data: plants, count } = await response.json();
 
       if (!success || count === 0) return;
@@ -39,10 +43,7 @@ if (USER_DATA && USER_DATA.name) {
       document.querySelector(".plant-name").textContent = plant.name;
       // Imagen de la última planta: usa el mismo campo 'image'
       const imgEl = document.querySelector(".last-plant-card .plant-image img");
-      const url = plant.image || plant.image_url;
-      if (url) {
-        imgEl.src = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
-      }
+      imgEl.src = resolvePlantImage(plant);
 
       fetchPlantMetrics(plant.id);
     } catch (error) {
@@ -62,9 +63,7 @@ function getMostRecentPlant(plants) {
 }
 
 async function fetchPlantMetrics(plantId) {
-  const response = await fetch(
-    `https://ecoa-five.vercel.app/plant_status/${plantId}`
-  );
+  const response = await fetch(`${API_BASE_URL}/plant_status/${plantId}`);
   const { success, data: plantMetrics } = await response.json();
   console.log(plantMetrics, success);
 

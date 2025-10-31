@@ -140,7 +140,7 @@ function renderPlants() {
   const rowsHTML = plantsToShow
     .map((plant) => {
       const resolved = resolveImageUrl(plant.image);
-      const img = resolved || "../../src/plant-placeholder.svg";
+      const img = resolved || "/client/src/assets/images/plant.png";
       const date = plant.created_at
         ? new Date(plant.created_at).toLocaleDateString("en-US", {
             month: "short",

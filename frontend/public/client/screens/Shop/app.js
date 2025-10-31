@@ -43,6 +43,17 @@ window.goToShopFeedback = function () {
 };
 
 // Cargar accesorios desde Supabase vía backend y renderizar
+function resolveAccessoryImage(image) {
+  const asset = (name) => `/client/src/assets/images/${name || "accessory-1.png"}`;
+  if (!image) return asset("accessory-1.png");
+  // URL absoluta
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  // Ruta absoluta del backend (/uploads/...)
+  if (image.startsWith("/")) return `${API_BASE_URL}${image}`;
+  // Nombre de archivo en assets
+  return asset(image);
+}
+
 (async function loadAccessories() {
   try {
     const res = await fetch(`${API_BASE_URL}/accessories`);
@@ -54,16 +65,12 @@ window.goToShopFeedback = function () {
     container.innerHTML = "";
 
     data.forEach((acc) => {
-      let img = (acc.image && (acc.image.startsWith('http') ? acc.image : `${API_BASE_URL}${acc.image}`)) || `../../src/assets/images/accessory-1.png`;
-      // En despliegues serverless, rutas /uploads no existen; usa placeholder
-      if (acc.image && acc.image.startsWith('/uploads')) {
-        img = `../../src/assets/images/accessory-1.png`;
-      }
+      const img = resolveAccessoryImage(acc.image);
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
         <div class="shop-image">
-          <img src="${img}" alt="${acc.name}" onerror="this.src='../../src/assets/images/accessory-1.png'" />
+          <img src="${img}" alt="${acc.name}" onerror="this.src='/client/src/assets/images/accessory-1.png'" />
         </div>
         <div class="shop-info">
           <div class="shop-title">${acc.name}</div>
