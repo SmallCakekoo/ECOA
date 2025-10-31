@@ -173,10 +173,16 @@ async function loadRecentPlants() {
       // Crear filas de plantas con imágenes de Perenual API
       const plantRows = await Promise.all(
         plants.map(async (plant) => {
-          // Buscar imagen real de la planta en Perenual API
-          let plantImage = null; // No usar placeholder, solo imágenes reales
+          // 1) Usar la imagen subida si existe
+          let plantImage = null;
+          const ownImage = plant.image || plant.image_url;
+          if (ownImage) {
+            plantImage = ownImage.startsWith("http")
+              ? ownImage
+              : `${window.AdminConfig.API_BASE_URL}${ownImage}`;
+          }
 
-          // Intentar diferentes términos de búsqueda
+          // 2) Si no hay imagen subida, buscar en Perenual como fallback
           const searchTerms = [
             plant.species,
             plant.name,
@@ -184,7 +190,8 @@ async function loadRecentPlants() {
             plant.species.split(" ").slice(0, 2).join(" "), // Género + especie
           ].filter((term) => term && term.trim());
 
-          for (const searchTerm of searchTerms) {
+          if (!plantImage) {
+            for (const searchTerm of searchTerms) {
             try {
               const perenualResponse = await fetch(
                 `${
@@ -221,7 +228,7 @@ async function loadRecentPlants() {
                   console.log(
                     `✅ Imagen real encontrada para ${plant.name} con término: "${searchTerm}" - URL: ${plantImage}`
                   );
-                  break;
+                    break;
                 } else {
                   console.log(
                     `❌ Imagen placeholder detectada para ${plant.name} con término: "${searchTerm}" - URL: ${imageUrl}`
@@ -233,6 +240,7 @@ async function loadRecentPlants() {
                 `Error buscando "${searchTerm}" para ${plant.name}:`,
                 error
               );
+            }
             }
           }
 
