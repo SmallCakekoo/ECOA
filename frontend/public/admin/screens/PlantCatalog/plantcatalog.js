@@ -78,6 +78,7 @@ async function initializeApp() {
   try {
     // Cargar plantas
     await loadPlants();
+    await updateMetricsFromPlants();
 
     // Configurar filtros
     setupFilters();
@@ -113,70 +114,66 @@ async function loadPlants() {
 }
 
 function renderPlants() {
-  const container = document.getElementById("plantsGrid");
-  if (!container) return;
+  const table = document.querySelector(".catalog .table");
+  if (!table) return;
 
+  const thead = table.querySelector(".thead");
   const plantsPerPage = 12;
   const startIndex = (currentPage - 1) * plantsPerPage;
   const endIndex = startIndex + plantsPerPage;
   const plantsToShow = allPlants.slice(startIndex, endIndex);
 
   if (plantsToShow.length === 0) {
-    container.innerHTML = `
-      <div class="no-plants">
-        <p>No se encontraron plantas</p>
+    table.innerHTML = `
+      <div class="thead">
+        <div>Plant</div>
+        <div>Species</div>
+        <div>Date Added</div>
+        <div>Status</div>
+        <div>Actions</div>
       </div>
+      <div class="trow"><div class="cell" style="grid-column: span 5; text-align:center">No se encontraron plantas</div></div>
     `;
     return;
   }
 
-  container.innerHTML = plantsToShow
-    .map(
-      (plant) => `
-    <div class="plant-card" data-plant-id="${plant.id}">
-      <div class="plant-image">
-        <img src="${
-          plant.image_url || "../../src/plant-placeholder.svg"
-        }" alt="${plant.name}">
-        <div class="plant-status ${plant.health_status}">
-          ${getStatusText(plant.health_status)}
-        </div>
-      </div>
-      <div class="plant-info">
-        <h3>${plant.name}</h3>
-        <p class="species">${plant.species}</p>
-        <p class="description">${plant.description || "Sin descripción"}</p>
-        <div class="plant-metrics">
-          <div class="metric">
-            <span class="metric-label">Agua:</span>
-            <div class="metric-bar">
-              <div class="metric-fill" style="width: ${
-                plant.water_level
-              }%"></div>
+  const rowsHTML = plantsToShow
+    .map((plant) => {
+      const img = plant.image_url || "../../src/plant-placeholder.svg";
+      const date = plant.created_at
+        ? new Date(plant.created_at).toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          })
+        : "";
+      const statusBadge = `<span class=\"badge ${plant.health_status}\">${getStatusText(
+        plant.health_status
+      )}</span>`;
+      const adoptBadge = plant.is_adopted
+        ? '<span class="badge adopted">Adopted</span>'
+        : '';
+      return `
+        <div class="trow">
+          <div class="cell plant">
+            <div class="thumb"><img src="${img}" alt="plant"></div>
+            <div>
+              <div class="plant-name">${plant.name}</div>
+              <div class="plant-id">ID: PLT-${String(plant.id).padStart(5, "0")}</div>
             </div>
           </div>
-          <div class="metric">
-            <span class="metric-label">Luz:</span>
-            <div class="metric-bar">
-              <div class="metric-fill" style="width: ${
-                plant.light_level
-              }%"></div>
-            </div>
+          <div class="cell">${plant.species || ""}</div>
+          <div class="cell">${date}</div>
+          <div class="cell">${statusBadge} ${adoptBadge}</div>
+          <div class="cell actions">
+            <a class="edit" href="#" onclick="editPlant(${plant.id})">Edit</a>
+            <a class="delete" href="#" onclick="deletePlant(${plant.id})">Delete</a>
           </div>
-        </div>
-        <div class="plant-actions">
-          <button class="btn-edit" onclick="editPlant(${plant.id})">
-            <i class="icon-edit"></i> Editar
-          </button>
-          <button class="btn-delete" onclick="deletePlant(${plant.id})">
-            <i class="icon-delete"></i> Eliminar
-          </button>
-        </div>
-      </div>
-    </div>
-  `
-    )
+        </div>`;
+    })
     .join("");
+
+  table.innerHTML = (thead ? thead.outerHTML : "") + rowsHTML;
 }
 
 function setupFilters() {
@@ -333,7 +330,7 @@ async function createPlant() {
     description: formData.get("description"),
     image_url: document.getElementById("overlayPhotoPreview").src || null,
     status: "active",
-    health_status: "healthy",
+    health_status: formData.get("healthStatus") || "healthy",
     water_level: 0,
     light_level: 0,
     temperature: 0,
@@ -522,4 +519,27 @@ function showNotification(message, type = "error") {
       notification.parentNode.removeChild(notification);
     }
   }, 5000);
+}
+
+async function updateMetricsFromPlants() {
+  try {
+    const totals = {
+      total: allPlants.length,
+      healthy: allPlants.filter((p) => p.health_status === "healthy").length,
+      recovering: allPlants.filter((p) => p.health_status === "needs_care").length,
+      bad:
+        allPlants.filter((p) => p.health_status === "sick").length +
+        allPlants.filter((p) => p.health_status === "dying").length,
+    };
+
+    const values = document.querySelectorAll(
+      ".metrics .metric-card .metric-value"
+    );
+    if (values[0]) values[0].textContent = totals.total.toLocaleString();
+    if (values[1]) values[1].textContent = totals.healthy.toLocaleString();
+    if (values[2]) values[2].textContent = totals.recovering.toLocaleString();
+    if (values[3]) values[3].textContent = totals.bad.toLocaleString();
+  } catch (e) {
+    console.error("Error updating metrics:", e);
+  }
 }

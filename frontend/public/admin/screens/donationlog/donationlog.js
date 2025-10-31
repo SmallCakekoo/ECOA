@@ -78,6 +78,7 @@ async function initializeApp() {
   try {
     // Cargar donaciones
     await loadDonations();
+    await updateMetricsFromDonations();
 
     // Configurar filtros
     setupFilters();
@@ -366,4 +367,36 @@ function showNotification(message, type = "error") {
       notification.parentNode.removeChild(notification);
     }
   }, 5000);
+}
+
+// Actualiza las tarjetas de métricas superiores con datos reales
+async function updateMetricsFromDonations() {
+  try {
+    const totalAmount = allDonations.reduce(
+      (sum, d) => sum + Number(d.amount || 0),
+      0
+    );
+    const uniqueDonors = new Set(
+      allDonations.map((d) => d.user_id).filter((v) => v != null)
+    ).size;
+    const now = new Date();
+    const monthAmount = allDonations
+      .filter((d) => {
+        if (!d.created_at) return false;
+        const dt = new Date(d.created_at);
+        return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear();
+      })
+      .reduce((sum, d) => sum + Number(d.amount || 0), 0);
+    const avg = allDonations.length ? totalAmount / allDonations.length : 0;
+
+    const values = document.querySelectorAll(
+      ".metrics .metric-card .metric-value"
+    );
+    if (values[0]) values[0].textContent = `$${totalAmount.toLocaleString()}`;
+    if (values[1]) values[1].textContent = uniqueDonors.toLocaleString();
+    if (values[2]) values[2].textContent = `$${monthAmount.toLocaleString()}`;
+    if (values[3]) values[3].textContent = Math.round(avg).toLocaleString();
+  } catch (e) {
+    console.error("Error updating donation metrics:", e);
+  }
 }

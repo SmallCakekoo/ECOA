@@ -118,9 +118,19 @@ async function loadStats() {
 
     // Actualizar contadores correctamente
     updateStatCard("totalAdoptions", stats.plants.adopted || 0);
-    updateStatCard("totalDonations", `$${stats.donations.amount || 0}`);
+    updateStatCard(
+      "totalDonations",
+      `$${Number(stats.donations.totalAmount || 0).toLocaleString()}`
+    );
     updateStatCard("plantsInCatalog", stats.plants.total || 0);
-    updateStatCard("healthScore", "94%");
+    const healthScore = (() => {
+      const total = stats.plants.total || 0;
+      const healthy = stats.plants.healthy || 0;
+      if (!total) return "0%";
+      const pct = Math.round((healthy / total) * 100);
+      return `${pct}%`;
+    })();
+    updateStatCard("healthScore", healthScore);
 
     // Actualizar gráficos (si existen)
     updateCharts(stats);

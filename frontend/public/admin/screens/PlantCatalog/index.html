@@ -360,8 +360,10 @@
             <label class="label" for="overlayPlantName">Name</label>
             <input
               id="overlayPlantName"
+              name="plantName"
               class="input"
               placeholder="Add a name here"
+              required
             />
           </div>
 
@@ -369,19 +371,21 @@
             <label class="label" for="overlaySpecies">Species</label>
             <input
               id="overlaySpecies"
+              name="species"
               class="input"
               placeholder="e.g., Monstera Deliciosa"
+              required
             />
           </div>
 
           <div class="form-group">
             <label class="label" for="overlayHealth">Health Status</label>
             <div class="select-wrap">
-              <select id="overlayHealth" class="select">
-                <option>Excellent</option>
-                <option>Healthy</option>
-                <option>Recovering</option>
-                <option>Critical</option>
+              <select id="overlayHealth" name="healthStatus" class="select">
+                <option value="healthy">Healthy</option>
+                <option value="needs_care">Recovering</option>
+                <option value="sick">Sick</option>
+                <option value="dying">Critical</option>
               </select>
             </div>
           </div>

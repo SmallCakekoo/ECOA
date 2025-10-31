@@ -193,16 +193,19 @@ app.post("/api/upload/image", (req, res) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   
   try {
-    // Simular subida de imagen - devolver URL de imagen de ejemplo
-    const imageUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop';
-    
+    // Simulación compatible con el controlador real: devolver la misma estructura
+    const filename = `plant-${Date.now()}.jpg`;
+    const url = `/uploads/plants/${filename}`;
+    const fullUrl = `${req.protocol}://${req.get('host')}${url}`;
+
     res.status(200).json({
       success: true,
       message: "Imagen subida exitosamente",
       data: {
-        image_url: imageUrl,
-        filename: `plant-${Date.now()}.jpg`
-      }
+        filename,
+        url,
+        fullUrl,
+      },
     });
   } catch (error) {
     res.status(500).json({
