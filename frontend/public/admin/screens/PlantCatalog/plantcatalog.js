@@ -522,11 +522,12 @@ function showNotification(message, type = "error") {
   }, 5000);
 }
 
-function resolveImageUrl(url) {
-  if (!url) return null;
+function resolveImageUrl(url, fallback) {
+  const candidate = url || fallback;
+  if (!candidate) return null;
   // Si viene relativa (/uploads/...), prepender base del backend
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  return `${window.AdminConfig.API_BASE_URL}${url}`;
+  if (candidate.startsWith("http://") || candidate.startsWith("https://")) return candidate;
+  return `${window.AdminConfig.API_BASE_URL}${candidate}`;
 }
 
 async function updateMetricsFromPlants() {
