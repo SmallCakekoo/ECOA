@@ -343,7 +343,7 @@ async function createPlant() {
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
-    image_url: imageUrl,
+    image: imageUrl,
     status: "active",
     health_status: "healthy",
     water_level: 0,

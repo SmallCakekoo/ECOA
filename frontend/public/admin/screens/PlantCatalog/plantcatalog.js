@@ -139,7 +139,7 @@ function renderPlants() {
 
   const rowsHTML = plantsToShow
     .map((plant) => {
-      const resolved = resolveImageUrl(plant.image_url);
+      const resolved = resolveImageUrl(plant.image);
       const img = resolved || "../../src/plant-placeholder.svg";
       const date = plant.created_at
         ? new Date(plant.created_at).toLocaleDateString("en-US", {
@@ -329,7 +329,7 @@ async function createPlant() {
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
-    image_url: document.getElementById("overlayPhotoPreview").src || null,
+    image: document.getElementById("overlayPhotoPreview").src || null,
     status: "active",
     health_status: formData.get("healthStatus") || "healthy",
     water_level: 0,
