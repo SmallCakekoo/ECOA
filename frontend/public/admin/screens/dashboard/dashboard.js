@@ -116,13 +116,13 @@ async function loadStats() {
     const stats = await window.AdminAPI.getStats();
     console.log("Stats loaded:", stats);
 
-    // Actualizar contadores correctamente
-    updateStatCard("totalAdoptions", stats.plants.adopted || 0);
+    // Actualizar contadores correctamente (IDs según index.html)
+    updateStatCard("totalUsers", stats.plants.adopted || 0); // Total Adoptions
     updateStatCard(
-      "totalDonations",
+      "totalAmount",
       `$${Number(stats.donations.totalAmount || 0).toLocaleString()}`
     );
-    updateStatCard("plantsInCatalog", stats.plants.total || 0);
+    updateStatCard("totalPlants", stats.plants.total || 0);
     const healthScore = (() => {
       const total = stats.plants.total || 0;
       const healthy = stats.plants.healthy || 0;
