@@ -1,3 +1,4 @@
+const API_BASE_URL = "https://ecoa-nine.vercel.app";
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 const params = new URLSearchParams(window.location.search);
@@ -6,8 +7,10 @@ const plantId = params.get("id");
 
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
-  if (plant.image) {
-    return plant.image;
+  const url = plant.image_url || plant.image;
+  if (url) {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${API_BASE_URL}${url}`;
   }
   return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
 }
@@ -25,9 +28,7 @@ function getPlantImageUrl(plant) {
 })();
 
 async function fetchPlantData(plantId) {
-  const response = await fetch(
-    `https://ecoa-five.vercel.app/plants/${plantId}`
-  );
+  const response = await fetch(`${API_BASE_URL}/plants/${plantId}`);
   const { success, data: plant } = await response.json();
 
   if (!success) throw new Error("Failed to load plant data");
@@ -51,9 +52,7 @@ async function fetchPlantData(plantId) {
 }
 
 async function fetchPlantMetrics(plantId) {
-  const response = await fetch(
-    `https://ecoa-five.vercel.app/plant_stats/${plantId}`
-  );
+  const response = await fetch(`${API_BASE_URL}/plant_stats/${plantId}`);
   const { success, data: plantMetrics } = await response.json();
 
   if (!success) throw new Error("Failed to load plant metrics");
@@ -66,9 +65,7 @@ async function fetchPlantMetrics(plantId) {
 }
 
 async function fetchPlantStatus(plantId) {
-  const response = await fetch(
-    `https://ecoa-five.vercel.app/plant_status/${plantId}`
-  );
+  const response = await fetch(`${API_BASE_URL}/plant_status/${plantId}`);
   const { success, data: plantStatus } = await response.json();
 
   if (!success) throw new Error("Failed to load plant status");
@@ -161,8 +158,8 @@ window.adoptPlant = async function () {
   console.log("Adoptando planta:", plantId);
 
   try {
-    const response = await fetch(
-      "https://ecoa-five.vercel.app/plants/" + plantId,
+  const response = await fetch(
+      `${API_BASE_URL}/plants/` + plantId,
       {
         method: "PUT",
         headers: {

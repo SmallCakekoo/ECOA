@@ -139,7 +139,8 @@ function renderPlants() {
 
   const rowsHTML = plantsToShow
     .map((plant) => {
-      const img = plant.image_url || "../../src/plant-placeholder.svg";
+      const resolved = resolveImageUrl(plant.image_url);
+      const img = resolved || "../../src/plant-placeholder.svg";
       const date = plant.created_at
         ? new Date(plant.created_at).toLocaleDateString("en-US", {
             month: "short",
@@ -519,6 +520,13 @@ function showNotification(message, type = "error") {
       notification.parentNode.removeChild(notification);
     }
   }, 5000);
+}
+
+function resolveImageUrl(url) {
+  if (!url) return null;
+  // Si viene relativa (/uploads/...), prepender base del backend
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${window.AdminConfig.API_BASE_URL}${url}`;
 }
 
 async function updateMetricsFromPlants() {

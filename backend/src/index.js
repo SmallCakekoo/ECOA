@@ -194,9 +194,10 @@ app.post("/api/upload/image", (req, res) => {
   
   try {
     // Simulación compatible con el controlador real: devolver la misma estructura
+    // En entornos serverless (Vercel) no guardamos a disco; devolvemos una imagen válida externa
     const filename = `plant-${Date.now()}.jpg`;
-    const url = `/uploads/plants/${filename}`;
-    const fullUrl = `${req.protocol}://${req.get('host')}${url}`;
+    const fullUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop';
+    const url = fullUrl;
 
     res.status(200).json({
       success: true,

@@ -2,10 +2,25 @@ import supabase from "../services/supabase.service.js";
 
 export async function findAllPlants(filters = {}) {
   let query = supabase.from("plants").select("*");
+
+  // búsqueda por nombre o especie
+  if (filters.search) {
+    const term = `%${filters.search}%`;
+    query = query.or(`name.ilike.${term},species.ilike.${term}`);
+  }
+
+  // filtros exactos
   Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      query = query.eq(key, value);
+    if (["search"].includes(key)) return;
+    if (value === undefined || value === null || value === "") return;
+
+    // coerción para booleanos enviados como string
+    let v = value;
+    if (key === "is_adopted" && typeof value === "string") {
+      if (value === "true") v = true;
+      if (value === "false") v = false;
     }
+    query = query.eq(key, v);
   });
   return await query;
 }

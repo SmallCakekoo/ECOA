@@ -148,29 +148,34 @@
         <section class="filters">
           <div class="filter">
             <label>Status:</label>
-            <select>
-              <option>All Status</option>
-              <option>Healthy</option>
-              <option>Recovering</option>
-              <option>Bad</option>
+            <select name="health_status">
+              <option value="all">All Status</option>
+              <option value="healthy">Healthy</option>
+              <option value="needs_care">Recovering</option>
+              <option value="sick">Sick</option>
+              <option value="dying">Critical</option>
             </select>
           </div>
           <div class="filter">
             <label>Species:</label>
-            <select>
-              <option>All Species</option>
-              <option>Monstera</option>
-              <option>Ficus</option>
-              <option>Sansevieria</option>
+            <select name="species">
+              <option value="all">All Species</option>
+              <option value="Monstera">Monstera</option>
+              <option value="Ficus">Ficus</option>
+              <option value="Sansevieria">Sansevieria</option>
             </select>
           </div>
           <div class="filter">
             <label>Adopted:</label>
-            <select>
-              <option>All</option>
-              <option>Adopted</option>
-              <option>Abandoned</option>
+            <select name="is_adopted">
+              <option value="all">All</option>
+              <option value="true">Adopted</option>
+              <option value="false">Available</option>
             </select>
+          </div>
+          <div class="filter" style="flex:1">
+            <label>Search:</label>
+            <input id="searchInput" class="input" placeholder="Search name or species" />
           </div>
           <button class="link" id="resetFilters">Reset Filters</button>
         </section>

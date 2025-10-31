@@ -1,10 +1,13 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
+const API_BASE_URL = "https://ecoa-nine.vercel.app";
+
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
-  // Si la planta tiene una imagen en la BD, usarla
-  if (plant.image) {
-    return plant.image;
+  const url = plant.image_url || plant.image;
+  if (url) {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `${API_BASE_URL}${url}`;
   }
   // Imagen por defecto
   return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
@@ -62,17 +65,14 @@ function createPlantCard(plant, index) {
 
 (async () => {
   try {
-    // Obtener solo plantas no adoptadas o sin usuario asignado
-    const response = await fetch("https://ecoa-five.vercel.app/plants");
+    // Obtener plantas desde el backend y filtrar disponibles
+    const response = await fetch(`${API_BASE_URL}/plants?is_adopted=false`);
     const { success, data: plants } = await response.json();
     console.log("Plantas disponibles:", success, plants);
 
     if (!success) return;
 
-    // Filtrar plantas no adoptadas
-    const availablePlants = plants.filter(
-      (plant) => !plant.is_adopted || plant.user_id === null
-    );
+    const availablePlants = plants;
     console.log("Plantas disponibles para adopción:", availablePlants);
 
     if (availablePlants.length === 0) {
@@ -147,7 +147,7 @@ window.adoptPlant = async function (id) {
   console.log("Adoptando planta:", id);
 
   try {
-    const response = await fetch("https://ecoa-five.vercel.app/plants/" + id, {
+    const response = await fetch(`${API_BASE_URL}/plants/` + id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

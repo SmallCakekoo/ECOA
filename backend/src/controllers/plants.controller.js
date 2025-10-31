@@ -21,10 +21,22 @@ const handleError = (error, res) => {
 export const PlantsController = {
   list: async (req, res) => {
     try {
-      const { user_id, status } = req.query;
+      const {
+        user_id,
+        status,
+        health_status,
+        species,
+        is_adopted,
+        search,
+      } = req.query;
       const filters = {};
       if (user_id) filters.user_id = user_id;
       if (status) filters.status = status;
+      if (health_status) filters.health_status = health_status;
+      if (species) filters.species = species;
+      if (typeof is_adopted !== "undefined") filters.is_adopted = is_adopted;
+      if (search) filters.search = search;
+
       const { data, error } = await findAllPlants(filters);
       if (error) throw error;
       return res.status(200).json({ success: true, data, count: data.length });
