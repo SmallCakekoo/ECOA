@@ -185,37 +185,7 @@ app.post("/test-login", (req, res) => {
   });
 });
 
-// Endpoint para subir imágenes
-app.post("/api/upload/image", (req, res) => {
-  // Forzar headers CORS
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-  
-  try {
-    // Simulación compatible con el controlador real: devolver la misma estructura
-    // En entornos serverless (Vercel) no guardamos a disco; devolvemos una imagen válida externa
-    const filename = `plant-${Date.now()}.jpg`;
-    const fullUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=600&fit=crop';
-    const url = fullUrl;
-
-    res.status(200).json({
-      success: true,
-      message: "Imagen subida exitosamente",
-      data: {
-        filename,
-        url,
-        fullUrl,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error subiendo imagen",
-      error: error.message
-    });
-  }
-});
+// La subida real se maneja en uploadRoutes (multer en memoria)
 
 // Endpoint para buscar imágenes de plantas
 app.get("/api/integrations/perenual/search", async (req, res) => {

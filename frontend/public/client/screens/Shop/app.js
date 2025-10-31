@@ -54,12 +54,16 @@ window.goToShopFeedback = function () {
     container.innerHTML = "";
 
     data.forEach((acc) => {
-      const img = (acc.image && (acc.image.startsWith('http') ? acc.image : `${API_BASE_URL}${acc.image}`)) || `../../src/assets/images/accessory-1.png`;
+      let img = (acc.image && (acc.image.startsWith('http') ? acc.image : `${API_BASE_URL}${acc.image}`)) || `../../src/assets/images/accessory-1.png`;
+      // En despliegues serverless, rutas /uploads no existen; usa placeholder
+      if (acc.image && acc.image.startsWith('/uploads')) {
+        img = `../../src/assets/images/accessory-1.png`;
+      }
       const card = document.createElement("div");
       card.className = "shop-card";
       card.innerHTML = `
         <div class="shop-image">
-          <img src="${img}" alt="${acc.name}" />
+          <img src="${img}" alt="${acc.name}" onerror="this.src='../../src/assets/images/accessory-1.png'" />
         </div>
         <div class="shop-info">
           <div class="shop-title">${acc.name}</div>

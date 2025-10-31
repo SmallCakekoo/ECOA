@@ -1,4 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
+const API_BASE_URL = "https://ecoa-nine.vercel.app";
 console.log(USER_DATA);
 
 // Verificar si hay datos de usuario
@@ -36,6 +37,12 @@ if (USER_DATA && USER_DATA.name) {
       };
 
       document.querySelector(".plant-name").textContent = plant.name;
+      // Imagen de la última planta: usa el mismo campo 'image'
+      const imgEl = document.querySelector(".last-plant-card .plant-image img");
+      const url = plant.image || plant.image_url;
+      if (url) {
+        imgEl.src = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+      }
 
       fetchPlantMetrics(plant.id);
     } catch (error) {
