@@ -65,14 +65,14 @@ function createPlantCard(plant, index) {
 
 (async () => {
   try {
-    // Obtener plantas desde el backend y filtrar disponibles
-    const response = await fetch(`${API_BASE_URL}/plants?is_adopted=false`);
+    // Obtener todas las plantas y filtrar disponibles localmente
+    const response = await fetch(`${API_BASE_URL}/plants`);
     const { success, data: plants } = await response.json();
     console.log("Plantas disponibles:", success, plants);
 
     if (!success) return;
 
-    const availablePlants = plants;
+    const availablePlants = plants.filter((p) => !p.is_adopted);
     console.log("Plantas disponibles para adopción:", availablePlants);
 
     if (availablePlants.length === 0) {
