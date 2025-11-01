@@ -6,17 +6,24 @@ const params = new URLSearchParams(window.location.search);
 const plantId = params.get("id");
 
 // Función para obtener la URL de la imagen de la planta
+// Usar la misma lógica que en Garden para consistencia
 function getPlantImageUrl(plant) {
-  // Priorizar 'image' sobre 'image_url'
-  const url = plant.image || plant.image_url;
-  if (url) {
-    // Si es data URL (base64), usar directamente
-    if (url.startsWith("data:")) return url;
-    // Si es URL absoluta, usar directamente
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  // 1) Usar la imagen subida si existe (prioridad máxima)
+  const ownImage = plant.image || plant.image_url;
+  if (ownImage) {
+    // Si es data URL (base64), usar directamente - es la imagen subida por el usuario
+    if (ownImage.startsWith("data:")) {
+      return ownImage;
+    }
+    // Si es URL completa, usar directamente
+    if (ownImage.startsWith("http://") || ownImage.startsWith("https://")) {
+      return ownImage;
+    }
     // Si es ruta relativa, construir URL completa
-    return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
+    return `${API_BASE_URL}${ownImage.startsWith("/") ? ownImage : "/" + ownImage}`;
   }
+
+  // 2) Si no hay imagen, usar placeholder
   return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
 }
 
