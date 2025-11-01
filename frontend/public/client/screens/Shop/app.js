@@ -43,11 +43,11 @@ window.goToShopFeedback = function () {
 };
 
 // Función helper para obtener la ruta base de assets
-// Construir ruta absoluta desde la raíz del sitio
+// Usar EXACTAMENTE la misma ruta relativa que el HTML estático
 function getAssetBasePath() {
-  // Desde /client/screens/Shop/, necesitamos /client/src/assets/images/
-  // Construir ruta absoluta para que funcione en Vercel
-  return '/client/src/assets/images/';
+  // El HTML estático usa: ../../src/assets/images/accessory-X.png
+  // Esta ruta relativa funciona en el HTML, usarla exactamente igual
+  return '../../src/assets/images/';
 }
 
 // Función helper para construir URL de imagen
@@ -57,21 +57,9 @@ function buildImageUrl(imagePath) {
     return imagePath;
   }
   
-  // Si es una ruta relativa (empieza con ../), convertirla a absoluta
+  // Si es una ruta relativa (empieza con ../), retornarla tal cual (igual que HTML estático)
   if (imagePath.startsWith('../')) {
-    // Desde /client/screens/Shop/, ../../src/assets/images/ se resuelve a /client/src/assets/images/
-    const parts = imagePath.split('/').filter(p => p && p !== '.');
-    let levelsUp = 0;
-    let pathAfterUp = [];
-    for (const part of parts) {
-      if (part === '..') {
-        levelsUp++;
-      } else {
-        pathAfterUp.push(part);
-      }
-    }
-    // Construir ruta absoluta desde la raíz
-    return '/client/' + pathAfterUp.join('/');
+    return imagePath;
   }
   
   // Si ya es una ruta absoluta (empieza con /), retornarla tal cual
@@ -79,7 +67,7 @@ function buildImageUrl(imagePath) {
     return imagePath;
   }
   
-  // Si es un nombre de archivo simple, agregarlo a la ruta base
+  // Si es un nombre de archivo simple, agregarlo a la ruta base relativa
   return getAssetBasePath() + imagePath;
 }
 
@@ -215,8 +203,14 @@ function resolveAccessoryImage(image, accessoryName) {
       
       // Usar exactamente la misma ruta relativa que funciona en el HTML estático
       // El HTML usa: ../../src/assets/images/accessory-X.png y funciona
-      // Usar esa misma ruta directamente, sin modificarla
+      // Si buildImageUrl devuelve una ruta absoluta, convertirla a relativa
       let imageSrc = finalImg;
+      
+      // Si es una ruta absoluta que empieza con /client/src/assets/images/,
+      // convertirla a la ruta relativa que usa el HTML estático
+      if (imageSrc && imageSrc.startsWith('/client/src/assets/images/')) {
+        imageSrc = '../../src/assets/images/' + imageSrc.split('/').pop();
+      }
       
       // Construir HTML sin placeholder de Unsplash en onerror
       card.innerHTML = `
