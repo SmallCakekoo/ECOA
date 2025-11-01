@@ -44,13 +44,19 @@ window.goToShopFeedback = function () {
 
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image) {
-  const asset = (name) => `/client/src/assets/images/${name || "accessory-1.png"}`;
+  // Ruta relativa desde /client/screens/Shop/ a /client/src/assets/images/
+  const asset = (name) => `../../src/assets/images/${name || "accessory-1.png"}`;
   if (!image) return asset("accessory-1.png");
-  // URL absoluta
+  // URL absoluta (http/https)
   if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  // Data URL
+  if (image.startsWith("data:")) return image;
   // Ruta absoluta del backend (/uploads/...)
-  if (image.startsWith("/")) return `${API_BASE_URL}${image}`;
-  // Nombre de archivo en assets
+  if (image.startsWith("/")) {
+    // Si es ruta del backend, intentar usar directamente, si falla usar placeholder
+    return `${API_BASE_URL}${image}`;
+  }
+  // Nombre de archivo en assets (relativo)
   return asset(image);
 }
 
@@ -70,7 +76,7 @@ function resolveAccessoryImage(image) {
       card.className = "shop-card";
       card.innerHTML = `
         <div class="shop-image">
-          <img src="${img}" alt="${acc.name}" onerror="this.src='/client/src/assets/images/accessory-1.png'" />
+          <img src="${img}" alt="${acc.name}" onerror="this.src='../../src/assets/images/accessory-1.png'" />
         </div>
         <div class="shop-info">
           <div class="shop-title">${acc.name}</div>

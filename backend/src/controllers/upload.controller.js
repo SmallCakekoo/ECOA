@@ -56,30 +56,35 @@ export const UploadController = {
       let dataUrl;
       const filename = req.file.originalname || `plant-${Date.now()}.jpg`;
 
-      // Si tenemos buffer (memoryStorage - serverless), convertir a base64
+      // Por ahora, convertir a base64 para que el frontend pueda mostrar la imagen
+      // NOTA: Si la imagen es muy grande (>500KB), puede causar problemas en Supabase
+      // En producción se recomienda usar Supabase Storage para imágenes grandes
       if (req.file.buffer) {
-        // Limitar tamaño de imagen a ~1MB en base64 para evitar problemas con Supabase
-        const maxSize = 1024 * 1024; // 1MB
-        let imageBuffer = req.file.buffer;
+        const maxSize = 500 * 1024; // 500KB máximo recomendado
         
-        if (imageBuffer.length > maxSize) {
-          // Si es muy grande, reducir calidad (solo para JPEG/PNG)
-          console.warn(`Imagen grande (${imageBuffer.length} bytes), manteniendo original pero podría causar problemas`);
+        if (req.file.buffer.length > maxSize) {
+          console.warn(`⚠️ Imagen muy grande (${req.file.buffer.length} bytes). Usando placeholder.`);
+          // Si es muy grande, usar una URL placeholder pero el frontend verá su imagen en preview
+          dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
+        } else {
+          const base64Image = req.file.buffer.toString('base64');
+          const mimeType = req.file.mimetype;
+          dataUrl = `data:${mimeType};base64,${base64Image}`;
         }
-        
-        const base64Image = imageBuffer.toString('base64');
-        const mimeType = req.file.mimetype;
-        dataUrl = `data:${mimeType};base64,${base64Image}`;
       } 
-      // Si tenemos path (diskStorage - local), leer el archivo y convertir a base64
       else if (req.file.path) {
         const fs = await import('fs');
         const imageBuffer = fs.readFileSync(req.file.path);
-        const base64Image = imageBuffer.toString('base64');
-        const mimeType = req.file.mimetype;
-        dataUrl = `data:${mimeType};base64,${base64Image}`;
+        
+        if (imageBuffer.length > 500 * 1024) {
+          console.warn(`⚠️ Imagen muy grande (${imageBuffer.length} bytes). Usando placeholder.`);
+          dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
+        } else {
+          const base64Image = imageBuffer.toString('base64');
+          const mimeType = req.file.mimetype;
+          dataUrl = `data:${mimeType};base64,${base64Image}`;
+        }
       } else {
-        // Fallback: devolver URL mock si no se pudo procesar
         console.warn('No se pudo procesar el archivo, usando fallback');
         dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
       }

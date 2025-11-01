@@ -16,12 +16,26 @@ export function createPlantModel(payload) {
     throw new Error("name y species son requeridos");
   }
 
+  // Limitar tamaño de imagen a 500KB en base64 (~375KB original)
+  // Si la imagen es muy grande, guardar null para evitar errores en Supabase
+  let imageValue = image || null;
+  if (imageValue && imageValue.startsWith('data:')) {
+    // Estimar tamaño: base64 es ~33% más grande que el original
+    const base64Length = imageValue.length - imageValue.indexOf(',') - 1;
+    const estimatedOriginalSize = (base64Length * 3) / 4;
+    
+    if (estimatedOriginalSize > 500 * 1024) {
+      console.warn('⚠️ Imagen muy grande, guardando null para evitar error en BD');
+      imageValue = null;
+    }
+  }
+
   return {
     id: crypto.randomUUID(), // Generar UUID para el campo id
     name,
     species,
     description: description || null,
-    image: image || null,
+    image: imageValue,
     user_id: user_id || null,
     foundation_id: foundation_id || null,
     device_id: device_id || null,
