@@ -4,13 +4,18 @@ const API_BASE_URL = "https://ecoa-nine.vercel.app";
 
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
-  const url = plant.image_url || plant.image;
+  const url = plant.image || plant.image_url;
   if (url) {
+    // Si es data URL, devolver directamente
+    if (url.startsWith("data:")) return url;
+    // Si es URL absoluta, devolver directamente
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return `${API_BASE_URL}${url}`;
+    // Si es relativa, construir URL completa
+    return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
   }
-  // Imagen por defecto
-  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+  // Imagen por defecto única basada en el nombre de la planta
+  const hash = plant.name ? plant.name.charCodeAt(0) % 10 : 0;
+  return `https://images.unsplash.com/photo-${1509937528035 + hash * 1000}?w=400&h=400&fit=crop`;
 }
 
 function createPlantCard(plant, index) {

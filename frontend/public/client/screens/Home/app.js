@@ -3,11 +3,16 @@ const API_BASE_URL = "https://ecoa-nine.vercel.app";
 
 function resolvePlantImage(plant) {
   const url = plant.image || plant.image_url;
-  if (!url) return "/client/src/assets/images/plant.png";
-  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
-    return url;
+  if (!url) {
+    // Usar una imagen placeholder de Unsplash en lugar de un archivo local
+    return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
   }
-  return `${API_BASE_URL}${url}`;
+  // Si es data URL, devolver directamente
+  if (url.startsWith("data:")) return url;
+  // Si es URL absoluta, devolver directamente
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  // Si es relativa, construir URL completa del backend
+  return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
 }
 console.log(USER_DATA);
 

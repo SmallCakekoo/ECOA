@@ -74,9 +74,10 @@ function resolveAccessoryImage(image) {
       const img = resolveAccessoryImage(acc.image);
       const card = document.createElement("div");
       card.className = "shop-card";
+      const placeholderImg = resolveAccessoryImage("accessory-1.png");
       card.innerHTML = `
         <div class="shop-image">
-          <img src="${img}" alt="${acc.name}" onerror="this.src='/client/src/assets/images/accessory-1.png'" />
+          <img src="${img}" alt="${acc.name}" onerror="this.onerror=null; this.src='${placeholderImg}'" />
         </div>
         <div class="shop-info">
           <div class="shop-title">${acc.name}</div>

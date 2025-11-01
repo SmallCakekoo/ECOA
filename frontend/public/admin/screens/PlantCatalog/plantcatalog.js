@@ -138,37 +138,43 @@ function renderPlants() {
   }
 
   const rowsHTML = plantsToShow
-    .map((plant) => {
-      const resolved = resolveImageUrl(plant.image);
-      const img = resolved || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop";
-      const date = plant.created_at
-        ? new Date(plant.created_at).toLocaleDateString("en-US", {
+    .map((plant, index) => {
+      // Usar la imagen real de la planta si existe, de lo contrario usar un placeholder único basado en el índice
+      let img = resolveImageUrl(plant.image);
+      if (!img) {
+        // Placeholder único para cada planta basado en su índice y nombre
+        const placeholderIndex = (index % 10) + 1; // Ciclar entre 1-10
+        img = `https://images.unsplash.com/photo-${1506905925346 + placeholderIndex * 1000}?w=400&h=400&fit=crop`;
+      }
+      
+      const date = plant.created_at || plant.registration_date
+        ? new Date(plant.created_at || plant.registration_date).toLocaleDateString("en-US", {
             month: "short",
             day: "2-digit",
             year: "numeric",
           })
         : "";
-      const statusBadge = `<span class=\"badge ${plant.health_status}\">${getStatusText(
-        plant.health_status
-      )}</span>`;
+      const statusBadge = plant.health_status 
+        ? `<span class="badge ${plant.health_status}">${getStatusText(plant.health_status)}</span>`
+        : '<span class="badge healthy">Healthy</span>';
       const adoptBadge = plant.is_adopted
         ? '<span class="badge adopted">Adopted</span>'
         : '';
       return `
         <div class="trow">
           <div class="cell plant">
-            <div class="thumb"><img src="${img}" alt="plant"></div>
+            <div class="thumb"><img src="${img}" alt="${plant.name}" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'"></div>
             <div>
               <div class="plant-name">${plant.name}</div>
-              <div class="plant-id">ID: PLT-${String(plant.id).padStart(5, "0")}</div>
+              <div class="plant-id">ID: PLT-${String(plant.id).substring(0, 8)}</div>
             </div>
           </div>
           <div class="cell">${plant.species || ""}</div>
           <div class="cell">${date}</div>
           <div class="cell">${statusBadge} ${adoptBadge}</div>
           <div class="cell actions">
-            <a class="edit" href="#" onclick="editPlant(${plant.id})">Edit</a>
-            <a class="delete" href="#" onclick="deletePlant(${plant.id})">Delete</a>
+            <a class="edit" href="#" onclick="editPlant('${plant.id}')">Edit</a>
+            <a class="delete" href="#" onclick="deletePlant('${plant.id}')">Delete</a>
           </div>
         </div>`;
     })
@@ -521,9 +527,13 @@ function showNotification(message, type = "error") {
 function resolveImageUrl(url, fallback) {
   const candidate = url || fallback;
   if (!candidate) return null;
-  // Si viene relativa (/uploads/...), prepender base del backend
+  // Si es data URL, devolver directamente
+  if (candidate.startsWith("data:")) return candidate;
+  // Si es URL absoluta, devolver directamente
   if (candidate.startsWith("http://") || candidate.startsWith("https://")) return candidate;
-  return `${window.AdminConfig.API_BASE_URL}${candidate}`;
+  // Si viene relativa (/uploads/...), prepender base del backend
+  const baseUrl = window.AdminConfig?.API_BASE_URL || "https://ecoa-nine.vercel.app";
+  return `${baseUrl}${candidate.startsWith("/") ? candidate : "/" + candidate}`;
 }
 
 async function updateMetricsFromPlants() {

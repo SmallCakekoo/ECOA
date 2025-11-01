@@ -60,15 +60,47 @@ export const PlantsController = {
   },
   create: async (req, res) => {
     try {
+      // Validar campos requeridos antes de crear el modelo
+      if (!req.body.name || !req.body.name.trim()) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "El nombre de la planta es requerido" 
+        });
+      }
+      
+      if (!req.body.species || !req.body.species.trim()) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "La especie de la planta es requerida" 
+        });
+      }
+
       console.log('📝 Creando planta con datos:', {
-        ...req.body,
-        image: req.body.image ? `${req.body.image.substring(0, 50)}...` : null
+        name: req.body.name,
+        species: req.body.species,
+        description: req.body.description ? 'presente' : 'ausente',
+        hasImage: !!req.body.image,
+        imageLength: req.body.image ? req.body.image.length : 0,
+        imagePreview: req.body.image ? `${req.body.image.substring(0, 50)}...` : null
       });
       
-      const plantData = createPlantModel(req.body);
+      let plantData;
+      try {
+        plantData = createPlantModel(req.body);
+      } catch (modelError) {
+        console.error('❌ Error validando modelo:', modelError);
+        return res.status(400).json({
+          success: false,
+          message: modelError.message || "Error validando los datos de la planta"
+        });
+      }
+      
       console.log('✅ Modelo creado:', {
-        ...plantData,
-        image: plantData.image ? `${plantData.image.substring(0, 50)}...` : null
+        id: plantData.id,
+        name: plantData.name,
+        species: plantData.species,
+        hasImage: !!plantData.image,
+        imageLength: plantData.image ? plantData.image.length : 0
       });
       
       const { data, error } = await insertPlant(plantData);
@@ -80,11 +112,26 @@ export const PlantsController = {
           details: error.details,
           hint: error.hint
         });
-        // Si es error de tamaño de columna, dar mensaje más claro
-        if (error.message && error.message.includes('value too long')) {
-          throw { status: 400, message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<300KB)' };
+        
+        // Mensajes de error más claros
+        if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum'))) {
+          return res.status(400).json({ 
+            success: false, 
+            message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<300KB)' 
+          });
         }
-        throw { status: 500, message: `Error al guardar en la base de datos: ${error.message}` };
+        
+        if (error.code === '23505') { // Unique violation
+          return res.status(400).json({
+            success: false,
+            message: 'Ya existe una planta con este nombre o ID'
+          });
+        }
+        
+        return res.status(500).json({
+          success: false,
+          message: `Error al guardar en la base de datos: ${error.message || 'Error desconocido'}`
+        });
       }
       
       req.io?.emit("plant_created", {
