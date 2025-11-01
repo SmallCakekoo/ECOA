@@ -160,14 +160,24 @@ export const PlantsController = {
           });
         }
         
-        // Error genérico con más detalles en desarrollo
-        const errorMessage = process.env.NODE_ENV === 'production' 
-          ? 'Error al guardar en la base de datos'
-          : `Error al guardar en la base de datos: ${error.message || 'Error desconocido'}`;
+        // Error genérico con más detalles
+        // En producción, dar mensaje genérico pero loguear detalles
+        const errorMessage = `Error al guardar en la base de datos${error.message ? ': ' + error.message : ''}`;
+        
+        // Loguear error completo para debugging
+        console.error('❌ Error completo de Supabase:', JSON.stringify(error, null, 2));
         
         return res.status(500).json({
           success: false,
-          message: errorMessage
+          message: errorMessage,
+          // En desarrollo, incluir más detalles
+          ...(process.env.NODE_ENV !== 'production' && {
+            error: {
+              code: error.code,
+              details: error.details,
+              hint: error.hint
+            }
+          })
         });
       }
       

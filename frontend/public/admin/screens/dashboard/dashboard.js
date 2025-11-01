@@ -327,13 +327,26 @@ function setupPlantForm() {
       if (!file) return;
 
       try {
-        const imageUrl = await window.AdminAPI.uploadImage(file);
-        preview.src = imageUrl;
-        preview.style.display = "block";
-        uploadBox.querySelector(".upload-inner").style.display = "none";
+        // Leer el archivo como data URL directamente (no subir al servidor)
+        // Esto garantiza que tenemos la imagen completa para enviar a la BD
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          preview.src = dataUrl;
+          preview.style.display = "block";
+          uploadBox.querySelector(".upload-inner").style.display = "none";
+          // Guardar el data URL en un atributo del preview para usarlo después
+          preview.setAttribute('data-image-url', dataUrl);
+          console.log('✅ Imagen cargada como data URL, tamaño:', Math.round(dataUrl.length / 1024), 'KB');
+        };
+        reader.onerror = (error) => {
+          console.error("Error leyendo archivo:", error);
+          showNotification("Error al leer la imagen", "error");
+        };
+        reader.readAsDataURL(file);
       } catch (error) {
-        console.error("Error uploading image:", error);
-        showNotification("Error al subir la imagen", "error");
+        console.error("Error processing image:", error);
+        showNotification("Error al procesar la imagen", "error");
       }
     });
   }
@@ -351,28 +364,44 @@ async function createPlant() {
   const form = document.getElementById("plantForm");
   const formData = new FormData(form);
 
-  // Obtener la URL de la imagen subida
+  // Obtener la imagen subida (data URL)
   const photoPreview = document.getElementById("photoPreview");
   let imageUrl = null;
   
-  // Validar que la imagen preview sea válida y no sea un placeholder/mock
-  if (photoPreview && photoPreview.style.display !== "none" && photoPreview.src) {
-    const src = photoPreview.src;
-    // Verificar que no sea una URL de placeholder o mock
-    // Aceptar data URLs (imágenes subidas) y URLs reales, pero NO placeholders
-    if (src && src !== "" && src !== "about:blank") {
-      // Si es data URL, es una imagen real subida - siempre aceptar
-      if (src.startsWith("data:")) {
-        imageUrl = src;
-      } 
-      // Si no es data URL, verificar que no sea placeholder
-      else if (!src.includes("unsplash.com/photo-1506905925346") && 
-               !src.includes("placeholder") && 
-               !src.includes("upgrade_access.jpg")) {
-        imageUrl = src;
-      }
+  // Obtener el data URL del atributo o del src
+  if (photoPreview && photoPreview.style.display !== "none") {
+    // Primero intentar obtener del atributo data-image-url (más confiable)
+    const dataImageUrl = photoPreview.getAttribute('data-image-url');
+    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
+      imageUrl = dataImageUrl;
+      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
+    } 
+    // Si no está en el atributo, usar el src si es data URL
+    else if (photoPreview.src && photoPreview.src.startsWith("data:")) {
+      imageUrl = photoPreview.src;
+      console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
     }
-    console.log("🔍 Dashboard - Imagen validada:", { src, imageUrl, isDataUrl: src?.startsWith("data:") });
+    // Si el src no es data URL, verificar que no sea placeholder
+    else if (photoPreview.src && 
+             photoPreview.src !== "" && 
+             photoPreview.src !== "about:blank" &&
+             !photoPreview.src.includes("unsplash.com/photo-1506905925346") && 
+             !photoPreview.src.includes("placeholder") && 
+             !photoPreview.src.includes("upgrade_access.jpg")) {
+      imageUrl = photoPreview.src;
+      console.log("✅ Dashboard - Imagen obtenida del src (URL)");
+    }
+    
+    if (imageUrl) {
+      console.log("🔍 Dashboard - Imagen validada:", { 
+        hasImage: true, 
+        isDataUrl: imageUrl.startsWith("data:"),
+        imageLength: imageUrl.length,
+        imagePreview: imageUrl.substring(0, 50) + "..."
+      });
+    } else {
+      console.warn("⚠️ Dashboard - No se encontró imagen válida en el preview");
+    }
   }
 
   const plantData = {

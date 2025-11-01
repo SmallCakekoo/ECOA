@@ -304,14 +304,27 @@ function setupPlantForm() {
       if (!file) return;
 
       try {
-        const imageUrl = await window.AdminAPI.uploadImage(file);
-        overlayPreview.src = imageUrl;
-        overlayPreview.style.display = "block";
-        const inner = overlayUpload.querySelector(".upload-inner");
-        if (inner) inner.style.display = "none";
+        // Leer el archivo como data URL directamente (no subir al servidor)
+        // Esto garantiza que tenemos la imagen completa para enviar a la BD
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          overlayPreview.src = dataUrl;
+          overlayPreview.style.display = "block";
+          const inner = overlayUpload.querySelector(".upload-inner");
+          if (inner) inner.style.display = "none";
+          // Guardar el data URL en un atributo del preview para usarlo después
+          overlayPreview.setAttribute('data-image-url', dataUrl);
+          console.log('✅ Plant Catalog - Imagen cargada como data URL, tamaño:', Math.round(dataUrl.length / 1024), 'KB');
+        };
+        reader.onerror = (error) => {
+          console.error("Error leyendo archivo:", error);
+          showNotification("Error al leer la imagen", "error");
+        };
+        reader.readAsDataURL(file);
       } catch (error) {
-        console.error("Error uploading image:", error);
-        showNotification("Error al subir la imagen", "error");
+        console.error("Error processing image:", error);
+        showNotification("Error al procesar la imagen", "error");
       }
     });
   }
@@ -330,29 +343,44 @@ async function createPlant() {
   const form = document.getElementById("overlayPlantForm");
   const formData = new FormData(form);
 
-  // Obtener la URL de la imagen subida con validación
+  // Obtener la imagen subida (data URL)
   const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
   let imageUrl = null;
   
-  // Validar que la imagen preview sea válida y no sea un placeholder/mock
-  if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none" && overlayPhotoPreview.src) {
-    const src = overlayPhotoPreview.src;
-    // Verificar que no sea una URL de placeholder o mock
-    // Aceptar data URLs (imágenes subidas) y URLs reales, pero NO placeholders
-    if (src && 
-        src !== "" && 
-        src !== "about:blank" &&
-        (!src.includes("unsplash.com/photo-1506905925346") || src.startsWith("data:"))) {
-      // Si es data URL, es una imagen real subida
-      if (src.startsWith("data:")) {
-        imageUrl = src;
-      } 
-      // Si no es data URL pero tampoco es placeholder, también usar
-      else if (!src.includes("placeholder") && !src.includes("upgrade_access.jpg")) {
-        imageUrl = src;
-      }
+  // Obtener el data URL del atributo o del src
+  if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none") {
+    // Primero intentar obtener del atributo data-image-url (más confiable)
+    const dataImageUrl = overlayPhotoPreview.getAttribute('data-image-url');
+    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
+      imageUrl = dataImageUrl;
+      console.log("✅ Plant Catalog - Imagen obtenida del atributo data-image-url");
+    } 
+    // Si no está en el atributo, usar el src si es data URL
+    else if (overlayPhotoPreview.src && overlayPhotoPreview.src.startsWith("data:")) {
+      imageUrl = overlayPhotoPreview.src;
+      console.log("✅ Plant Catalog - Imagen obtenida del src (data URL)");
     }
-    console.log("🔍 Plant Catalog - Imagen validada:", { src, imageUrl, isDataUrl: src?.startsWith("data:") });
+    // Si el src no es data URL, verificar que no sea placeholder
+    else if (overlayPhotoPreview.src && 
+             overlayPhotoPreview.src !== "" && 
+             overlayPhotoPreview.src !== "about:blank" &&
+             !overlayPhotoPreview.src.includes("unsplash.com/photo-1506905925346") && 
+             !overlayPhotoPreview.src.includes("placeholder") && 
+             !overlayPhotoPreview.src.includes("upgrade_access.jpg")) {
+      imageUrl = overlayPhotoPreview.src;
+      console.log("✅ Plant Catalog - Imagen obtenida del src (URL)");
+    }
+    
+    if (imageUrl) {
+      console.log("🔍 Plant Catalog - Imagen validada:", { 
+        hasImage: true, 
+        isDataUrl: imageUrl.startsWith("data:"),
+        imageLength: imageUrl.length,
+        imagePreview: imageUrl.substring(0, 50) + "..."
+      });
+    } else {
+      console.warn("⚠️ Plant Catalog - No se encontró imagen válida en el preview");
+    }
   }
 
       const plantData = {
