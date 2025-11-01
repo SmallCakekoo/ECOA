@@ -35,7 +35,30 @@ export async function findPlantById(id) {
 }
 
 export async function insertPlant(plant) {
-  return await supabase.from("plants").insert([plant]).select().single();
+  try {
+    console.log('📤 Insertando planta en Supabase:', {
+      keys: Object.keys(plant),
+      hasImage: !!plant.image,
+      imageLength: plant.image ? plant.image.length : 0
+    });
+    const result = await supabase.from("plants").insert([plant]).select().single();
+    
+    if (result.error) {
+      console.error('❌ Error de Supabase al insertar:', {
+        code: result.error.code,
+        message: result.error.message,
+        details: result.error.details,
+        hint: result.error.hint
+      });
+    } else {
+      console.log('✅ Planta insertada correctamente en Supabase');
+    }
+    
+    return result;
+  } catch (e) {
+    console.error('❌ Excepción al insertar en Supabase:', e);
+    return { data: null, error: e };
+  }
 }
 
 export async function updatePlant(id, updateData) {

@@ -100,8 +100,28 @@ export const PlantsController = {
         name: plantData.name,
         species: plantData.species,
         hasImage: !!plantData.image,
-        imageLength: plantData.image ? plantData.image.length : 0
+        imageLength: plantData.image ? plantData.image.length : 0,
+        allKeys: Object.keys(plantData),
+        allValues: Object.keys(plantData).reduce((acc, key) => {
+          if (key === 'image' && plantData[key]) {
+            acc[key] = `[data URL de ${Math.round(plantData[key].length / 1024)}KB]`;
+          } else {
+            acc[key] = plantData[key];
+          }
+          return acc;
+        }, {})
       });
+      
+      // Validar que el objeto esté bien formado antes de insertar
+      try {
+        JSON.stringify(plantData);
+      } catch (e) {
+        console.error('❌ Error serializando plantData:', e);
+        return res.status(400).json({
+          success: false,
+          message: 'Error en los datos de la planta: ' + e.message
+        });
+      }
       
       const { data, error } = await insertPlant(plantData);
       
