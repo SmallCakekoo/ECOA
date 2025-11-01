@@ -114,12 +114,14 @@ body {
     position: absolute;
     bottom: 0px;
     left: 50%;
-    transform: translateX(-38%);
+    transform: translateX(-50%);
     width: auto;
-    height: 160px;
+    max-width: 85%;
+    height: 140px;
+    max-height: 140px;
     object-fit: contain;
     z-index: 2;
-    scale: 100%;
+    pointer-events: none;
 }
 
 .card-overlay {

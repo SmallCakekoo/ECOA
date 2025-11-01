@@ -106,14 +106,23 @@ export const PlantsController = {
       const { data, error } = await insertPlant(plantData);
       
       if (error) {
+        // Log completo del error para debugging
         console.error('❌ Error insertando en Supabase:', {
           code: error.code,
           message: error.message,
           details: error.details,
           hint: error.hint,
-          plantData: {
-            ...plantData,
-            image: plantData.image ? (plantData.image.length > 100 ? `${plantData.image.substring(0, 100)}...` : plantData.image) : null
+          stack: error.stack,
+          plantDataKeys: Object.keys(plantData),
+          plantDataSummary: {
+            id: plantData.id,
+            name: plantData.name,
+            species: plantData.species,
+            hasImage: !!plantData.image,
+            imageLength: plantData.image ? plantData.image.length : 0,
+            imagePreview: plantData.image ? `${plantData.image.substring(0, 50)}...` : null,
+            user_id: plantData.user_id,
+            is_adopted: plantData.is_adopted
           }
         });
         

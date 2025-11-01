@@ -43,10 +43,19 @@ window.goToShopFeedback = function () {
 };
 
 // Cargar accesorios desde Supabase vía backend y renderizar
-function resolveAccessoryImage(image) {
-  // Si no hay imagen o es inválida, usar placeholder de Unsplash
+function resolveAccessoryImage(image, accessoryName) {
+  // Si no hay imagen o es inválida, usar placeholder basado en el nombre
   if (!image || image.trim() === "") {
-    return "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop";
+    // Placeholder único basado en el nombre del accesorio
+    const hash = accessoryName ? accessoryName.charCodeAt(0) % 5 : 0;
+    const placeholders = [
+      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop", // Plant
+      "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400&h=400&fit=crop", // Lamp
+      "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=400&h=400&fit=crop", // Pot
+      "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400&h=400&fit=crop", // Fertilizer
+      "https://images.unsplash.com/photo-1598880940080-ff9a29891b85?w=400&h=400&fit=crop"  // Tool
+    ];
+    return placeholders[hash];
   }
   
   // URL absoluta (http/https) - usar directamente
@@ -64,9 +73,18 @@ function resolveAccessoryImage(image) {
     return `${API_BASE_URL}${image}`;
   }
   
-  // Si es un nombre de archivo que no existe, usar placeholder
-  // Los accesorios en la BD pueden tener nombres como "lampara.png" que no existen
-  return "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop";
+  // Intentar como nombre de archivo local - NO usar esto, solo para debug
+  // Si llega aquí, es un nombre de archivo que probablemente no existe
+  console.warn(`Accesorio con imagen "${image}" no es una URL válida, usando placeholder`);
+  const hash = accessoryName ? accessoryName.charCodeAt(0) % 5 : 0;
+  const placeholders = [
+    "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400&h=400&fit=crop",
+    "https://images.unsplash.com/photo-1598880940080-ff9a29891b85?w=400&h=400&fit=crop"
+  ];
+  return placeholders[hash];
 }
 
 (async function loadAccessories() {
@@ -80,10 +98,10 @@ function resolveAccessoryImage(image) {
     container.innerHTML = "";
 
     data.forEach((acc) => {
-      const img = resolveAccessoryImage(acc.image);
+      const img = resolveAccessoryImage(acc.image, acc.name);
       const card = document.createElement("div");
       card.className = "shop-card";
-      const placeholderImg = resolveAccessoryImage("accessory-1.png");
+      const placeholderImg = resolveAccessoryImage(null, acc.name);
       card.innerHTML = `
         <div class="shop-image">
           <img src="${img}" alt="${acc.name}" onerror="this.onerror=null; this.src='${placeholderImg}'" />

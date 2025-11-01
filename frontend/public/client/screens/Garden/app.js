@@ -1,4 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
+const API_BASE_URL = "https://ecoa-nine.vercel.app";
 
 // Actualizar la hora actual
 function updateTime() {
@@ -38,10 +39,18 @@ window.goToProfile = function (event) {
 
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
-  if (plant.image) {
-    return plant.image;
+  const url = plant.image || plant.image_url;
+  if (url) {
+    // Si es data URL, devolver directamente
+    if (url.startsWith("data:")) return url;
+    // Si es URL absoluta, devolver directamente
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    // Si es relativa, construir URL completa
+    return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
   }
-  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+  // Imagen por defecto única basada en el nombre de la planta
+  const hash = plant.name ? plant.name.charCodeAt(0) % 10 : 0;
+  return `https://images.unsplash.com/photo-${1509937528035 + hash * 1000}?w=400&h=400&fit=crop`;
 }
 
 function createPlantCard(plant, i) {
@@ -86,7 +95,7 @@ const plantsGrid = document.getElementById("plantsGrid");
 
 (async () => {
   const response = await fetch(
-    `https://ecoa-five.vercel.app/users/${USER_DATA.id}/plants`
+    `${API_BASE_URL}/users/${USER_DATA.id}/plants`
   );
   const { success, data: plants } = await response.json();
 
@@ -94,7 +103,7 @@ const plantsGrid = document.getElementById("plantsGrid");
 
   const promises = plants.map(async (plant, index) => {
     const res = await fetch(
-      `https://ecoa-five.vercel.app/plant_stats/${plant.id}`
+      `${API_BASE_URL}/plant_stats/${plant.id}`
     );
     const { data: plantMetrics = {} } = await res.json();
 
