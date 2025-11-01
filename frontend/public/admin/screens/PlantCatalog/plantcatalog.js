@@ -403,10 +403,11 @@ function setupPlantForm() {
 }
 
 async function createPlant() {
+  // Código exacto de Dashboard que funciona, adaptado para Plant Catalog
   const form = document.getElementById("overlayPlantForm");
   const formData = new FormData(form);
 
-  // Obtener la imagen subida (data URL)
+  // Obtener la imagen subida (data URL) - código exacto de Dashboard
   const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
   let imageUrl = null;
   
@@ -446,31 +447,15 @@ async function createPlant() {
     }
   }
 
-      const plantData = {
-        user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
-        name: formData.get("plantName")?.trim() || "",
-        species: formData.get("species")?.trim() || "",
-        description: formData.get("description")?.trim() || null,
-        image: imageUrl, // Puede ser null, data URL, o URL
-        // No enviar campos que no existen en la tabla plants
-        // status, health_status, water_level, etc. van en otras tablas relacionadas
-      };
-
-      // Validar campos requeridos antes de enviar
-      if (!plantData.name || !plantData.species) {
-        showNotification("El nombre y la especie son requeridos", "error");
-        showFormLoading(false);
-        return;
-      }
-
-      // Log para debugging
-      console.log("📤 Plant Catalog - Enviando datos de planta:", {
-        name: plantData.name,
-        species: plantData.species,
-        hasImage: !!plantData.image,
-        imageType: plantData.image ? (plantData.image.startsWith("data:") ? "data URL" : "URL") : "null",
-        imageLength: plantData.image ? plantData.image.length : 0
-      });
+  const plantData = {
+    user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
+    name: formData.get("plantName"),
+    species: formData.get("species"),
+    description: formData.get("description"),
+    image: imageUrl,
+    // No enviar campos que no existen en la tabla plants
+    // status, health_status, water_level, etc. van en otras tablas relacionadas
+  };
 
   try {
     showFormLoading(true);
