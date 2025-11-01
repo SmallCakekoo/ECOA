@@ -192,6 +192,10 @@ export const PlantsController = {
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
       console.error('❌ Error completo al crear planta:', error);
+      // Si es un error de sintaxis o otro error no relacionado con Supabase
+      if (error.stack) {
+        console.error('Stack trace:', error.stack);
+      }
       return handleError(error, res);
     }
   },
