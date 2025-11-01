@@ -44,20 +44,47 @@ window.goToShopFeedback = function () {
 
 // Función helper para obtener la ruta base de assets
 function getAssetBasePath() {
-  // Desde /client/screens/Shop/ necesitamos ir a /client/src/assets/images/
-  // ../../ sube a /client/, luego necesitamos client/src/assets/images/
-  // Pero las rutas relativas se resuelven desde la URL de la página
-  // Desde /client/screens/Shop/: ../../ sube a /, entonces src/ = /src/ (incorrecto)
-  // Necesitamos calcular la ruta correcta basada en window.location.pathname
-  
-  const path = window.location.pathname;
-  // Si estamos en /client/screens/Shop/, necesitamos /client/src/assets/images/
-  // Construir ruta absoluta basada en la estructura
-  if (path.includes('/client/')) {
+  // Resolver la ruta desde la ubicación actual del documento
+  // Desde /client/screens/Shop/index.html necesitamos ir a /client/src/assets/images/
+  // Usar new URL para construir la ruta relativa correctamente
+  try {
+    const baseUrl = new URL('../../src/assets/images/', window.location.href);
+    // Retornar la ruta relativa que funcionará desde la ubicación del HTML
+    // Pero en producción necesitamos la ruta absoluta
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/client/screens/')) {
+      // Desde /client/screens/Shop/, construir ruta absoluta
+      return '/client/src/assets/images/';
+    }
+    // Usar la ruta relativa calculada
+    return '../../src/assets/images/';
+  } catch (e) {
+    // Fallback: ruta absoluta
     return '/client/src/assets/images/';
   }
-  // Fallback a ruta relativa si no estamos en /client/
-  return '../../src/assets/images/';
+}
+
+// Función helper para construir URL completa de imagen
+function buildImageUrl(imagePath) {
+  // Si ya es una URL completa (http/https/data), retornar directamente
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+    return imagePath;
+  }
+  
+  // Si es una ruta absoluta que empieza con /, construir URL completa
+  if (imagePath.startsWith('/')) {
+    return new URL(imagePath, window.location.origin).href;
+  }
+  
+  // Si es relativa, construir desde la ubicación del documento actual
+  try {
+    return new URL(imagePath, window.location.href).href;
+  } catch (e) {
+    // Fallback: construir manualmente
+    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+    const fullPath = basePath + '/' + imagePath.replace(/^\.\.\//, '');
+    return new URL(fullPath, window.location.origin).href;
+  }
 }
 
 // Cargar accesorios desde Supabase vía backend y renderizar
@@ -78,8 +105,9 @@ function resolveAccessoryImage(image, accessoryName) {
     for (const [key, value] of Object.entries(nameMap)) {
       if (accessoryLower.includes(key)) {
         const assetPath = `${basePath}${value}`;
-        console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
-        return assetPath;
+        const fullUrl = buildImageUrl(assetPath);
+        console.log(`Mapeando por nombre "${accessoryName}" a ${fullUrl}`);
+        return fullUrl;
       }
     }
     console.warn(`No se encontró imagen para accesorio: ${accessoryName}`);
@@ -118,14 +146,16 @@ function resolveAccessoryImage(image, accessoryName) {
     
     if (mappedName) {
       const assetPath = `${basePath}${mappedName}`;
-      console.log(`Mapeando "${image}" a ${assetPath}`);
-      return assetPath;
+      const fullUrl = buildImageUrl(assetPath);
+      console.log(`Mapeando "${image}" a ${fullUrl}`);
+      return fullUrl;
     }
     
     // Si no está en el mapa, intentar directamente
     const assetPath = `${basePath}${image}`;
-    console.log(`Intentando cargar imagen de accesorio desde assets: ${assetPath}`);
-    return assetPath;
+    const fullUrl = buildImageUrl(assetPath);
+    console.log(`Intentando cargar imagen de accesorio desde assets: ${fullUrl}`);
+    return fullUrl;
   }
   
   // Si no es ninguno de los anteriores, intentar mapear por nombre
@@ -134,8 +164,9 @@ function resolveAccessoryImage(image, accessoryName) {
   for (const [key, value] of Object.entries(nameMap)) {
     if (accessoryLower.includes(key)) {
       const assetPath = `${basePath}${value}`;
-      console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
-      return assetPath;
+      const fullUrl = buildImageUrl(assetPath);
+      console.log(`Mapeando por nombre "${accessoryName}" a ${fullUrl}`);
+      return fullUrl;
     }
   }
   
