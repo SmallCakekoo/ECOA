@@ -193,14 +193,24 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
-      // Usar ruta relativa igual que el HTML estático
-      // El HTML estático usa: ../../src/assets/images/accessory-1.png
-      // Intentar usar la misma ruta relativa
+      // El problema es que las rutas relativas desde JS insertado dinámicamente
+      // se resuelven desde la URL actual, no desde el HTML
+      // Necesitamos construir una URL que funcione desde la ubicación del documento
       let imageSrc = finalImg;
-      if (finalImg && finalImg.includes('/client/src/assets/images/')) {
-        // Convertir ruta absoluta a relativa
-        imageSrc = '../../src/assets/images/' + finalImg.split('/').pop();
-        console.log(`🔄 Convertida ruta absoluta a relativa: ${finalImg} -> ${imageSrc}`);
+      
+      // Si es una ruta relativa, construirla desde la ubicación del documento actual
+      if (finalImg && finalImg.startsWith('../../')) {
+        // Desde /client/screens/Shop/, ../../src/assets/images/ se resuelve a /src/assets/images/
+        // Necesitamos construir /client/src/assets/images/ manualmente
+        const pathParts = window.location.pathname.split('/').filter(p => p);
+        if (pathParts.length >= 2 && pathParts[0] === 'client') {
+          // Construir ruta absoluta correcta
+          imageSrc = '/client/src/assets/images/' + finalImg.split('/').pop();
+          console.log(`🔄 Corrigiendo ruta relativa: ${finalImg} -> ${imageSrc}`);
+        }
+      } else if (finalImg && finalImg.includes('/client/src/assets/images/')) {
+        // Ya es absoluta, pero verificar que tenga el dominio si es necesario
+        imageSrc = finalImg;
       }
       
       // Construir HTML sin placeholder de Unsplash en onerror

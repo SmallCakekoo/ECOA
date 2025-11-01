@@ -173,13 +173,25 @@ async function loadRecentPlants() {
       // Crear filas de plantas con imágenes de Perenual API
       const plantRows = await Promise.all(
         plants.map(async (plant) => {
-          // 1) Usar la imagen subida si existe
+          // 1) Usar la imagen subida si existe (prioridad máxima)
           let plantImage = null;
           const ownImage = plant.image || plant.image_url;
           if (ownImage) {
-            plantImage = ownImage.startsWith("http")
-              ? ownImage
-              : `${window.AdminConfig.API_BASE_URL}${ownImage}`;
+            // Si es data URL (base64), usar directamente - es la imagen subida por el usuario
+            if (ownImage.startsWith("data:")) {
+              plantImage = ownImage;
+              console.log(`✅ Usando imagen subida (data URL) para ${plant.name}`);
+            } 
+            // Si es URL completa, usar directamente
+            else if (ownImage.startsWith("http")) {
+              plantImage = ownImage;
+              console.log(`✅ Usando imagen subida (URL) para ${plant.name}`);
+            } 
+            // Si es ruta relativa, construir URL completa
+            else {
+              plantImage = `${window.AdminConfig.API_BASE_URL}${ownImage}`;
+              console.log(`✅ Usando imagen subida (relativa) para ${plant.name}: ${plantImage}`);
+            }
           }
 
           // 2) Si no hay imagen subida, buscar en Perenual como fallback
