@@ -352,12 +352,8 @@ async function createPlant() {
     species: formData.get("species"),
     description: formData.get("description"),
     image: imageUrl,
-    status: "active",
-    health_status: "healthy",
-    water_level: 0,
-    light_level: 0,
-    temperature: 0,
-    humidity: 0,
+    // No enviar campos que no existen en la tabla plants
+    // status, health_status, water_level, etc. van en otras tablas relacionadas
   };
 
   try {
