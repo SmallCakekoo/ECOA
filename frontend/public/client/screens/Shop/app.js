@@ -44,16 +44,8 @@ window.goToShopFeedback = function () {
 
 // Función helper para obtener la ruta base de assets
 function getAssetBasePath() {
-  // Desde /client/screens/Shop/, la ruta relativa ../../src/assets/images/ funciona
-  // Pero necesitamos construir una ruta absoluta que funcione en producción
-  const currentPath = window.location.pathname;
-  
-  // Si estamos en una ruta de Shop, usar ruta relativa que funciona
-  if (currentPath.includes('/Shop')) {
-    return '../../src/assets/images/';
-  }
-  
-  // Fallback: ruta absoluta desde la raíz
+  // SIEMPRE usar ruta absoluta desde la raíz del sitio
+  // Las rutas relativas fallan porque se resuelven desde la URL de la página, no del archivo JS
   return '/client/src/assets/images/';
 }
 
