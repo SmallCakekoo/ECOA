@@ -560,8 +560,9 @@ async function deletePlant(plantId) {
   }
 }
 
-// Exponer deletePlant globalmente para que funcione en onclick
+// Exponer funciones globalmente para que funcionen en onclick
 window.deletePlant = deletePlant;
+window.editPlant = editPlant;
 
 function closeEditModal() {
   const editModal = document.getElementById("editPlantModal");
