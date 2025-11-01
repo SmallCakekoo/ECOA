@@ -201,21 +201,30 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
-      // Construir la URL correcta para las imágenes
+      // Construir la URL correcta para las imágenes usando new URL() para resolver rutas relativas
       // El HTML estático usa rutas relativas ../../src/assets/images/ que funcionan
-      // Pero cuando se inserta dinámicamente, necesitamos construir la URL completa
+      // Cuando se inserta dinámicamente, usar new URL() para resolver correctamente desde window.location
       let imageSrc = finalImg;
       
       if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
-        // Si es una ruta relativa (../../src/assets/images/...), construir URL absoluta
-        if (imageSrc.startsWith('../../src/assets/images/')) {
-          // Desde /client/screens/Shop/, ../../src/assets/images/ se resuelve a /client/src/assets/images/
-          const fileName = imageSrc.split('/').pop();
-          imageSrc = '/client/src/assets/images/' + fileName;
-        }
-        // Si ya es absoluta pero incorrecta (/src/...), corregirla
-        else if (imageSrc.startsWith('/src/assets/images/')) {
-          imageSrc = '/client' + imageSrc;
+        // Si es una ruta relativa, resolverla usando new URL() desde la ubicación actual
+        try {
+          // Resolver la ruta relativa desde la ubicación actual del documento
+          // Esto es lo que hace el navegador automáticamente para el HTML estático
+          const resolvedUrl = new URL(imageSrc, window.location.href);
+          imageSrc = resolvedUrl.pathname;
+          console.log(`🔧 Ruta resuelta: ${finalImg} -> ${imageSrc}`);
+        } catch (e) {
+          console.error('❌ Error resolviendo ruta de imagen:', e);
+          // Si falla, intentar construir manualmente
+          if (imageSrc.startsWith('../../src/assets/images/')) {
+            const fileName = imageSrc.split('/').pop();
+            // Construir desde la ruta actual: /client/screens/Shop/ -> /client/src/assets/images/
+            const currentPath = window.location.pathname;
+            const basePath = currentPath.substring(0, currentPath.indexOf('/screens/')) || '/client';
+            imageSrc = `${basePath}/src/assets/images/${fileName}`;
+            console.log(`🔧 Ruta construida manualmente: ${imageSrc}`);
+          }
         }
       }
       
