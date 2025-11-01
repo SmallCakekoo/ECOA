@@ -202,23 +202,20 @@ function resolveAccessoryImage(image, accessoryName) {
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
       // Construir la URL correcta para las imágenes
-      // El HTML estático está en /client/screens/Shop/index.html y usa ../../src/assets/images/
-      // Esto se resuelve a /client/src/assets/images/ desde la ruta del archivo
-      // Pero cuando Vercel hace rewrite a /client/shop, necesitamos construir la ruta manualmente
+      // IMPORTANTE: El HTML estático funciona con rutas relativas ../../src/assets/images/
+      // pero cuando se inserta dinámicamente desde JavaScript, necesitamos la ruta absoluta
+      // La ruta absoluta en Vercel SIEMPRE debe ser /client/src/assets/images/
       let imageSrc = finalImg;
       
       if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
-        // Si es una ruta relativa como ../../src/assets/images/, construir la ruta absoluta correcta
-        if (imageSrc.startsWith('../../src/assets/images/')) {
+        // Convertir cualquier ruta relativa o absoluta incorrecta a la ruta absoluta correcta
+        if (imageSrc.includes('assets/images/')) {
+          // Extraer el nombre del archivo
           const fileName = imageSrc.split('/').pop();
-          // La ruta correcta en Vercel siempre incluye /client/ al inicio
+          
+          // SIEMPRE usar la ruta absoluta correcta con /client/
           imageSrc = '/client/src/assets/images/' + fileName;
-          console.log(`🔧 Ruta construida: ${finalImg} -> ${imageSrc}`);
-        }
-        // Si ya es absoluta pero le falta /client/, agregarlo
-        else if (imageSrc.startsWith('/src/assets/images/')) {
-          imageSrc = '/client' + imageSrc;
-          console.log(`🔧 Ruta corregida: ${finalImg} -> ${imageSrc}`);
+          console.log(`🔧 Ruta convertida: ${finalImg} -> ${imageSrc}`);
         }
       }
       
