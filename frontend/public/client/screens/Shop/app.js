@@ -43,48 +43,24 @@ window.goToShopFeedback = function () {
 };
 
 // Función helper para obtener la ruta base de assets
+// Usar ruta relativa igual que el HTML estático que SÍ funciona
 function getAssetBasePath() {
-  // Resolver la ruta desde la ubicación actual del documento
-  // Desde /client/screens/Shop/index.html necesitamos ir a /client/src/assets/images/
-  // Usar new URL para construir la ruta relativa correctamente
-  try {
-    const baseUrl = new URL('../../src/assets/images/', window.location.href);
-    // Retornar la ruta relativa que funcionará desde la ubicación del HTML
-    // Pero en producción necesitamos la ruta absoluta
-    const currentPath = window.location.pathname;
-    if (currentPath.includes('/client/screens/')) {
-      // Desde /client/screens/Shop/, construir ruta absoluta
-      return '/client/src/assets/images/';
-    }
-    // Usar la ruta relativa calculada
-    return '../../src/assets/images/';
-  } catch (e) {
-    // Fallback: ruta absoluta
-    return '/client/src/assets/images/';
-  }
+  // El HTML estático usa: ../../src/assets/images/accessory-1.png
+  // Esta ruta relativa funciona porque se resuelve desde la ubicación del HTML
+  return '../../src/assets/images/';
 }
 
-// Función helper para construir URL completa de imagen
+// Función helper para construir URL de imagen
+// Usar rutas relativas igual que el HTML estático
 function buildImageUrl(imagePath) {
   // Si ya es una URL completa (http/https/data), retornar directamente
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath;
   }
   
-  // Si es una ruta absoluta que empieza con /, construir URL completa
-  if (imagePath.startsWith('/')) {
-    return new URL(imagePath, window.location.origin).href;
-  }
-  
-  // Si es relativa, construir desde la ubicación del documento actual
-  try {
-    return new URL(imagePath, window.location.href).href;
-  } catch (e) {
-    // Fallback: construir manualmente
-    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-    const fullPath = basePath + '/' + imagePath.replace(/^\.\.\//, '');
-    return new URL(fullPath, window.location.origin).href;
-  }
+  // Para rutas relativas, retornarlas tal cual (igual que en HTML estático)
+  // El navegador las resolverá correctamente desde la ubicación del documento
+  return imagePath;
 }
 
 // Cargar accesorios desde Supabase vía backend y renderizar
@@ -177,15 +153,39 @@ function resolveAccessoryImage(image, accessoryName) {
 
 (async function loadAccessories() {
   try {
+    console.log('🔍 Cargando accesorios desde:', `${API_BASE_URL}/accessories`);
     const res = await fetch(`${API_BASE_URL}/accessories`);
-    const { success, data } = await res.json();
-    if (!success) return;
+    
+    if (!res.ok) {
+      console.error('❌ Error en respuesta:', res.status, res.statusText);
+      return;
+    }
+    
+    const result = await res.json();
+    console.log('✅ Respuesta recibida:', result);
+    
+    if (!result.success) {
+      console.error('❌ Respuesta sin éxito:', result);
+      return;
+    }
+    
+    const data = result.data;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.warn('⚠️ No hay accesorios o el array está vacío');
+      return;
+    }
+    
+    console.log(`✅ Cargados ${data.length} accesorios:`, data.map(a => a.name));
 
     const container = document.querySelector(".shop-content");
-    if (!container) return;
+    if (!container) {
+      console.error('❌ No se encontró el contenedor .shop-content');
+      return;
+    }
     container.innerHTML = "";
 
     data.forEach((acc) => {
+      console.log(`📦 Procesando accesorio: ${acc.name}`, { image: acc.image, description: acc.description });
       const img = resolveAccessoryImage(acc.image, acc.name);
       const card = document.createElement("div");
       card.className = "shop-card";
@@ -193,13 +193,23 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
+      // Usar ruta relativa igual que el HTML estático
+      // El HTML estático usa: ../../src/assets/images/accessory-1.png
+      // Intentar usar la misma ruta relativa
+      let imageSrc = finalImg;
+      if (finalImg && finalImg.includes('/client/src/assets/images/')) {
+        // Convertir ruta absoluta a relativa
+        imageSrc = '../../src/assets/images/' + finalImg.split('/').pop();
+        console.log(`🔄 Convertida ruta absoluta a relativa: ${finalImg} -> ${imageSrc}`);
+      }
+      
       // Construir HTML sin placeholder de Unsplash en onerror
       card.innerHTML = `
         <div class="shop-image">
-          ${finalImg ? `<img src="${finalImg}" alt="${acc.name}" onerror="console.error('Error cargando imagen:', '${finalImg}'); this.style.display='none';" />` : '<div style="width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>'}
+          ${imageSrc ? `<img src="${imageSrc}" alt="${acc.name}" onerror="console.error('Error cargando imagen:', '${imageSrc}'); this.style.display='none';" />` : '<div style="width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>'}
         </div>
         <div class="shop-info">
-          <div class="shop-title">${acc.name}</div>
+          <div class="shop-title">${acc.name || 'Sin nombre'}</div>
           <div class="shop-description">${acc.description || ""}</div>
           <button class="add-button" onclick="goToShopFeedback()">
             <span class="iconify" data-icon="material-symbols:add"></span>
@@ -207,7 +217,13 @@ function resolveAccessoryImage(image, accessoryName) {
         </div>`;
       container.appendChild(card);
     });
+    
+    console.log('✅ Accesorios renderizados correctamente');
   } catch (e) {
-    console.error("Error loading accessories", e);
+    console.error("❌ Error loading accessories", e);
+    const container = document.querySelector(".shop-content");
+    if (container) {
+      container.innerHTML = `<div style="padding: 20px; text-align: center; color: red;">Error al cargar accesorios: ${e.message}</div>`;
+    }
   }
 })();
