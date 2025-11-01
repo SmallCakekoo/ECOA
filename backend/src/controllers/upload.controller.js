@@ -6,21 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configurar multer para subir archivos
-// En Vercel (serverless) no se puede escribir a disco; usar memoria
-const isServerless = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
-const storage = isServerless
-  ? multer.memoryStorage()
-  : multer.diskStorage({
-      destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../../uploads/plants');
-        cb(null, uploadDir);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, `plant-${uniqueSuffix}${ext}`);
-      },
-    });
+// Usar memoryStorage siempre para consistencia (funciona en serverless y local)
+// Convertimos a base64 para guardarlo en la BD
+const storage = multer.memoryStorage();
 
 // Filtrar solo imágenes
 const fileFilter = (req, file, cb) => {
@@ -54,9 +42,8 @@ export const UploadController = {
       }
 
       // Convertir la imagen a base64 para guardarla en la BD
-      // Esto funciona tanto en serverless como en local
-      const imageBuffer = req.file.buffer;
-      const base64Image = imageBuffer.toString('base64');
+      // memoryStorage siempre provee req.file.buffer
+      const base64Image = req.file.buffer.toString('base64');
       const mimeType = req.file.mimetype;
       const dataUrl = `data:${mimeType};base64,${base64Image}`;
 
