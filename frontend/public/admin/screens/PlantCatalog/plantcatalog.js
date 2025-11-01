@@ -569,9 +569,10 @@ function resetForm() {
   if (preview) {
     preview.style.display = "none";
     preview.src = "";
+    preview.removeAttribute('data-image-url');
   }
 
-  const uploadInner = document.querySelector(".upload-inner");
+  const uploadInner = document.querySelector("#overlayUpload .upload-inner");
   if (uploadInner) uploadInner.style.display = "block";
 }
 
