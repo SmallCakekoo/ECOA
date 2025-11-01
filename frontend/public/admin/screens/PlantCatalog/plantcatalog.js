@@ -403,7 +403,6 @@ function setupPlantForm() {
 }
 
 async function createPlant() {
-  // Código exacto de Dashboard que funciona, adaptado para Plant Catalog
   const form = document.getElementById("overlayPlantForm");
   const formData = new FormData(form);
 
