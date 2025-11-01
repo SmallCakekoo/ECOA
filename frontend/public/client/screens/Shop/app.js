@@ -91,15 +91,17 @@ function resolveAccessoryImage(image, accessoryName) {
     const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
     
     if (mappedName) {
-      const assetPath = `/client/src/assets/images/${mappedName}`;
-      console.log(`Mapeando "${image}" a ${assetPath}`);
-      return assetPath;
+      // Usar ruta relativa desde Shop/app.js (../../src/assets/images/)
+      // Esto funciona tanto en desarrollo como en producción
+      const relativePath = `../../src/assets/images/${mappedName}`;
+      console.log(`Mapeando "${image}" a ${relativePath}`);
+      return relativePath;
     }
     
-    // Si no está en el mapa, intentar directamente
-    const assetPath = `/client/src/assets/images/${image}`;
-    console.log(`Intentando cargar imagen de accesorio desde assets: ${assetPath}`);
-    return assetPath;
+    // Si no está en el mapa, intentar directamente con ruta relativa
+    const relativePath = `../../src/assets/images/${image}`;
+    console.log(`Intentando cargar imagen de accesorio desde assets: ${relativePath}`);
+    return relativePath;
   }
   
   // Si no es ninguno de los anteriores, usar placeholder
