@@ -44,27 +44,10 @@ window.goToShopFeedback = function () {
 
 // Función helper para obtener la ruta base de assets
 function getAssetBasePath() {
-  // Construir ruta absoluta basada en la ubicación actual del documento
-  // Las rutas relativas se resuelven desde la URL de la página, no del archivo JS
-  const currentPath = window.location.pathname;
-  
-  // Si estamos en /client/screens/Shop o similar, construir ruta absoluta correcta
-  if (currentPath.includes('/client/')) {
-    // Extraer la base: /client/
-    const baseMatch = currentPath.match(/^(\/client\/)/);
-    if (baseMatch) {
-      return '/client/src/assets/images/';
-    }
-  }
-  
-  // Fallback: intentar construir desde pathname
-  // Desde /client/screens/Shop/, necesitamos /client/src/assets/images/
-  const pathParts = currentPath.split('/').filter(p => p);
-  if (pathParts.length >= 1 && pathParts[0] === 'client') {
-    return '/client/src/assets/images/';
-  }
-  
-  // Último fallback: ruta absoluta
+  // SIEMPRE usar ruta absoluta desde la raíz
+  // En Vercel, los archivos de public/ se copian a dist/ manteniendo estructura
+  // Entonces public/client/src/assets/images/ -> dist/client/src/assets/images/
+  // Y se sirven desde /client/src/assets/images/
   return '/client/src/assets/images/';
 }
 
