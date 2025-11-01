@@ -60,12 +60,6 @@ export const PlantsController = {
   },
   create: async (req, res) => {
     try {
-      console.log('📥 Request recibido para crear planta:', {
-        bodyKeys: Object.keys(req.body),
-        hasName: !!req.body.name,
-        hasSpecies: !!req.body.species,
-        hasImage: !!req.body.image
-      });
       // Validar campos requeridos antes de crear el modelo
       if (!req.body.name || !req.body.name.trim()) {
         return res.status(400).json({ 
@@ -106,28 +100,8 @@ export const PlantsController = {
         name: plantData.name,
         species: plantData.species,
         hasImage: !!plantData.image,
-        imageLength: plantData.image ? plantData.image.length : 0,
-        allKeys: Object.keys(plantData),
-        allValues: Object.keys(plantData).reduce((acc, key) => {
-          if (key === 'image' && plantData[key]) {
-            acc[key] = `[data URL de ${Math.round(plantData[key].length / 1024)}KB]`;
-          } else {
-            acc[key] = plantData[key];
-          }
-          return acc;
-        }, {})
+        imageLength: plantData.image ? plantData.image.length : 0
       });
-      
-      // Validar que el objeto esté bien formado antes de insertar
-      try {
-        JSON.stringify(plantData);
-      } catch (e) {
-        console.error('❌ Error serializando plantData:', e);
-        return res.status(400).json({
-          success: false,
-          message: 'Error en los datos de la planta: ' + e.message
-        });
-      }
       
       const { data, error } = await insertPlant(plantData);
       
@@ -156,9 +130,6 @@ export const PlantsController = {
         if (!error.code && !error.message) {
           console.error('❌ Error completo sin código/mensaje:', JSON.stringify(error, null, 2));
         }
-        
-        // También loguear el error completo para debugging
-        console.error('❌ Error completo de Supabase:', error);
         
         // Mensajes de error más claros basados en el código de error
         if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum') || error.message.includes('too long for type'))) {
@@ -221,18 +192,6 @@ export const PlantsController = {
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
       console.error('❌ Error completo al crear planta:', error);
-      console.error('❌ Tipo de error:', typeof error);
-      console.error('❌ Error es instancia de Error:', error instanceof Error);
-      // Si es un error de sintaxis o otro error no relacionado con Supabase
-      if (error.stack) {
-        console.error('Stack trace:', error.stack);
-      }
-      // Intentar serializar el error para ver todos sus campos
-      try {
-        console.error('❌ Error serializado:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
-      } catch (e) {
-        console.error('❌ No se pudo serializar el error:', e);
-      }
       return handleError(error, res);
     }
   },
