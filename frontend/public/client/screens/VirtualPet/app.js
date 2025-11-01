@@ -1,4 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
+const API_BASE_URL = "https://ecoa-nine.vercel.app";
 
 // Obtener el ID de la planta desde la URL
 const params = new URLSearchParams(window.location.search);
@@ -12,8 +13,12 @@ if (!plantId) {
 
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
-  if (plant.image) {
-    return plant.image;
+  const url = plant.image || plant.image_url;
+  if (url) {
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+      return url;
+    }
+    return `${API_BASE_URL}${url}`;
   }
   return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
 }
@@ -40,7 +45,7 @@ setInterval(updateTime, 60000);
   try {
     // Cargar datos básicos de la planta
     const plantResponse = await fetch(
-      `https://ecoa-five.vercel.app/plants/${plantId}`
+      `${API_BASE_URL}/plants/${plantId}`
     );
     const { success: plantSuccess, data: plant } = await plantResponse.json();
 
@@ -69,7 +74,7 @@ setInterval(updateTime, 60000);
     // Cargar métricas (plant_stats)
     try {
       const statsResponse = await fetch(
-        `https://ecoa-five.vercel.app/plant_stats/${plantId}`
+        `${API_BASE_URL}/plant_stats/${plantId}`
       );
       const { success: statsSuccess, data: stats } = await statsResponse.json();
 
@@ -99,7 +104,7 @@ setInterval(updateTime, 60000);
     // Cargar estado (plant_status)
     try {
       const statusResponse = await fetch(
-        `https://ecoa-five.vercel.app/plant_status/${plantId}`
+        `${API_BASE_URL}/plant_status/${plantId}`
       );
       const { success: statusSuccess, data: status } =
         await statusResponse.json();

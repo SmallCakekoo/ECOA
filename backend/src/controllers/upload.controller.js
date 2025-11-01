@@ -56,33 +56,45 @@ export const UploadController = {
       let dataUrl;
       const filename = req.file.originalname || `plant-${Date.now()}.jpg`;
 
-      // Por ahora, convertir a base64 para que el frontend pueda mostrar la imagen
-      // NOTA: Si la imagen es muy grande (>500KB), puede causar problemas en Supabase
-      // En producción se recomienda usar Supabase Storage para imágenes grandes
+      // Convertir a base64 solo si la imagen es pequeña (para evitar problemas con Supabase)
+      // NOTA: En producción se recomienda usar Supabase Storage para imágenes grandes
       if (req.file.buffer) {
-        const maxSize = 500 * 1024; // 500KB máximo recomendado
+        const maxSize = 300 * 1024; // 300KB máximo (archivo original)
         
         if (req.file.buffer.length > maxSize) {
-          console.warn(`⚠️ Imagen muy grande (${req.file.buffer.length} bytes). Usando placeholder.`);
+          console.warn(`⚠️ Imagen muy grande (${Math.round(req.file.buffer.length / 1024)}KB). Usando placeholder.`);
           // Si es muy grande, usar una URL placeholder pero el frontend verá su imagen en preview
           dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
         } else {
-          const base64Image = req.file.buffer.toString('base64');
-          const mimeType = req.file.mimetype;
-          dataUrl = `data:${mimeType};base64,${base64Image}`;
+          try {
+            const base64Image = req.file.buffer.toString('base64');
+            const mimeType = req.file.mimetype;
+            dataUrl = `data:${mimeType};base64,${base64Image}`;
+            console.log(`✅ Imagen convertida a base64 (${Math.round(dataUrl.length / 1024)}KB data URL)`);
+          } catch (error) {
+            console.error('Error convirtiendo a base64:', error);
+            dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
+          }
         }
       } 
       else if (req.file.path) {
         const fs = await import('fs');
         const imageBuffer = fs.readFileSync(req.file.path);
+        const maxSize = 300 * 1024; // 300KB máximo (archivo original)
         
-        if (imageBuffer.length > 500 * 1024) {
-          console.warn(`⚠️ Imagen muy grande (${imageBuffer.length} bytes). Usando placeholder.`);
+        if (imageBuffer.length > maxSize) {
+          console.warn(`⚠️ Imagen muy grande (${Math.round(imageBuffer.length / 1024)}KB). Usando placeholder.`);
           dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
         } else {
-          const base64Image = imageBuffer.toString('base64');
-          const mimeType = req.file.mimetype;
-          dataUrl = `data:${mimeType};base64,${base64Image}`;
+          try {
+            const base64Image = imageBuffer.toString('base64');
+            const mimeType = req.file.mimetype;
+            dataUrl = `data:${mimeType};base64,${base64Image}`;
+            console.log(`✅ Imagen convertida a base64 (${Math.round(dataUrl.length / 1024)}KB data URL)`);
+          } catch (error) {
+            console.error('Error convirtiendo a base64:', error);
+            dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
+          }
         }
       } else {
         console.warn('No se pudo procesar el archivo, usando fallback');

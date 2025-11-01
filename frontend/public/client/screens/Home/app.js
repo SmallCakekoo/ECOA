@@ -4,7 +4,10 @@ const API_BASE_URL = "https://ecoa-nine.vercel.app";
 function resolvePlantImage(plant) {
   const url = plant.image || plant.image_url;
   if (!url) return "/client/src/assets/images/plant.png";
-  return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+    return url;
+  }
+  return `${API_BASE_URL}${url}`;
 }
 console.log(USER_DATA);
 

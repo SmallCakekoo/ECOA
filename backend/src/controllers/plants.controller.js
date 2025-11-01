@@ -74,8 +74,17 @@ export const PlantsController = {
       const { data, error } = await insertPlant(plantData);
       
       if (error) {
-        console.error('❌ Error insertando en Supabase:', error);
-        throw error;
+        console.error('❌ Error insertando en Supabase:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        // Si es error de tamaño de columna, dar mensaje más claro
+        if (error.message && error.message.includes('value too long')) {
+          throw { status: 400, message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<300KB)' };
+        }
+        throw { status: 500, message: `Error al guardar en la base de datos: ${error.message}` };
       }
       
       req.io?.emit("plant_created", {
