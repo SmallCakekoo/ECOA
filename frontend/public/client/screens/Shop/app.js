@@ -201,15 +201,22 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
-      // Usar exactamente la misma ruta relativa que funciona en el HTML estático
-      // El HTML usa: ../../src/assets/images/accessory-X.png y funciona
-      // Si buildImageUrl devuelve una ruta absoluta, convertirla a relativa
+      // Resolver la ruta de imagen correctamente
+      // Si es una ruta relativa, usar new URL para resolverla desde la ubicación actual
       let imageSrc = finalImg;
       
-      // Si es una ruta absoluta que empieza con /client/src/assets/images/,
-      // convertirla a la ruta relativa que usa el HTML estático
-      if (imageSrc && imageSrc.startsWith('/client/src/assets/images/')) {
-        imageSrc = '../../src/assets/images/' + imageSrc.split('/').pop();
+      if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
+        // Si es una ruta relativa (empieza con ../), resolverla usando new URL
+        if (imageSrc.startsWith('../')) {
+          try {
+            // Resolver la ruta relativa desde la ubicación actual del documento
+            imageSrc = new URL(imageSrc, window.location.href).pathname;
+          } catch (e) {
+            // Si falla, usar la ruta relativa tal cual
+            console.warn('Error resolviendo ruta relativa:', e);
+          }
+        }
+        // Si es una ruta absoluta que empieza con /, ya está bien
       }
       
       // Construir HTML sin placeholder de Unsplash en onerror
