@@ -338,13 +338,21 @@ async function createPlant() {
   if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none" && overlayPhotoPreview.src) {
     const src = overlayPhotoPreview.src;
     // Verificar que no sea una URL de placeholder o mock
+    // Aceptar data URLs (imágenes subidas) y URLs reales, pero NO placeholders
     if (src && 
         src !== "" && 
-        !src.includes("unsplash.com/photo-1506905925346") && 
-        !src.includes("placeholder") &&
-        !src.includes("upgrade_access.jpg")) {
-      imageUrl = src;
+        src !== "about:blank" &&
+        (!src.includes("unsplash.com/photo-1506905925346") || src.startsWith("data:"))) {
+      // Si es data URL, es una imagen real subida
+      if (src.startsWith("data:")) {
+        imageUrl = src;
+      } 
+      // Si no es data URL pero tampoco es placeholder, también usar
+      else if (!src.includes("placeholder") && !src.includes("upgrade_access.jpg")) {
+        imageUrl = src;
+      }
     }
+    console.log("🔍 Plant Catalog - Imagen validada:", { src, imageUrl, isDataUrl: src?.startsWith("data:") });
   }
 
   const plantData = {

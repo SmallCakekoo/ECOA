@@ -74,9 +74,29 @@ function resolveAccessoryImage(image, accessoryName) {
   }
   
   // Si es un nombre de archivo (ej: "fertilizante.png", "lampara.png", "matera.png")
-  // intentar cargar desde los assets del client
+  // intentar mapear a los assets del client
   if (image.includes(".") && !image.includes("/")) {
-    // Es probablemente un nombre de archivo como "fertilizante.png"
+    // Mapear nombres de BD a nombres de archivos en assets
+    const imageNameMap = {
+      "fertilizante.png": "accessory-3.png",
+      "lampara.png": "accessory-1.png",
+      "matera.png": "accessory-2.png",
+      "fertilizante": "accessory-3.png",
+      "lampara": "accessory-1.png",
+      "matera": "accessory-2.png"
+    };
+    
+    // Buscar en el mapa
+    const fileName = image.toLowerCase();
+    const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
+    
+    if (mappedName) {
+      const assetPath = `/client/src/assets/images/${mappedName}`;
+      console.log(`Mapeando "${image}" a ${assetPath}`);
+      return assetPath;
+    }
+    
+    // Si no está en el mapa, intentar directamente
     const assetPath = `/client/src/assets/images/${image}`;
     console.log(`Intentando cargar imagen de accesorio desde assets: ${assetPath}`);
     return assetPath;
