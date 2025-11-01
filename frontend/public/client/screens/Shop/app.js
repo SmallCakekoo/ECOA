@@ -44,9 +44,19 @@ window.goToShopFeedback = function () {
 
 // Función helper para obtener la ruta base de assets
 function getAssetBasePath() {
-  // Usar la misma ruta relativa que el HTML estático
-  // Desde /client/screens/Shop/, la ruta ../../src/assets/images/ funciona correctamente
-  // porque se resuelve desde la ubicación del documento HTML
+  // Desde /client/screens/Shop/ necesitamos ir a /client/src/assets/images/
+  // ../../ sube a /client/, luego necesitamos client/src/assets/images/
+  // Pero las rutas relativas se resuelven desde la URL de la página
+  // Desde /client/screens/Shop/: ../../ sube a /, entonces src/ = /src/ (incorrecto)
+  // Necesitamos calcular la ruta correcta basada en window.location.pathname
+  
+  const path = window.location.pathname;
+  // Si estamos en /client/screens/Shop/, necesitamos /client/src/assets/images/
+  // Construir ruta absoluta basada en la estructura
+  if (path.includes('/client/')) {
+    return '/client/src/assets/images/';
+  }
+  // Fallback a ruta relativa si no estamos en /client/
   return '../../src/assets/images/';
 }
 
