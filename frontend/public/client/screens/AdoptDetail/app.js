@@ -7,10 +7,15 @@ const plantId = params.get("id");
 
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
-  const url = plant.image_url || plant.image;
+  // Priorizar 'image' sobre 'image_url'
+  const url = plant.image || plant.image_url;
   if (url) {
+    // Si es data URL (base64), usar directamente
+    if (url.startsWith("data:")) return url;
+    // Si es URL absoluta, usar directamente
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return `${API_BASE_URL}${url}`;
+    // Si es ruta relativa, construir URL completa
+    return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
   }
   return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
 }
@@ -52,26 +57,61 @@ async function fetchPlantData(plantId) {
 }
 
 async function fetchPlantMetrics(plantId) {
-  const response = await fetch(`${API_BASE_URL}/plant_stats/${plantId}`);
-  const { success, data: plantMetrics } = await response.json();
+  try {
+    // Buscar por plant_id, no por id
+    const response = await fetch(`${API_BASE_URL}/plant_stats?plant_id=${plantId}`);
+    const { success, data } = await response.json();
 
-  if (!success) throw new Error("Failed to load plant metrics");
+    if (!success || !data || data.length === 0) {
+      console.warn("No se encontraron métricas para la planta, usando valores por defecto");
+      // Usar valores por defecto si no hay métricas
+      const [tempBtn, humBtn, lightBtn] = document.querySelectorAll(".state-button");
+      addStateButtonText(50, tempBtn);
+      addStateButtonText(50, humBtn);
+      addStateButtonText(50, lightBtn);
+      return;
+    }
 
-  const [tempBtn, humBtn, lightBtn] =
-    document.querySelectorAll(".state-button");
-  addStateButtonText(plantMetrics.temperature, tempBtn);
-  addStateButtonText(plantMetrics.soil_moisture, humBtn);
-  addStateButtonText(plantMetrics.light, lightBtn);
+    // Usar la métrica más reciente
+    const plantMetrics = Array.isArray(data) ? data[0] : data;
+    const [tempBtn, humBtn, lightBtn] = document.querySelectorAll(".state-button");
+    addStateButtonText(plantMetrics.temperature || 50, tempBtn);
+    addStateButtonText(plantMetrics.soil_moisture || 50, humBtn);
+    addStateButtonText(plantMetrics.light || 50, lightBtn);
+  } catch (error) {
+    console.error("Error cargando métricas:", error);
+    // Usar valores por defecto en caso de error
+    const [tempBtn, humBtn, lightBtn] = document.querySelectorAll(".state-button");
+    addStateButtonText(50, tempBtn);
+    addStateButtonText(50, humBtn);
+    addStateButtonText(50, lightBtn);
+  }
 }
 
 async function fetchPlantStatus(plantId) {
-  const response = await fetch(`${API_BASE_URL}/plant_status/${plantId}`);
-  const { success, data: plantStatus } = await response.json();
+  try {
+    // Buscar por plant_id, no por id
+    const response = await fetch(`${API_BASE_URL}/plant_status?plant_id=${plantId}`);
+    const { success, data } = await response.json();
 
-  if (!success) throw new Error("Failed to load plant status");
+    if (!success || !data || data.length === 0) {
+      console.warn("No se encontró status para la planta, usando valor por defecto");
+      // Usar valor por defecto si no hay status
+      const moodBtn = document.querySelectorAll(".state-button")[3];
+      addStateButtonText(50, moodBtn);
+      return;
+    }
 
-  const moodBtn = document.querySelectorAll(".state-button")[3];
-  addStateButtonText(plantStatus.mood_index, moodBtn);
+    // Usar el status más reciente
+    const plantStatus = Array.isArray(data) ? data[0] : data;
+    const moodBtn = document.querySelectorAll(".state-button")[3];
+    addStateButtonText((plantStatus.mood_index || 0.5) * 100, moodBtn);
+  } catch (error) {
+    console.error("Error cargando status:", error);
+    // Usar valor por defecto en caso de error
+    const moodBtn = document.querySelectorAll(".state-button")[3];
+    addStateButtonText(50, moodBtn);
+  }
 }
 
 // // CREATE PLANT STAT
