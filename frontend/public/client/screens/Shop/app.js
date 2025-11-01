@@ -44,20 +44,29 @@ window.goToShopFeedback = function () {
 
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image) {
-  // Ruta absoluta desde la raíz del sitio
-  const asset = (name) => `/client/src/assets/images/${name || "accessory-1.png"}`;
-  if (!image) return asset("accessory-1.png");
-  // URL absoluta (http/https)
-  if (image.startsWith("http://") || image.startsWith("https://")) return image;
-  // Data URL
-  if (image.startsWith("data:")) return image;
-  // Ruta absoluta del backend (/uploads/...)
+  // Si no hay imagen o es inválida, usar placeholder de Unsplash
+  if (!image || image.trim() === "") {
+    return "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop";
+  }
+  
+  // URL absoluta (http/https) - usar directamente
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    return image;
+  }
+  
+  // Data URL - usar directamente
+  if (image.startsWith("data:")) {
+    return image;
+  }
+  
+  // Ruta absoluta del backend (/uploads/...) - construir URL completa
   if (image.startsWith("/")) {
-    // Si es ruta del backend, intentar usar directamente, si falla usar placeholder
     return `${API_BASE_URL}${image}`;
   }
-  // Nombre de archivo en assets
-  return asset(image);
+  
+  // Si es un nombre de archivo que no existe, usar placeholder
+  // Los accesorios en la BD pueden tener nombres como "lampara.png" que no existen
+  return "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop";
 }
 
 (async function loadAccessories() {

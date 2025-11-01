@@ -110,14 +110,18 @@ export const PlantsController = {
           code: error.code,
           message: error.message,
           details: error.details,
-          hint: error.hint
+          hint: error.hint,
+          plantData: {
+            ...plantData,
+            image: plantData.image ? (plantData.image.length > 100 ? `${plantData.image.substring(0, 100)}...` : plantData.image) : null
+          }
         });
         
-        // Mensajes de error más claros
-        if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum'))) {
+        // Mensajes de error más claros basados en el código de error
+        if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum') || error.message.includes('too long for type'))) {
           return res.status(400).json({ 
             success: false, 
-            message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<300KB)' 
+            message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<250KB)' 
           });
         }
         
@@ -128,9 +132,28 @@ export const PlantsController = {
           });
         }
         
+        if (error.code === '23502') { // Not null violation
+          return res.status(400).json({
+            success: false,
+            message: `Falta un campo requerido: ${error.details || 'campo desconocido'}`
+          });
+        }
+        
+        if (error.code === '23503') { // Foreign key violation
+          return res.status(400).json({
+            success: false,
+            message: 'El user_id o foundation_id no existe'
+          });
+        }
+        
+        // Error genérico con más detalles en desarrollo
+        const errorMessage = process.env.NODE_ENV === 'production' 
+          ? 'Error al guardar en la base de datos'
+          : `Error al guardar en la base de datos: ${error.message || 'Error desconocido'}`;
+        
         return res.status(500).json({
           success: false,
-          message: `Error al guardar en la base de datos: ${error.message || 'Error desconocido'}`
+          message: errorMessage
         });
       }
       
