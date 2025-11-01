@@ -91,17 +91,31 @@ function resolveAccessoryImage(image, accessoryName) {
     const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
     
     if (mappedName) {
-      // Usar ruta relativa desde Shop/app.js (../../src/assets/images/)
-      // Esto funciona tanto en desarrollo como en producción
-      const relativePath = `../../src/assets/images/${mappedName}`;
-      console.log(`Mapeando "${image}" a ${relativePath}`);
-      return relativePath;
+      // Construir ruta basada en la ubicación actual
+      // Si estamos en /client/screens/Shop, la ruta relativa ../../src/assets/images/ se resuelve a /client/src/assets/images/
+      // Pero mejor usar una ruta que funcione independientemente
+      const currentPath = window.location.pathname;
+      const isShopPage = currentPath.includes('/Shop');
+      
+      // Si estamos en Shop, usar ruta relativa
+      if (isShopPage) {
+        const relativePath = `../../src/assets/images/${mappedName}`;
+        console.log(`Mapeando "${image}" a ${relativePath} (desde ${currentPath})`);
+        return relativePath;
+      }
+      
+      // Fallback: ruta absoluta
+      const absolutePath = `/client/src/assets/images/${mappedName}`;
+      console.log(`Mapeando "${image}" a ${absolutePath}`);
+      return absolutePath;
     }
     
-    // Si no está en el mapa, intentar directamente con ruta relativa
-    const relativePath = `../../src/assets/images/${image}`;
-    console.log(`Intentando cargar imagen de accesorio desde assets: ${relativePath}`);
-    return relativePath;
+    // Si no está en el mapa, intentar directamente
+    const currentPath = window.location.pathname;
+    const isShopPage = currentPath.includes('/Shop');
+    const path = isShopPage ? `../../src/assets/images/${image}` : `/client/src/assets/images/${image}`;
+    console.log(`Intentando cargar imagen de accesorio desde assets: ${path}`);
+    return path;
   }
   
   // Si no es ninguno de los anteriores, usar placeholder
