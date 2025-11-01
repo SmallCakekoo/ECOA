@@ -60,6 +60,12 @@ export const PlantsController = {
   },
   create: async (req, res) => {
     try {
+      console.log('📥 Request recibido para crear planta:', {
+        bodyKeys: Object.keys(req.body),
+        hasName: !!req.body.name,
+        hasSpecies: !!req.body.species,
+        hasImage: !!req.body.image
+      });
       // Validar campos requeridos antes de crear el modelo
       if (!req.body.name || !req.body.name.trim()) {
         return res.status(400).json({ 
@@ -150,6 +156,9 @@ export const PlantsController = {
         if (!error.code && !error.message) {
           console.error('❌ Error completo sin código/mensaje:', JSON.stringify(error, null, 2));
         }
+        
+        // También loguear el error completo para debugging
+        console.error('❌ Error completo de Supabase:', error);
         
         // Mensajes de error más claros basados en el código de error
         if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum') || error.message.includes('too long for type'))) {

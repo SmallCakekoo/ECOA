@@ -43,24 +43,44 @@ window.goToShopFeedback = function () {
 };
 
 // Función helper para obtener la ruta base de assets
-// Usar ruta relativa igual que el HTML estático que SÍ funciona
+// Construir ruta absoluta desde la raíz del sitio
 function getAssetBasePath() {
-  // El HTML estático usa: ../../src/assets/images/accessory-1.png
-  // Esta ruta relativa funciona porque se resuelve desde la ubicación del HTML
-  return '../../src/assets/images/';
+  // Desde /client/screens/Shop/, necesitamos /client/src/assets/images/
+  // Construir ruta absoluta para que funcione en Vercel
+  return '/client/src/assets/images/';
 }
 
 // Función helper para construir URL de imagen
-// Usar rutas relativas igual que el HTML estático
 function buildImageUrl(imagePath) {
   // Si ya es una URL completa (http/https/data), retornar directamente
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
     return imagePath;
   }
   
-  // Para rutas relativas, retornarlas tal cual (igual que en HTML estático)
-  // El navegador las resolverá correctamente desde la ubicación del documento
-  return imagePath;
+  // Si es una ruta relativa (empieza con ../), convertirla a absoluta
+  if (imagePath.startsWith('../')) {
+    // Desde /client/screens/Shop/, ../../src/assets/images/ se resuelve a /client/src/assets/images/
+    const parts = imagePath.split('/').filter(p => p && p !== '.');
+    let levelsUp = 0;
+    let pathAfterUp = [];
+    for (const part of parts) {
+      if (part === '..') {
+        levelsUp++;
+      } else {
+        pathAfterUp.push(part);
+      }
+    }
+    // Construir ruta absoluta desde la raíz
+    return '/client/' + pathAfterUp.join('/');
+  }
+  
+  // Si ya es una ruta absoluta (empieza con /), retornarla tal cual
+  if (imagePath.startsWith('/')) {
+    return imagePath;
+  }
+  
+  // Si es un nombre de archivo simple, agregarlo a la ruta base
+  return getAssetBasePath() + imagePath;
 }
 
 // Cargar accesorios desde Supabase vía backend y renderizar
@@ -193,25 +213,10 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
-      // El problema es que las rutas relativas desde JS insertado dinámicamente
-      // se resuelven desde la URL actual, no desde el HTML
-      // Necesitamos construir una URL que funcione desde la ubicación del documento
+      // Usar exactamente la misma ruta relativa que funciona en el HTML estático
+      // El HTML usa: ../../src/assets/images/accessory-X.png y funciona
+      // Usar esa misma ruta directamente, sin modificarla
       let imageSrc = finalImg;
-      
-      // Si es una ruta relativa, construirla desde la ubicación del documento actual
-      if (finalImg && finalImg.startsWith('../../')) {
-        // Desde /client/screens/Shop/, ../../src/assets/images/ se resuelve a /src/assets/images/
-        // Necesitamos construir /client/src/assets/images/ manualmente
-        const pathParts = window.location.pathname.split('/').filter(p => p);
-        if (pathParts.length >= 2 && pathParts[0] === 'client') {
-          // Construir ruta absoluta correcta
-          imageSrc = '/client/src/assets/images/' + finalImg.split('/').pop();
-          console.log(`🔄 Corrigiendo ruta relativa: ${finalImg} -> ${imageSrc}`);
-        }
-      } else if (finalImg && finalImg.includes('/client/src/assets/images/')) {
-        // Ya es absoluta, pero verificar que tenga el dominio si es necesario
-        imageSrc = finalImg;
-      }
       
       // Construir HTML sin placeholder de Unsplash en onerror
       card.innerHTML = `
