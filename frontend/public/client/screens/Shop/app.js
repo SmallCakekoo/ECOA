@@ -201,21 +201,25 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
-      // Construir la URL correcta para las imágenes
-      // IMPORTANTE: El HTML estático funciona con rutas relativas ../../src/assets/images/
-      // pero cuando se inserta dinámicamente desde JavaScript, necesitamos la ruta absoluta
-      // La ruta absoluta en Vercel SIEMPRE debe ser /client/src/assets/images/
+      // Usar la misma ruta relativa que el HTML estático
+      // El HTML estático funciona con ../../src/assets/images/ porque se resuelve desde la ubicación del archivo
+      // Cuando insertamos HTML dinámicamente, el navegador resuelve las rutas relativas desde la URL actual del documento
+      // Por lo tanto, debemos usar la misma ruta relativa directamente, sin convertirla
       let imageSrc = finalImg;
       
-      if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
-        // Convertir cualquier ruta relativa o absoluta incorrecta a la ruta absoluta correcta
-        if (imageSrc.includes('assets/images/')) {
-          // Extraer el nombre del archivo
+      // Solo convertir si es necesario (rutas absolutas incorrectas), pero mantener rutas relativas como están
+      if (imageSrc && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:') && !imageSrc.startsWith('../')) {
+        // Si es una ruta absoluta incorrecta sin /client/, corregirla
+        if (imageSrc.startsWith('/src/assets/images/')) {
+          imageSrc = '/client' + imageSrc;
+          console.log(`🔧 Ruta absoluta corregida: ${finalImg} -> ${imageSrc}`);
+        }
+        // Si es una ruta con assets/images pero no es relativa ni absoluta correcta
+        else if (imageSrc.includes('assets/images/')) {
+          // Extraer nombre del archivo y construir ruta relativa
           const fileName = imageSrc.split('/').pop();
-          
-          // SIEMPRE usar la ruta absoluta correcta con /client/
-          imageSrc = '/client/src/assets/images/' + fileName;
-          console.log(`🔧 Ruta convertida: ${finalImg} -> ${imageSrc}`);
+          imageSrc = '../../src/assets/images/' + fileName;
+          console.log(`🔧 Ruta convertida a relativa: ${finalImg} -> ${imageSrc}`);
         }
       }
       
