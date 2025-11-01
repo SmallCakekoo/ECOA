@@ -57,6 +57,7 @@ function resolveAccessoryImage(image, accessoryName) {
     const accessoryLower = (accessoryName || "").toLowerCase();
     for (const [key, value] of Object.entries(nameMap)) {
       if (accessoryLower.includes(key)) {
+        // Usar ruta absoluta correcta
         const assetPath = `/client/src/assets/images/${value}`;
         console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
         return assetPath;
@@ -125,6 +126,7 @@ function resolveAccessoryImage(image, accessoryName) {
   const accessoryLower = (accessoryName || "").toLowerCase();
   for (const [key, value] of Object.entries(nameMap)) {
     if (accessoryLower.includes(key)) {
+      // Usar ruta absoluta correcta
       const assetPath = `/client/src/assets/images/${value}`;
       console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
       return assetPath;
