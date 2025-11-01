@@ -60,18 +60,35 @@ export const PlantsController = {
   },
   create: async (req, res) => {
     try {
+      console.log('📝 Creando planta con datos:', {
+        ...req.body,
+        image: req.body.image ? `${req.body.image.substring(0, 50)}...` : null
+      });
+      
       const plantData = createPlantModel(req.body);
+      console.log('✅ Modelo creado:', {
+        ...plantData,
+        image: plantData.image ? `${plantData.image.substring(0, 50)}...` : null
+      });
+      
       const { data, error } = await insertPlant(plantData);
-      if (error) throw error;
+      
+      if (error) {
+        console.error('❌ Error insertando en Supabase:', error);
+        throw error;
+      }
+      
       req.io?.emit("plant_created", {
         type: "plant_created",
         data,
         timestamp: new Date().toISOString(),
       });
+      
       return res
         .status(201)
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
+      console.error('❌ Error completo al crear planta:', error);
       return handleError(error, res);
     }
   },

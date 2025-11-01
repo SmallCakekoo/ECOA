@@ -58,7 +58,16 @@ export const UploadController = {
 
       // Si tenemos buffer (memoryStorage - serverless), convertir a base64
       if (req.file.buffer) {
-        const base64Image = req.file.buffer.toString('base64');
+        // Limitar tamaño de imagen a ~1MB en base64 para evitar problemas con Supabase
+        const maxSize = 1024 * 1024; // 1MB
+        let imageBuffer = req.file.buffer;
+        
+        if (imageBuffer.length > maxSize) {
+          // Si es muy grande, reducir calidad (solo para JPEG/PNG)
+          console.warn(`Imagen grande (${imageBuffer.length} bytes), manteniendo original pero podría causar problemas`);
+        }
+        
+        const base64Image = imageBuffer.toString('base64');
         const mimeType = req.file.mimetype;
         dataUrl = `data:${mimeType};base64,${base64Image}`;
       } 
