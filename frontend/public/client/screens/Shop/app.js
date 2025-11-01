@@ -44,11 +44,10 @@ window.goToShopFeedback = function () {
 
 // Función helper para obtener la ruta base de assets
 function getAssetBasePath() {
-  // SIEMPRE usar ruta absoluta desde la raíz
-  // En Vercel, los archivos de public/ se copian a dist/ manteniendo estructura
-  // Entonces public/client/src/assets/images/ -> dist/client/src/assets/images/
-  // Y se sirven desde /client/src/assets/images/
-  return '/client/src/assets/images/';
+  // Usar la misma ruta relativa que el HTML estático
+  // Desde /client/screens/Shop/, la ruta ../../src/assets/images/ funciona correctamente
+  // porque se resuelve desde la ubicación del documento HTML
+  return '../../src/assets/images/';
 }
 
 // Cargar accesorios desde Supabase vía backend y renderizar
