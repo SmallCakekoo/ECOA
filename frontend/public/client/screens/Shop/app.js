@@ -42,29 +42,43 @@ window.goToShopFeedback = function () {
   window.location.href = "/client/screens/ShopFeedback/success";
 };
 
+// Función helper para obtener la ruta base de assets
+function getAssetBasePath() {
+  // Desde /client/screens/Shop/, la ruta relativa ../../src/assets/images/ funciona
+  // Pero necesitamos construir una ruta absoluta que funcione en producción
+  const currentPath = window.location.pathname;
+  
+  // Si estamos en una ruta de Shop, usar ruta relativa que funciona
+  if (currentPath.includes('/Shop')) {
+    return '../../src/assets/images/';
+  }
+  
+  // Fallback: ruta absoluta desde la raíz
+  return '/client/src/assets/images/';
+}
+
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image, accessoryName) {
+  const basePath = getAssetBasePath();
+  
+  // Mapear nombre del accesorio a imagen de asset
+  const nameMap = {
+    "fertilizante": "accessory-3.png",
+    "lámpara": "accessory-1.png",
+    "lampara": "accessory-1.png",
+    "matera": "accessory-2.png"
+  };
+  
   // Si no hay imagen o es inválida, intentar mapear por nombre del accesorio
   if (!image || image.trim() === "") {
-    // Mapear nombre del accesorio a imagen de asset
-    const nameMap = {
-      "fertilizante": "accessory-3.png",
-      "lámpara": "accessory-1.png",
-      "lampara": "accessory-1.png",
-      "matera": "accessory-2.png"
-    };
-    
     const accessoryLower = (accessoryName || "").toLowerCase();
     for (const [key, value] of Object.entries(nameMap)) {
       if (accessoryLower.includes(key)) {
-        // Usar ruta absoluta correcta
-        const assetPath = `/client/src/assets/images/${value}`;
+        const assetPath = `${basePath}${value}`;
         console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
         return assetPath;
       }
     }
-    
-    // Si no hay coincidencia, devolver null para que no se muestre placeholder
     console.warn(`No se encontró imagen para accesorio: ${accessoryName}`);
     return null;
   }
@@ -87,7 +101,6 @@ function resolveAccessoryImage(image, accessoryName) {
   // Si es un nombre de archivo (ej: "fertilizante.png", "lampara.png", "matera.png")
   // intentar mapear a los assets del client
   if (image.includes(".") && !image.includes("/")) {
-    // Mapear nombres de BD a nombres de archivos en assets
     const imageNameMap = {
       "fertilizante.png": "accessory-3.png",
       "lampara.png": "accessory-1.png",
@@ -97,37 +110,27 @@ function resolveAccessoryImage(image, accessoryName) {
       "matera": "accessory-2.png"
     };
     
-    // Buscar en el mapa
     const fileName = image.toLowerCase();
     const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
     
     if (mappedName) {
-      // Usar ruta absoluta correcta desde la raíz del sitio
-      const absolutePath = `/client/src/assets/images/${mappedName}`;
-      console.log(`Mapeando "${image}" a ${absolutePath}`);
-      return absolutePath;
+      const assetPath = `${basePath}${mappedName}`;
+      console.log(`Mapeando "${image}" a ${assetPath}`);
+      return assetPath;
     }
     
     // Si no está en el mapa, intentar directamente
-    const absolutePath = `/client/src/assets/images/${image}`;
-    console.log(`Intentando cargar imagen de accesorio desde assets: ${absolutePath}`);
-    return absolutePath;
+    const assetPath = `${basePath}${image}`;
+    console.log(`Intentando cargar imagen de accesorio desde assets: ${assetPath}`);
+    return assetPath;
   }
   
   // Si no es ninguno de los anteriores, intentar mapear por nombre
   console.warn(`Accesorio con imagen "${image}" no es una URL válida, intentando mapear por nombre`);
-  const nameMap = {
-    "fertilizante": "accessory-3.png",
-    "lámpara": "accessory-1.png",
-    "lampara": "accessory-1.png",
-    "matera": "accessory-2.png"
-  };
-  
   const accessoryLower = (accessoryName || "").toLowerCase();
   for (const [key, value] of Object.entries(nameMap)) {
     if (accessoryLower.includes(key)) {
-      // Usar ruta absoluta correcta
-      const assetPath = `/client/src/assets/images/${value}`;
+      const assetPath = `${basePath}${value}`;
       console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
       return assetPath;
     }
