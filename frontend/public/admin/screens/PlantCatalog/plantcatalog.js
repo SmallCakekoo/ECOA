@@ -304,18 +304,81 @@ function setupPlantForm() {
       if (!file) return;
 
       try {
-        // Leer el archivo como data URL directamente (no subir al servidor)
-        // Esto garantiza que tenemos la imagen completa para enviar a la BD
+        // Comprimir la imagen antes de convertirla a data URL
+        // Límite: 250KB en data URL (~187KB original)
+        const maxDataUrlSize = 250 * 1024; // 250KB
+        
         const reader = new FileReader();
         reader.onload = (e) => {
-          const dataUrl = e.target.result;
-          overlayPreview.src = dataUrl;
-          overlayPreview.style.display = "block";
-          const inner = overlayUpload.querySelector(".upload-inner");
-          if (inner) inner.style.display = "none";
-          // Guardar el data URL en un atributo del preview para usarlo después
-          overlayPreview.setAttribute('data-image-url', dataUrl);
-          console.log('✅ Plant Catalog - Imagen cargada como data URL, tamaño:', Math.round(dataUrl.length / 1024), 'KB');
+          const img = new Image();
+          img.onload = () => {
+            // Crear canvas para comprimir
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calcular dimensiones manteniendo aspecto
+            let width = img.width;
+            let height = img.height;
+            const maxDimension = 800; // Máximo 800px en la dimensión más grande
+            
+            if (width > height && width > maxDimension) {
+              height = (height * maxDimension) / width;
+              width = maxDimension;
+            } else if (height > maxDimension) {
+              width = (width * maxDimension) / height;
+              height = maxDimension;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Dibujar imagen redimensionada
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convertir a data URL con calidad ajustada
+            let quality = 0.9;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            
+            // Si aún es muy grande, reducir calidad gradualmente
+            while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
+              quality -= 0.1;
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+              console.log(`🔄 Comprimiendo imagen, calidad: ${quality.toFixed(1)}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+            }
+            
+            // Si sigue siendo muy grande después de comprimir, usar PNG
+            if (dataUrl.length > maxDataUrlSize) {
+              dataUrl = canvas.toDataURL('image/png');
+              // Si PNG también es muy grande, reducir dimensiones más
+              if (dataUrl.length > maxDataUrlSize) {
+                const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
+                canvas.width = Math.round(width * scale);
+                canvas.height = Math.round(height * scale);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+              }
+            }
+            
+            if (dataUrl.length > maxDataUrlSize) {
+              console.warn(`⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(dataUrl.length / 1024)}KB`);
+              showNotification("La imagen es muy grande. Se guardará sin imagen.", "warning");
+              dataUrl = null;
+            } else {
+              console.log(`✅ Plant Catalog - Imagen comprimida, tamaño final: ${Math.round(dataUrl.length / 1024)}KB`);
+            }
+            
+            overlayPreview.src = dataUrl || '/placeholder.png';
+            overlayPreview.style.display = "block";
+            const inner = overlayUpload.querySelector(".upload-inner");
+            if (inner) inner.style.display = "none";
+            // Guardar el data URL en un atributo del preview para usarlo después
+            overlayPreview.setAttribute('data-image-url', dataUrl || '');
+          };
+          img.onerror = () => {
+            console.error("Error cargando imagen para compresión");
+            showNotification("Error al procesar la imagen", "error");
+          };
+          img.src = e.target.result;
         };
         reader.onerror = (error) => {
           console.error("Error leyendo archivo:", error);
