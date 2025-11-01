@@ -43,10 +43,11 @@ window.goToShopFeedback = function () {
 };
 
 // Función helper para obtener la ruta base de assets
+// Debe usar la misma ruta relativa que el HTML estático: ../../src/assets/images/
 function getAssetBasePath() {
-  // SIEMPRE usar ruta absoluta desde la raíz del sitio
-  // Las rutas relativas fallan porque se resuelven desde la URL de la página, no del archivo JS
-  return '/client/src/assets/images/';
+  // Usar ruta relativa desde la ubicación del HTML actual
+  // Desde /client/screens/Shop/, ../../src/assets/images/ funciona correctamente
+  return '../../src/assets/images/';
 }
 
 // Cargar accesorios desde Supabase vía backend y renderizar
