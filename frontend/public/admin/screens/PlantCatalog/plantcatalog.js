@@ -403,10 +403,11 @@ function setupPlantForm() {
 }
 
 async function createPlant() {
+  // CÓDIGO EXACTO DE DASHBOARD - Solo cambiando IDs del DOM
   const form = document.getElementById("overlayPlantForm");
   const formData = new FormData(form);
 
-  // Obtener la imagen subida (data URL) - código exacto de Dashboard
+  // Obtener la imagen subida (data URL)
   const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
   let imageUrl = null;
   
@@ -416,12 +417,12 @@ async function createPlant() {
     const dataImageUrl = overlayPhotoPreview.getAttribute('data-image-url');
     if (dataImageUrl && dataImageUrl.startsWith("data:")) {
       imageUrl = dataImageUrl;
-      console.log("✅ Plant Catalog - Imagen obtenida del atributo data-image-url");
+      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
     } 
     // Si no está en el atributo, usar el src si es data URL
     else if (overlayPhotoPreview.src && overlayPhotoPreview.src.startsWith("data:")) {
       imageUrl = overlayPhotoPreview.src;
-      console.log("✅ Plant Catalog - Imagen obtenida del src (data URL)");
+      console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
     }
     // Si el src no es data URL, verificar que no sea placeholder
     else if (overlayPhotoPreview.src && 
@@ -431,18 +432,18 @@ async function createPlant() {
              !overlayPhotoPreview.src.includes("placeholder") && 
              !overlayPhotoPreview.src.includes("upgrade_access.jpg")) {
       imageUrl = overlayPhotoPreview.src;
-      console.log("✅ Plant Catalog - Imagen obtenida del src (URL)");
+      console.log("✅ Dashboard - Imagen obtenida del src (URL)");
     }
     
     if (imageUrl) {
-      console.log("🔍 Plant Catalog - Imagen validada:", { 
+      console.log("🔍 Dashboard - Imagen validada:", { 
         hasImage: true, 
         isDataUrl: imageUrl.startsWith("data:"),
         imageLength: imageUrl.length,
         imagePreview: imageUrl.substring(0, 50) + "..."
       });
     } else {
-      console.warn("⚠️ Plant Catalog - No se encontró imagen válida en el preview");
+      console.warn("⚠️ Dashboard - No se encontró imagen válida en el preview");
     }
   }
 
@@ -462,6 +463,12 @@ async function createPlant() {
 
     if (result.success) {
       showNotification("Planta creada exitosamente", "success");
+      form.reset();
+      document.getElementById("overlayPhotoPreview").style.display = "none";
+      const uploadInner = document.querySelector("#overlayUpload .upload-inner");
+      if (uploadInner) uploadInner.style.display = "block";
+
+      // Recargar datos
       closeOverlay();
       await loadPlants();
     }
