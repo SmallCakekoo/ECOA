@@ -355,15 +355,15 @@ async function createPlant() {
     console.log("🔍 Plant Catalog - Imagen validada:", { src, imageUrl, isDataUrl: src?.startsWith("data:") });
   }
 
-  const plantData = {
-    user_id: 1, // Por ahora hardcodeado
-    name: formData.get("plantName"),
-    species: formData.get("species"),
-    description: formData.get("description"),
-    image: imageUrl,
-    // No enviar campos que no existen en la tabla plants
-    // status, health_status, water_level, etc. van en otras tablas relacionadas
-  };
+      const plantData = {
+        user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
+        name: formData.get("plantName"),
+        species: formData.get("species"),
+        description: formData.get("description"),
+        image: imageUrl,
+        // No enviar campos que no existen en la tabla plants
+        // status, health_status, water_level, etc. van en otras tablas relacionadas
+      };
 
   try {
     showFormLoading(true);

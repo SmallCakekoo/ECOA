@@ -126,6 +126,11 @@ export const PlantsController = {
           }
         });
         
+        // Si es un error de tipo desconocido, loguear el objeto completo
+        if (!error.code && !error.message) {
+          console.error('❌ Error completo sin código/mensaje:', JSON.stringify(error, null, 2));
+        }
+        
         // Mensajes de error más claros basados en el código de error
         if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum') || error.message.includes('too long for type'))) {
           return res.status(400).json({ 

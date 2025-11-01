@@ -364,7 +364,7 @@ async function createPlant() {
   }
 
   const plantData = {
-    user_id: 1, // Por ahora hardcodeado, en producción sería el ID del admin
+    user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
