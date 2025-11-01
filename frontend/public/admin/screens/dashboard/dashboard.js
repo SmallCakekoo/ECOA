@@ -341,10 +341,20 @@ async function createPlant() {
 
   // Obtener la URL de la imagen subida
   const photoPreview = document.getElementById("photoPreview");
-  const imageUrl =
-    photoPreview && photoPreview.src && photoPreview.src !== ""
-      ? photoPreview.src
-      : null;
+  let imageUrl = null;
+  
+  // Validar que la imagen preview sea válida y no sea un placeholder/mock
+  if (photoPreview && photoPreview.style.display !== "none" && photoPreview.src) {
+    const src = photoPreview.src;
+    // Verificar que no sea una URL de placeholder o mock
+    if (src && 
+        src !== "" && 
+        !src.includes("unsplash.com/photo-1506905925346") && 
+        !src.includes("placeholder") &&
+        !src.includes("upgrade_access.jpg")) {
+      imageUrl = src;
+    }
+  }
 
   const plantData = {
     user_id: 1, // Por ahora hardcodeado, en producción sería el ID del admin

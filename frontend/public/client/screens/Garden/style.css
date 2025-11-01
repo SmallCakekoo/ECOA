@@ -122,6 +122,7 @@ body {
     object-fit: contain;
     z-index: 2;
     pointer-events: none;
+    border-radius: 15px;
 }
 
 .card-overlay {

@@ -73,8 +73,16 @@ function resolveAccessoryImage(image, accessoryName) {
     return `${API_BASE_URL}${image}`;
   }
   
-  // Intentar como nombre de archivo local - NO usar esto, solo para debug
-  // Si llega aquí, es un nombre de archivo que probablemente no existe
+  // Si es un nombre de archivo (ej: "fertilizante.png", "lampara.png", "matera.png")
+  // intentar cargar desde los assets del client
+  if (image.includes(".") && !image.includes("/")) {
+    // Es probablemente un nombre de archivo como "fertilizante.png"
+    const assetPath = `/client/src/assets/images/${image}`;
+    console.log(`Intentando cargar imagen de accesorio desde assets: ${assetPath}`);
+    return assetPath;
+  }
+  
+  // Si no es ninguno de los anteriores, usar placeholder
   console.warn(`Accesorio con imagen "${image}" no es una URL válida, usando placeholder`);
   const hash = accessoryName ? accessoryName.charCodeAt(0) % 5 : 0;
   const placeholders = [

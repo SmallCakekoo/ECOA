@@ -663,7 +663,7 @@ body {
 .plant-image img {
   width: 40px;
   height: 40px;
-  border-radius: 6px;
+  border-radius: 10px;
   object-fit: cover;
   display: block;
 }

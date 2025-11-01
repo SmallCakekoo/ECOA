@@ -330,12 +330,29 @@ async function createPlant() {
   const form = document.getElementById("overlayPlantForm");
   const formData = new FormData(form);
 
+  // Obtener la URL de la imagen subida con validación
+  const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
+  let imageUrl = null;
+  
+  // Validar que la imagen preview sea válida y no sea un placeholder/mock
+  if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none" && overlayPhotoPreview.src) {
+    const src = overlayPhotoPreview.src;
+    // Verificar que no sea una URL de placeholder o mock
+    if (src && 
+        src !== "" && 
+        !src.includes("unsplash.com/photo-1506905925346") && 
+        !src.includes("placeholder") &&
+        !src.includes("upgrade_access.jpg")) {
+      imageUrl = src;
+    }
+  }
+
   const plantData = {
     user_id: 1, // Por ahora hardcodeado
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
-    image: document.getElementById("overlayPhotoPreview").src || null,
+    image: imageUrl,
     // No enviar campos que no existen en la tabla plants
     // status, health_status, water_level, etc. van en otras tablas relacionadas
   };
