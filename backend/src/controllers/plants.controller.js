@@ -221,9 +221,17 @@ export const PlantsController = {
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
       console.error('❌ Error completo al crear planta:', error);
+      console.error('❌ Tipo de error:', typeof error);
+      console.error('❌ Error es instancia de Error:', error instanceof Error);
       // Si es un error de sintaxis o otro error no relacionado con Supabase
       if (error.stack) {
         console.error('Stack trace:', error.stack);
+      }
+      // Intentar serializar el error para ver todos sus campos
+      try {
+        console.error('❌ Error serializado:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      } catch (e) {
+        console.error('❌ No se pudo serializar el error:', e);
       }
       return handleError(error, res);
     }
