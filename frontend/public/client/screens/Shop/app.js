@@ -44,18 +44,28 @@ window.goToShopFeedback = function () {
 
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image, accessoryName) {
-  // Si no hay imagen o es inválida, usar placeholder basado en el nombre
+  // Si no hay imagen o es inválida, intentar mapear por nombre del accesorio
   if (!image || image.trim() === "") {
-    // Placeholder único basado en el nombre del accesorio
-    const hash = accessoryName ? accessoryName.charCodeAt(0) % 5 : 0;
-    const placeholders = [
-      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop", // Plant
-      "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400&h=400&fit=crop", // Lamp
-      "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=400&h=400&fit=crop", // Pot
-      "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400&h=400&fit=crop", // Fertilizer
-      "https://images.unsplash.com/photo-1598880940080-ff9a29891b85?w=400&h=400&fit=crop"  // Tool
-    ];
-    return placeholders[hash];
+    // Mapear nombre del accesorio a imagen de asset
+    const nameMap = {
+      "fertilizante": "accessory-3.png",
+      "lámpara": "accessory-1.png",
+      "lampara": "accessory-1.png",
+      "matera": "accessory-2.png"
+    };
+    
+    const accessoryLower = (accessoryName || "").toLowerCase();
+    for (const [key, value] of Object.entries(nameMap)) {
+      if (accessoryLower.includes(key)) {
+        const assetPath = `/client/src/assets/images/${value}`;
+        console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
+        return assetPath;
+      }
+    }
+    
+    // Si no hay coincidencia, devolver null para que no se muestre placeholder
+    console.warn(`No se encontró imagen para accesorio: ${accessoryName}`);
+    return null;
   }
   
   // URL absoluta (http/https) - usar directamente
@@ -91,44 +101,39 @@ function resolveAccessoryImage(image, accessoryName) {
     const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
     
     if (mappedName) {
-      // Construir ruta basada en la ubicación actual
-      // Si estamos en /client/screens/Shop, la ruta relativa ../../src/assets/images/ se resuelve a /client/src/assets/images/
-      // Pero mejor usar una ruta que funcione independientemente
-      const currentPath = window.location.pathname;
-      const isShopPage = currentPath.includes('/Shop');
-      
-      // Si estamos en Shop, usar ruta relativa
-      if (isShopPage) {
-        const relativePath = `../../src/assets/images/${mappedName}`;
-        console.log(`Mapeando "${image}" a ${relativePath} (desde ${currentPath})`);
-        return relativePath;
-      }
-      
-      // Fallback: ruta absoluta
+      // Usar ruta absoluta correcta desde la raíz del sitio
       const absolutePath = `/client/src/assets/images/${mappedName}`;
       console.log(`Mapeando "${image}" a ${absolutePath}`);
       return absolutePath;
     }
     
     // Si no está en el mapa, intentar directamente
-    const currentPath = window.location.pathname;
-    const isShopPage = currentPath.includes('/Shop');
-    const path = isShopPage ? `../../src/assets/images/${image}` : `/client/src/assets/images/${image}`;
-    console.log(`Intentando cargar imagen de accesorio desde assets: ${path}`);
-    return path;
+    const absolutePath = `/client/src/assets/images/${image}`;
+    console.log(`Intentando cargar imagen de accesorio desde assets: ${absolutePath}`);
+    return absolutePath;
   }
   
-  // Si no es ninguno de los anteriores, usar placeholder
-  console.warn(`Accesorio con imagen "${image}" no es una URL válida, usando placeholder`);
-  const hash = accessoryName ? accessoryName.charCodeAt(0) % 5 : 0;
-  const placeholders = [
-    "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1598880940080-ff9a29891b85?w=400&h=400&fit=crop"
-  ];
-  return placeholders[hash];
+  // Si no es ninguno de los anteriores, intentar mapear por nombre
+  console.warn(`Accesorio con imagen "${image}" no es una URL válida, intentando mapear por nombre`);
+  const nameMap = {
+    "fertilizante": "accessory-3.png",
+    "lámpara": "accessory-1.png",
+    "lampara": "accessory-1.png",
+    "matera": "accessory-2.png"
+  };
+  
+  const accessoryLower = (accessoryName || "").toLowerCase();
+  for (const [key, value] of Object.entries(nameMap)) {
+    if (accessoryLower.includes(key)) {
+      const assetPath = `/client/src/assets/images/${value}`;
+      console.log(`Mapeando por nombre "${accessoryName}" a ${assetPath}`);
+      return assetPath;
+    }
+  }
+  
+  // Si nada funciona, devolver null (no mostrar imagen)
+  console.warn(`No se pudo resolver imagen para accesorio: ${accessoryName}`);
+  return null;
 }
 
 (async function loadAccessories() {
@@ -145,10 +150,14 @@ function resolveAccessoryImage(image, accessoryName) {
       const img = resolveAccessoryImage(acc.image, acc.name);
       const card = document.createElement("div");
       card.className = "shop-card";
-      const placeholderImg = resolveAccessoryImage(null, acc.name);
+      
+      // Si no hay imagen, intentar mapear por nombre directamente
+      const finalImg = img || resolveAccessoryImage(null, acc.name);
+      
+      // Construir HTML sin placeholder de Unsplash en onerror
       card.innerHTML = `
         <div class="shop-image">
-          <img src="${img}" alt="${acc.name}" onerror="this.onerror=null; this.src='${placeholderImg}'" />
+          ${finalImg ? `<img src="${finalImg}" alt="${acc.name}" onerror="console.error('Error cargando imagen:', '${finalImg}'); this.style.display='none';" />` : '<div style="width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>'}
         </div>
         <div class="shop-info">
           <div class="shop-title">${acc.name}</div>
