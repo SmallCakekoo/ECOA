@@ -46,18 +46,31 @@ export const UploadController = {
   // Endpoint para subir imagen
   uploadImage: async (req, res) => {
     try {
-      // En ambientes serverless devolvemos una URL pública mock sin escribir a disco
-      const filename = req.file?.originalname || `plant-${Date.now()}.jpg`;
-      const publicUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se proporcionó ningún archivo'
+        });
+      }
+
+      // Convertir la imagen a base64 para guardarla en la BD
+      // Esto funciona tanto en serverless como en local
+      const imageBuffer = req.file.buffer;
+      const base64Image = imageBuffer.toString('base64');
+      const mimeType = req.file.mimetype;
+      const dataUrl = `data:${mimeType};base64,${base64Image}`;
+
+      const filename = req.file.originalname || `plant-${Date.now()}.jpg`;
+
       return res.status(200).json({
         success: true,
         message: 'Imagen subida exitosamente',
         data: {
           filename,
-          originalName: filename,
-          size: req.file?.size || 0,
-          url: publicUrl,
-          fullUrl: publicUrl,
+          originalName: req.file.originalname,
+          size: req.file.size,
+          url: dataUrl,
+          fullUrl: dataUrl,
         }
       });
     } catch (error) {
