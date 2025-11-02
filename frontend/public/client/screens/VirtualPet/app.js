@@ -190,6 +190,10 @@ window.goToShopError = function () {
 
 // Función para el botón View More (expuesta globalmente)
 window.goToShop = function () {
-  console.log("Navegando a Shop");
-  window.location.href = "/client/screens/Shop";
+  console.log("Navegando a Shop con planta:", plantId);
+  if (plantId) {
+    window.location.href = `/client/screens/Shop?id=${plantId}`;
+  } else {
+    window.location.href = "/client/screens/Shop";
+  }
 };

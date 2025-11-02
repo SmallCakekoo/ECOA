@@ -1,4 +1,10 @@
 const API_BASE_URL = "https://ecoa-backend-three.vercel.app";
+const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
+
+// Obtener el ID de la planta desde la URL
+const params = new URLSearchParams(window.location.search);
+const plantId = params.get("id");
+
 // Actualizar la hora actual
 function updateTime() {
   const now = new Date();
@@ -15,6 +21,33 @@ updateTime();
 
 // Actualizar la hora cada minuto
 setInterval(updateTime, 60000);
+
+// Cargar datos de la planta si hay plant_id en la URL
+(async function loadPlantData() {
+  if (!plantId) {
+    console.warn("No plant ID provided in URL");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/plants/${plantId}`);
+    const { success, data: plant } = await response.json();
+
+    if (success && plant) {
+      // Actualizar título y nombre en el DOM
+      document.title = `Shop - ${plant.name}`;
+      const headerTitle = document.querySelector(".header-title");
+      if (headerTitle) {
+        headerTitle.textContent = plant.name;
+      }
+      console.log("✅ Datos de planta cargados:", plant.name);
+    } else {
+      console.warn("No se encontró la planta con ID:", plantId);
+    }
+  } catch (error) {
+    console.error("Error loading plant data:", error);
+  }
+})();
 
 // Función para volver atrás (expuesta globalmente)
 window.goBack = function () {
@@ -39,7 +72,11 @@ window.goToProfile = function (event) {
 
 // Función para ir a Shop Feedback Success (expuesta globalmente)
 window.goToShopFeedback = function () {
-  window.location.href = "/client/screens/ShopFeedback/success";
+  if (plantId) {
+    window.location.href = `/client/screens/ShopFeedback/success?id=${plantId}`;
+  } else {
+    window.location.href = "/client/screens/ShopFeedback/success";
+  }
 };
 
 // Función helper para obtener la ruta base de assets
