@@ -23,7 +23,7 @@ updateTime();
 setInterval(updateTime, 60000);
 
 // Cargar datos de la planta si hay plant_id en la URL
-(async function loadPlantData() {
+async function loadPlantData() {
   const headerTitle = document.querySelector(".header-title");
   
   if (!plantId) {
@@ -58,6 +58,15 @@ setInterval(updateTime, 60000);
   } catch (error) {
     console.error("Error loading plant data:", error);
   }
+}
+
+// Cargar primero la información de la planta y luego los accesorios
+(async function initializeShop() {
+  // Cargar datos de la planta primero
+  await loadPlantData();
+  
+  // Luego cargar accesorios
+  await loadAccessories();
 })();
 
 // Función para volver atrás (expuesta globalmente)
@@ -168,21 +177,21 @@ function buildImageUrl(imagePath) {
 
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image, accessoryName) {
-  // Función helper para construir ruta correcta de imagen
+  // Función helper para construir ruta correcta de imagen usando new URL()
   const getImagePath = (imageName) => {
-    // Construir ruta absoluta usando la ubicación actual
-    const currentPath = window.location.pathname;
-    // Si estamos en /client/screens/Shop/, subir 2 niveles y entrar a src/assets/images/
-    if (currentPath.includes('/client/screens/')) {
-      // Construir URL absoluta correcta
+    try {
+      // Usar new URL() para resolver la ruta relativa desde la URL actual
       const baseUrl = new URL(window.location.href);
-      // Obtener el directorio base (/client/)
-      const pathParts = currentPath.split('/').filter(p => p && p !== 'screens' && p !== 'Shop');
-      const clientBase = '/' + pathParts.join('/') + '/src/assets/images/';
-      return clientBase + imageName;
+      // Construir la ruta relativa desde /client/screens/Shop/ a /client/src/assets/images/
+      const relativePath = '../../src/assets/images/' + imageName;
+      const resolvedUrl = new URL(relativePath, baseUrl);
+      // Retornar el pathname (la parte de la ruta sin el dominio)
+      return resolvedUrl.pathname;
+    } catch (e) {
+      // Si falla, usar ruta relativa directamente
+      console.warn('Error construyendo ruta de imagen, usando relativa:', e);
+      return `../../src/assets/images/${imageName}`;
     }
-    // Fallback: usar ruta relativa
-    return `../../src/assets/images/${imageName}`;
   };
 
   // Mapear nombre del accesorio a imagen de asset
@@ -270,7 +279,7 @@ function resolveAccessoryImage(image, accessoryName) {
   return null;
 }
 
-(async function loadAccessories() {
+async function loadAccessories() {
   try {
     console.log("🔍 Cargando accesorios desde:", `${API_BASE_URL}/accessories`);
     const res = await fetch(`${API_BASE_URL}/accessories`);
@@ -348,4 +357,4 @@ function resolveAccessoryImage(image, accessoryName) {
       container.innerHTML = `<div style="padding: 20px; text-align: center; color: red;">Error al cargar accesorios: ${e.message}</div>`;
     }
   }
-})();
+}
