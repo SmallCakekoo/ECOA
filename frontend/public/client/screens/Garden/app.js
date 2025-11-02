@@ -102,19 +102,42 @@ const plantsGrid = document.getElementById("plantsGrid");
   if (!success) return;
 
   const promises = plants.map(async (plant, index) => {
-    const res = await fetch(`${API_BASE_URL}/plant_stats/${plant.id}`);
-    const { data: plantMetrics = {} } = await res.json();
+    try {
+      // Usar query params para buscar por plant_id y obtener el más reciente
+      const res = await fetch(`${API_BASE_URL}/plant_stats?plant_id=${plant.id}`);
+      
+      let plantMetrics = {};
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && result.data && result.data.length > 0) {
+          // Tomar el más reciente (ya viene ordenado por fecha descendente)
+          plantMetrics = result.data[0];
+        }
+      }
+      
+      const card = createPlantCard(
+        {
+          ...plant,
+          soil_moisture: plantMetrics.soil_moisture || 0,
+          light: plantMetrics.light || 0,
+        },
+        index
+      );
 
-    const card = createPlantCard(
-      {
-        ...plant,
-        soil_moisture: plantMetrics.soil_moisture || 0,
-        light: plantMetrics.light || 0,
-      },
-      index
-    );
-
-    plantsGrid.appendChild(card);
+      plantsGrid.appendChild(card);
+    } catch (error) {
+      console.error(`Error loading stats for plant ${plant.id}:`, error);
+      // Crear la tarjeta sin métricas si falla
+      const card = createPlantCard(
+        {
+          ...plant,
+          soil_moisture: 0,
+          light: 0,
+        },
+        index
+      );
+      plantsGrid.appendChild(card);
+    }
   });
 
   await Promise.allSettled(promises);
