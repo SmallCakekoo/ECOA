@@ -178,9 +178,11 @@ function buildImageUrl(imagePath) {
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image, accessoryName) {
   // Función helper para construir ruta correcta de imagen
+  // Usar ruta relativa igual que el HTML estático que funciona
   const getImagePath = (imageName) => {
-    // Construir ruta absoluta manualmente - las imágenes están en /client/src/assets/images/
-    return `/client/src/assets/images/${imageName}`;
+    // Ruta relativa desde /client/screens/Shop/ a /client/src/assets/images/
+    // Igual que en el HTML: ../../src/assets/images/nombre.png
+    return `../../src/assets/images/${imageName}`;
   };
 
   // Mapear nombre del accesorio a imagen de asset
@@ -320,11 +322,13 @@ async function loadAccessories() {
       let imageSrc = finalImg;
 
       // Construir HTML sin placeholder de Unsplash en onerror
+      // Usar ruta relativa exacta como en el HTML estático
+      const imagePath = imageSrc || `../../src/assets/images/${mappedName || 'accessory-1.png'}`;
       card.innerHTML = `
         <div class="shop-image">
           ${
             imageSrc
-              ? `<img src="${imageSrc}" alt="${acc.name}" onerror="console.error('Error cargando imagen:', '${imageSrc}'); this.style.display='none';" />`
+              ? `<img src="${imageSrc}" alt="${acc.name}" onerror="console.error('Error cargando imagen:', this.src); this.src='../../src/assets/images/accessory-1.png';" />`
               : '<div style="width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;">Sin imagen</div>'
           }
         </div>
