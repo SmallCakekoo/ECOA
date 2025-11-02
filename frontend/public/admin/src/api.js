@@ -1,9 +1,10 @@
 // Servicio de API para el panel de administración
 class AdminAPI {
   constructor() {
-    this.baseURL =
-      window.AdminConfig?.API_BASE_URL ||
-      "https://ecoa-backend-three.vercel.app/";
+    const baseURL = window.AdminConfig?.API_BASE_URL ||
+      "https://ecoa-backend-three.vercel.app";
+    // Asegurar que baseURL no termine con /
+    this.baseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
     this.token = localStorage.getItem(
       window.AdminConfig?.AUTH?.TOKEN_KEY || "admin_token"
     );
@@ -11,7 +12,9 @@ class AdminAPI {
 
   // Método genérico para hacer peticiones
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
+    // Asegurar que endpoint comience con /
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${this.baseURL}${cleanEndpoint}`;
     const config = {
       headers: {
         "Content-Type": "application/json",
