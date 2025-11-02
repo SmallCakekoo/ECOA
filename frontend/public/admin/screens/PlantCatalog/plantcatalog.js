@@ -309,8 +309,8 @@ function setupPlantForm() {
 
       try {
         // Comprimir la imagen antes de convertirla a data URL
-        // Límite: 250KB en data URL (~187KB original)
-        const maxDataUrlSize = 250 * 1024; // 250KB
+        // Límite: 150KB en data URL para evitar problemas con Supabase
+        const maxDataUrlSize = 150 * 1024; // 150KB
         
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -455,11 +455,19 @@ async function createPlant() {
     user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
     name: formData.get("plantName"),
     species: formData.get("species"),
-    description: formData.get("description"),
-    image: imageUrl,
+    description: formData.get("description") || null,
+    image: imageUrl || null, // Asegurar null si no hay imagen
     // No enviar campos que no existen en la tabla plants
     // status, health_status, water_level, etc. van en otras tablas relacionadas
   };
+
+  console.log("📤 Plant Catalog - Datos a enviar:", {
+    name: plantData.name,
+    species: plantData.species,
+    hasDescription: !!plantData.description,
+    hasImage: !!plantData.image,
+    imageSize: plantData.image ? Math.round(plantData.image.length / 1024) + "KB" : "null"
+  });
 
   try {
     showFormLoading(true);

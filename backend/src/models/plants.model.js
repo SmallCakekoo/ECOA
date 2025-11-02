@@ -16,20 +16,21 @@ export function createPlantModel(payload) {
     throw new Error("name y species son requeridos");
   }
 
-  // Limitar tamaño de imagen a 250KB en base64 (~187KB original)
-  // Si la imagen es muy grande, guardar null para evitar errores en Supabase
+  // Limitar tamaño de imagen a 150KB en base64 para evitar problemas con Supabase
+  // Si la imagen es muy grande, guardar null para evitar errores
   let imageValue = image || null;
   if (imageValue && typeof imageValue === 'string' && imageValue.trim() !== '') {
-    // Si es data URL, validar tamaño básico
+    // Si es data URL, validar tamaño más restrictivo
     if (imageValue.startsWith('data:')) {
-      // Limitar el string completo a ~250KB para evitar problemas con Supabase TEXT
-      const maxDataUrlLength = 250 * 1024; // ~250KB de data URL
+      // Reducir límite a 150KB para evitar problemas con Supabase TEXT
+      const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
       
       if (imageValue.length > maxDataUrlLength) {
         console.warn(`⚠️ Imagen muy grande (${Math.round(imageValue.length / 1024)}KB), guardando null para evitar error en BD`);
         imageValue = null;
+      } else {
+        console.log(`✅ Imagen validada: ${Math.round(imageValue.length / 1024)}KB`);
       }
-      // Si pasa el tamaño, usar tal cual (no validar formato estricto para evitar falsos negativos)
     }
     // Si es URL externa o relativa, usar tal cual si no está vacía
   } else if (typeof imageValue === 'string' && imageValue.trim() === '') {

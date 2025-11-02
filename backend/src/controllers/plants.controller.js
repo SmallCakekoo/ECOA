@@ -100,10 +100,27 @@ export const PlantsController = {
         name: plantData.name,
         species: plantData.species,
         hasImage: !!plantData.image,
-        imageLength: plantData.image ? plantData.image.length : 0
+        imageLength: plantData.image ? plantData.image.length : 0,
+        keys: Object.keys(plantData),
+        plantDataValues: {
+          ...plantData,
+          image: plantData.image ? `[data URL de ${Math.round(plantData.image.length / 1024)}KB]` : null
+        }
       });
       
+      console.log('📤 Intentando insertar en Supabase...');
       const { data, error } = await insertPlant(plantData);
+      
+      if (error) {
+        console.error('❌ Error inmediato de Supabase:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+      } else {
+        console.log('✅ Inserción exitosa en Supabase');
+      }
       
       if (error) {
         // Log completo del error para debugging
