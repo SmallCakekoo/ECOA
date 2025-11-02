@@ -417,12 +417,12 @@ async function createPlant() {
     const dataImageUrl = overlayPhotoPreview.getAttribute('data-image-url');
     if (dataImageUrl && dataImageUrl.startsWith("data:")) {
       imageUrl = dataImageUrl;
-      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
+      console.log("✅ Plant Catalog - Imagen obtenida del atributo data-image-url");
     } 
     // Si no está en el atributo, usar el src si es data URL
     else if (overlayPhotoPreview.src && overlayPhotoPreview.src.startsWith("data:")) {
       imageUrl = overlayPhotoPreview.src;
-      console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
+      console.log("✅ Plant Catalog - Imagen obtenida del src (data URL)");
     }
     // Si el src no es data URL, verificar que no sea placeholder
     else if (overlayPhotoPreview.src && 
@@ -432,18 +432,18 @@ async function createPlant() {
              !overlayPhotoPreview.src.includes("placeholder") && 
              !overlayPhotoPreview.src.includes("upgrade_access.jpg")) {
       imageUrl = overlayPhotoPreview.src;
-      console.log("✅ Dashboard - Imagen obtenida del src (URL)");
+      console.log("✅ Plant Catalog - Imagen obtenida del src (URL)");
     }
     
     if (imageUrl) {
-      console.log("🔍 Dashboard - Imagen validada:", { 
+      console.log("🔍 Plant Catalog - Imagen validada:", { 
         hasImage: true, 
         isDataUrl: imageUrl.startsWith("data:"),
         imageLength: imageUrl.length,
         imagePreview: imageUrl.substring(0, 50) + "..."
       });
     } else {
-      console.warn("⚠️ Dashboard - No se encontró imagen válida en el preview");
+      console.warn("⚠️ Plant Catalog - No se encontró imagen válida en el preview");
     }
   }
 
@@ -605,7 +605,7 @@ function showFormLoading(show = true) {
       submitBtn.style.opacity = "0.7";
     } else {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = "Crear Planta";
+      submitBtn.innerHTML = "Register Plant";
       submitBtn.style.opacity = "1";
     }
   }
