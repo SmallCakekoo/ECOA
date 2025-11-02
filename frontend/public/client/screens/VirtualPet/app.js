@@ -75,12 +75,21 @@ setInterval(updateTime, 60000);
 
     // Cargar métricas (plant_stats)
     try {
+      // Usar query params para buscar por plant_id y obtener el más reciente
       const statsResponse = await fetch(
-        `${API_BASE_URL}/plant_stats/${plantId}`
+        `${API_BASE_URL}/plant_stats?plant_id=${plantId}`
       );
-      const { success: statsSuccess, data: stats } = await statsResponse.json();
+      
+      let stats = null;
+      if (statsResponse.ok) {
+        const result = await statsResponse.json();
+        if (result.success && result.data && result.data.length > 0) {
+          // Tomar el más reciente (ya viene ordenado por fecha descendente)
+          stats = result.data[0];
+        }
+      }
 
-      if (statsSuccess && stats) {
+      if (stats) {
         const stateButtons = document.querySelectorAll(".state-button");
         if (stateButtons.length >= 3) {
           // Botón 1: Sol/Luz
@@ -105,13 +114,21 @@ setInterval(updateTime, 60000);
 
     // Cargar estado (plant_status)
     try {
+      // Usar query params para buscar por plant_id y obtener el más reciente
       const statusResponse = await fetch(
-        `${API_BASE_URL}/plant_status/${plantId}`
+        `${API_BASE_URL}/plant_status?plant_id=${plantId}`
       );
-      const { success: statusSuccess, data: status } =
-        await statusResponse.json();
+      
+      let status = null;
+      if (statusResponse.ok) {
+        const result = await statusResponse.json();
+        if (result.success && result.data && result.data.length > 0) {
+          // Tomar el más reciente (ya viene ordenado por fecha descendente)
+          status = result.data[0];
+        }
+      }
 
-      if (statusSuccess && status) {
+      if (status) {
         const stateButtons = document.querySelectorAll(".state-button");
         if (stateButtons.length >= 4) {
           // Botón 4: Mood/Estado
