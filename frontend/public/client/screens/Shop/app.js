@@ -177,21 +177,12 @@ function buildImageUrl(imagePath) {
 
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image, accessoryName) {
-  // Función helper para construir ruta correcta de imagen usando new URL()
+  // Función helper para construir ruta correcta de imagen
   const getImagePath = (imageName) => {
-    try {
-      // Usar new URL() para resolver la ruta relativa desde la URL actual
-      const baseUrl = new URL(window.location.href);
-      // Construir la ruta relativa desde /client/screens/Shop/ a /client/src/assets/images/
-      const relativePath = '../../src/assets/images/' + imageName;
-      const resolvedUrl = new URL(relativePath, baseUrl);
-      // Retornar el pathname (la parte de la ruta sin el dominio)
-      return resolvedUrl.pathname;
-    } catch (e) {
-      // Si falla, usar ruta relativa directamente
-      console.warn('Error construyendo ruta de imagen, usando relativa:', e);
-      return `../../src/assets/images/${imageName}`;
-    }
+    // Construir ruta absoluta manualmente
+    // Desde /client/screens/Shop/ necesitamos llegar a /client/src/assets/images/
+    // La ruta absoluta correcta es /client/src/assets/images/nombre
+    return `/client/src/assets/images/${imageName}`;
   };
 
   // Mapear nombre del accesorio a imagen de asset
