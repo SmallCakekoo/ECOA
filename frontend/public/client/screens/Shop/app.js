@@ -179,9 +179,7 @@ function buildImageUrl(imagePath) {
 function resolveAccessoryImage(image, accessoryName) {
   // Función helper para construir ruta correcta de imagen
   const getImagePath = (imageName) => {
-    // Construir ruta absoluta manualmente
-    // Desde /client/screens/Shop/ necesitamos llegar a /client/src/assets/images/
-    // La ruta absoluta correcta es /client/src/assets/images/nombre
+    // Construir ruta absoluta manualmente - las imágenes están en /client/src/assets/images/
     return `/client/src/assets/images/${imageName}`;
   };
 
