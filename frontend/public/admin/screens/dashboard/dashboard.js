@@ -425,7 +425,27 @@ function setupPlantForm() {
 
 async function createPlant() {
   const form = document.getElementById("plantForm");
+  if (!form) {
+    console.error("❌ Dashboard - No se encontró el formulario");
+    showNotification("Error: No se encontró el formulario", "error");
+    return;
+  }
+
   const formData = new FormData(form);
+
+  // Validar campos requeridos
+  const name = formData.get("plantName")?.trim();
+  const species = formData.get("species")?.trim();
+  
+  if (!name || name === "") {
+    showNotification("El nombre de la planta es requerido", "error");
+    return;
+  }
+  
+  if (!species || species === "") {
+    showNotification("La especie de la planta es requerida", "error");
+    return;
+  }
 
   // Obtener la imagen subida (data URL)
   const photoPreview = document.getElementById("photoPreview");
@@ -435,14 +455,25 @@ async function createPlant() {
   if (photoPreview && photoPreview.style.display !== "none") {
     // Primero intentar obtener del atributo data-image-url (más confiable)
     const dataImageUrl = photoPreview.getAttribute('data-image-url');
-    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
-      imageUrl = dataImageUrl;
-      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
+    if (dataImageUrl && dataImageUrl.startsWith("data:") && dataImageUrl.length > 0) {
+      // Validar tamaño antes de usar
+      if (dataImageUrl.length > 200 * 1024) {
+        console.warn(`⚠️ Dashboard - Imagen muy grande (${Math.round(dataImageUrl.length / 1024)}KB), se guardará sin imagen`);
+        imageUrl = null;
+      } else {
+        imageUrl = dataImageUrl;
+        console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
+      }
     } 
     // Si no está en el atributo, usar el src si es data URL
     else if (photoPreview.src && photoPreview.src.startsWith("data:")) {
-      imageUrl = photoPreview.src;
-      console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
+      if (photoPreview.src.length > 200 * 1024) {
+        console.warn(`⚠️ Dashboard - Imagen muy grande (${Math.round(photoPreview.src.length / 1024)}KB), se guardará sin imagen`);
+        imageUrl = null;
+      } else {
+        imageUrl = photoPreview.src;
+        console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
+      }
     }
     // Si el src no es data URL, verificar que no sea placeholder
     else if (photoPreview.src && 
@@ -460,6 +491,7 @@ async function createPlant() {
         hasImage: true, 
         isDataUrl: imageUrl.startsWith("data:"),
         imageLength: imageUrl.length,
+        imageSizeKB: Math.round(imageUrl.length / 1024),
         imagePreview: imageUrl.substring(0, 50) + "..."
       });
     } else {
@@ -469,13 +501,19 @@ async function createPlant() {
 
   const plantData = {
     user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
-    name: formData.get("plantName"),
-    species: formData.get("species"),
-    description: formData.get("description"),
-    image: imageUrl,
-    // No enviar campos que no existen en la tabla plants
-    // status, health_status, water_level, etc. van en otras tablas relacionadas
+    name: name,
+    species: species,
+    description: formData.get("description")?.trim() || null,
+    image: imageUrl || null, // Asegurar que sea null si no hay imagen
   };
+
+  console.log("📤 Dashboard - Enviando datos de planta:", {
+    name: plantData.name,
+    species: plantData.species,
+    hasDescription: !!plantData.description,
+    hasImage: !!plantData.image,
+    imageSize: plantData.image ? Math.round(plantData.image.length / 1024) + "KB" : "null"
+  });
 
   try {
     showLoading(true);
@@ -484,16 +522,25 @@ async function createPlant() {
     if (result.success) {
       showNotification("Planta creada exitosamente", "success");
       form.reset();
-      document.getElementById("photoPreview").style.display = "none";
-      document.querySelector(".upload-inner").style.display = "block";
+      const preview = document.getElementById("photoPreview");
+      if (preview) {
+        preview.style.display = "none";
+        preview.src = "";
+        preview.removeAttribute('data-image-url');
+      }
+      const uploadInner = document.querySelector("#uploadBox .upload-inner");
+      if (uploadInner) uploadInner.style.display = "block";
 
       // Recargar datos
       await loadStats();
       await loadRecentPlants();
+    } else {
+      showNotification(result.message || "Error al crear la planta", "error");
     }
   } catch (error) {
-    console.error("Error creating plant:", error);
-    showNotification(error.message || "Error al crear la planta", "error");
+    console.error("❌ Dashboard - Error creating plant:", error);
+    const errorMessage = error.message || "Error al crear la planta";
+    showNotification(errorMessage, "error");
   } finally {
     showLoading(false);
   }
