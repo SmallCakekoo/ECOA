@@ -183,8 +183,8 @@ function resolveAccessoryImage(image, accessoryName) {
     const accessoryLower = (accessoryName || "").toLowerCase();
     for (const [key, value] of Object.entries(nameMap)) {
       if (accessoryLower.includes(key)) {
-        // Usar ruta absoluta directamente
-        const fullUrl = `/client/src/assets/images/${value}`;
+        // Usar ruta relativa (igual que el HTML estático)
+        const fullUrl = `../../src/assets/images/${value}`;
         console.log(`Mapeando por nombre "${accessoryName}" a ${fullUrl}`);
         return fullUrl;
       }
@@ -225,14 +225,14 @@ function resolveAccessoryImage(image, accessoryName) {
       imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
 
     if (mappedName) {
-      // Construir ruta absoluta directamente
-      const fullUrl = `/client/src/assets/images/${mappedName}`;
+      // Usar ruta relativa (igual que el HTML estático)
+      const fullUrl = `../../src/assets/images/${mappedName}`;
       console.log(`Mapeando "${image}" a ${fullUrl}`);
       return fullUrl;
     }
 
-    // Si no está en el mapa, intentar directamente con ruta absoluta
-    const fullUrl = `/client/src/assets/images/${image}`;
+    // Si no está en el mapa, intentar directamente con ruta relativa
+    const fullUrl = `../../src/assets/images/${image}`;
     console.log(
       `Intentando cargar imagen de accesorio desde assets: ${fullUrl}`
     );
@@ -246,8 +246,8 @@ function resolveAccessoryImage(image, accessoryName) {
   const accessoryLower = (accessoryName || "").toLowerCase();
   for (const [key, value] of Object.entries(nameMap)) {
     if (accessoryLower.includes(key)) {
-      // Usar ruta absoluta directamente
-      const fullUrl = `/client/src/assets/images/${value}`;
+      // Usar ruta relativa (igual que el HTML estático)
+      const fullUrl = `../../src/assets/images/${value}`;
       console.log(`Mapeando por nombre "${accessoryName}" a ${fullUrl}`);
       return fullUrl;
     }
