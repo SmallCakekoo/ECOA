@@ -16,25 +16,45 @@ export function createPlantModel(payload) {
     throw new Error("name y species son requeridos");
   }
 
-  // Limitar tamaño de imagen a 150KB en base64 para evitar problemas con Supabase
-  // Si la imagen es muy grande, guardar null para evitar errores
+  // Limitar tamaño de imagen a 200KB en base64 para evitar problemas con Supabase
+  // Si la imagen es muy grande, guardar null para evitar errores en Supabase
   let imageValue = image || null;
-  if (imageValue && typeof imageValue === 'string' && imageValue.trim() !== '') {
-    // Si es data URL, validar tamaño más restrictivo
+  if (imageValue && typeof imageValue === 'string') {
+    // Si es data URL, validar tamaño de forma más estricta
     if (imageValue.startsWith('data:')) {
-      // Reducir límite a 150KB para evitar problemas con Supabase TEXT
-      const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
+      // Limitar el string completo a ~200KB para evitar problemas con Supabase TEXT
+      // (margen más conservador para evitar errores de base de datos)
+      const maxDataUrlLength = 200 * 1024; // ~200KB de data URL
       
       if (imageValue.length > maxDataUrlLength) {
         console.warn(`⚠️ Imagen muy grande (${Math.round(imageValue.length / 1024)}KB), guardando null para evitar error en BD`);
         imageValue = null;
       } else {
-        console.log(`✅ Imagen validada: ${Math.round(imageValue.length / 1024)}KB`);
+        // Validar que la data URL esté bien formada
+        try {
+          // Intentar parsear para verificar formato
+          const parts = imageValue.split(',');
+          if (parts.length < 2 || !parts[0] || !parts[1]) {
+            console.warn('⚠️ Data URL mal formada, guardando null');
+            imageValue = null;
+          } else {
+            // Verificar que el header tenga el formato correcto
+            const header = parts[0];
+            if (!header.includes('data:') || !header.includes('base64')) {
+              console.warn('⚠️ Data URL sin formato correcto, guardando null');
+              imageValue = null;
+            }
+          }
+        } catch (e) {
+          console.warn('⚠️ Error validando data URL, guardando null:', e.message);
+          imageValue = null;
+        }
       }
     }
-    // Si es URL externa o relativa, usar tal cual si no está vacía
-  } else if (typeof imageValue === 'string' && imageValue.trim() === '') {
-    imageValue = null;
+    // Si es URL externa o relativa, validar que no esté vacía
+    else if (typeof imageValue === 'string' && imageValue.trim() === '') {
+      imageValue = null;
+    }
   }
 
   return {
