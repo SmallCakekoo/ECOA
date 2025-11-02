@@ -118,22 +118,32 @@ function buildImageUrl(imagePath) {
     return imagePath;
   }
 
-  // Si es una ruta relativa (empieza con ../), convertirla usando new URL()
+  // Si es una ruta relativa (empieza con ../), convertirla a absoluta con /client/
   if (imagePath.startsWith("../")) {
     try {
-      // Resolver ruta relativa desde la URL actual
+      // Resolver ruta relativa desde la URL actual usando new URL()
       const baseUrl = new URL(window.location.href);
       const resolvedUrl = new URL(imagePath, baseUrl);
-      return resolvedUrl.pathname;
+      // Extraer solo el pathname y asegurar que tenga /client/
+      let pathname = resolvedUrl.pathname;
+      
+      // Si la ruta resuelta no tiene /client/, agregarlo
+      if (!pathname.startsWith("/client/") && pathname.startsWith("/src/")) {
+        pathname = "/client" + pathname;
+      }
+      return pathname;
     } catch (e) {
-      // Si falla, usar ruta relativa directamente
-      return imagePath;
+      // Si falla new URL(), construir manualmente
+      // Desde /client/screens/Shop/, subir 2 niveles = /client/
+      // Luego agregar src/assets/images/nombre
+      const fileName = imagePath.replace("../", "").replace("../", "");
+      return "/client/src/assets/images/" + fileName;
     }
   }
 
   // Si ya es una ruta absoluta (empieza con /), construirla correctamente
   if (imagePath.startsWith("/")) {
-    // Si empieza con /client/ es correcta, si no, agregar /client/
+    // Si empieza con /client/ es correcta
     if (imagePath.startsWith("/client/")) {
       return imagePath;
     }
@@ -144,11 +154,14 @@ function buildImageUrl(imagePath) {
     return imagePath;
   }
 
-  // Si es un nombre de archivo simple, agregarlo a la ruta base relativa
+  // Si es un nombre de archivo simple, agregarlo a la ruta base
   const basePath = getAssetBasePath();
   if (basePath.startsWith("../")) {
-    // Si la ruta base es relativa, concatenar directamente
-    return basePath + imagePath;
+    // Construir ruta absoluta desde relativa
+    // Desde /client/screens/Shop/, subir 2 niveles = /client/
+    // Luego src/assets/images/nombre
+    const fileName = imagePath;
+    return "/client/src/assets/images/" + fileName;
   }
   return basePath + imagePath;
 }
