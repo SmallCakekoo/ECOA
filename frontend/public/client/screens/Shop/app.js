@@ -43,11 +43,10 @@ window.goToShopFeedback = function () {
 };
 
 // Función helper para obtener la ruta base de assets
-// Usar EXACTAMENTE la misma ruta relativa que el HTML estático
+// En Vercel, usar ruta absoluta desde /client para que funcione correctamente
 function getAssetBasePath() {
-  // El HTML estático usa: ../../src/assets/images/accessory-X.png
-  // Esta ruta relativa funciona en el HTML, usarla exactamente igual
-  return "../../src/assets/images/";
+  // Usar ruta absoluta que funcione en Vercel
+  return "/client/src/assets/images/";
 }
 
 // Función helper para construir URL de imagen
@@ -61,9 +60,10 @@ function buildImageUrl(imagePath) {
     return imagePath;
   }
 
-  // Si es una ruta relativa (empieza con ../), retornarla tal cual (igual que HTML estático)
+  // Si es una ruta relativa (empieza con ../), convertirla a absoluta
   if (imagePath.startsWith("../")) {
-    return imagePath;
+    // Convertir ruta relativa a absoluta: ../../src/assets/images/ -> /client/src/assets/images/
+    return imagePath.replace(/^\.\.\/\.\.\//, "/client/");
   }
 
   // Si ya es una ruta absoluta (empieza con /), retornarla tal cual
@@ -215,34 +215,14 @@ function resolveAccessoryImage(image, accessoryName) {
 
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
-
-      // Usar la misma ruta relativa que el HTML estático
-      // El HTML estático funciona con ../../src/assets/images/ porque se resuelve desde la ubicación del archivo
-      // Cuando insertamos HTML dinámicamente, el navegador resuelve las rutas relativas desde la URL actual del documento
-      // Por lo tanto, debemos usar la misma ruta relativa directamente, sin convertirla
+      
+      // Usar la imagen directamente (ya viene con ruta absoluta correcta desde resolveAccessoryImage)
       let imageSrc = finalImg;
-
-      // Solo convertir si es necesario (rutas absolutas incorrectas), pero mantener rutas relativas como están
-      if (
-        imageSrc &&
-        !imageSrc.startsWith("http") &&
-        !imageSrc.startsWith("data:") &&
-        !imageSrc.startsWith("../")
-      ) {
-        // Si es una ruta absoluta incorrecta sin /client/, corregirla
-        if (imageSrc.startsWith("/src/assets/images/")) {
-          imageSrc = "/client" + imageSrc;
-          console.log(`🔧 Ruta absoluta corregida: ${finalImg} -> ${imageSrc}`);
-        }
-        // Si es una ruta con assets/images pero no es relativa ni absoluta correcta
-        else if (imageSrc.includes("assets/images/")) {
-          // Extraer nombre del archivo y construir ruta relativa
-          const fileName = imageSrc.split("/").pop();
-          imageSrc = "../../src/assets/images/" + fileName;
-          console.log(
-            `🔧 Ruta convertida a relativa: ${finalImg} -> ${imageSrc}`
-          );
-        }
+      
+      // Asegurar que las rutas absolutas estén correctas para Vercel
+      if (imageSrc && imageSrc.startsWith("/src/assets/images/")) {
+        imageSrc = "/client" + imageSrc;
+        console.log(`🔧 Ruta absoluta corregida: ${finalImg} -> ${imageSrc}`);
       }
 
       // Construir HTML sin placeholder de Unsplash en onerror

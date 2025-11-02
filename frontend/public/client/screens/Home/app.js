@@ -73,19 +73,42 @@ function getMostRecentPlant(plants) {
 }
 
 async function fetchPlantMetrics(plantId) {
-  const response = await fetch(`${API_BASE_URL}/plant_status/${plantId}`);
-  const { success, data: plantMetrics } = await response.json();
-  console.log(plantMetrics, success);
+  try {
+    // Usar query params para buscar por plant_id y obtener el más reciente
+    const response = await fetch(`${API_BASE_URL}/plant_status?plant_id=${plantId}`);
+    
+    if (!response.ok) {
+      console.warn(`No se encontró estado para planta ${plantId}`);
+      return;
+    }
+    
+    const { success, data: statuses } = await response.json();
+    
+    if (!success || !statuses || statuses.length === 0) {
+      console.warn(`No hay estados registrados para la planta ${plantId}`);
+      return;
+    }
 
-  if (!success) throw new Error("Failed to load plant metrics");
-  const percent = plantMetrics.mood_index * 100;
+    // Tomar el más reciente (ya viene ordenado por fecha descendente)
+    const plantMetrics = statuses[0];
+    const percent = plantMetrics.mood_index ? plantMetrics.mood_index * 100 : 0;
 
-  document.querySelector(".progress-text").textContent = percent + "%";
-  // Animar progreso circular
-  const circumference = 2 * Math.PI * 30;
-  const progressCircle = document.getElementById("progressCircle");
-  const offset = circumference - (percent / 100) * circumference;
-  progressCircle.style.strokeDashoffset = offset;
+    const progressText = document.querySelector(".progress-text");
+    if (progressText) {
+      progressText.textContent = percent + "%";
+    }
+    
+    // Animar progreso circular
+    const circumference = 2 * Math.PI * 30;
+    const progressCircle = document.getElementById("progressCircle");
+    if (progressCircle) {
+      const offset = circumference - (percent / 100) * circumference;
+      progressCircle.style.strokeDashoffset = offset;
+    }
+  } catch (error) {
+    console.error("Error fetching plant metrics:", error);
+    // No lanzar error para no romper el flujo si no hay métricas
+  }
 }
 
 // Actualizar hora
