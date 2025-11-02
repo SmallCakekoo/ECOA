@@ -192,6 +192,18 @@ export const PlantsController = {
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
       console.error('❌ Error completo al crear planta:', error);
+      console.error('❌ Stack trace:', error.stack);
+      console.error('❌ Error name:', error.name);
+      console.error('❌ Error message:', error.message);
+      
+      // Si el error ya tiene un código de estado, usarlo
+      if (error.status) {
+        return res.status(error.status).json({
+          success: false,
+          message: error.message || "Error al crear la planta"
+        });
+      }
+      
       return handleError(error, res);
     }
   },
