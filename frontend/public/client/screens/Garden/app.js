@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app";
 
 // Actualizar la hora actual
 function updateTime() {

@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app";
 // Actualizar la hora actual
 function updateTime() {
   const now = new Date();
