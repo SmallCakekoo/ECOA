@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-nine.vercel.app";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
 
 function resolvePlantImage(plant) {
   const url = plant.image || plant.image_url;
@@ -25,7 +25,9 @@ if (USER_DATA && USER_DATA.name) {
   // Cargar plantas del usuario
   (async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${USER_DATA.id}/plants`);
+      const response = await fetch(
+        `${API_BASE_URL}/users/${USER_DATA.id}/plants`
+      );
       const { success, data: plants, count } = await response.json();
 
       if (!success || count === 0) return;

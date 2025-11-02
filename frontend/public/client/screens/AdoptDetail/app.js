@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoa-nine.vercel.app";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 const params = new URLSearchParams(window.location.search);
@@ -20,7 +20,9 @@ function getPlantImageUrl(plant) {
       return ownImage;
     }
     // Si es ruta relativa, construir URL completa
-    return `${API_BASE_URL}${ownImage.startsWith("/") ? ownImage : "/" + ownImage}`;
+    return `${API_BASE_URL}${
+      ownImage.startsWith("/") ? ownImage : "/" + ownImage
+    }`;
   }
 
   // 2) Si no hay imagen, usar placeholder
@@ -66,13 +68,18 @@ async function fetchPlantData(plantId) {
 async function fetchPlantMetrics(plantId) {
   try {
     // Buscar por plant_id, no por id
-    const response = await fetch(`${API_BASE_URL}/plant_stats?plant_id=${plantId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/plant_stats?plant_id=${plantId}`
+    );
     const { success, data } = await response.json();
 
     if (!success || !data || data.length === 0) {
-      console.warn("No se encontraron métricas para la planta, usando valores por defecto");
+      console.warn(
+        "No se encontraron métricas para la planta, usando valores por defecto"
+      );
       // Usar valores por defecto si no hay métricas
-      const [tempBtn, humBtn, lightBtn] = document.querySelectorAll(".state-button");
+      const [tempBtn, humBtn, lightBtn] =
+        document.querySelectorAll(".state-button");
       addStateButtonText(50, tempBtn);
       addStateButtonText(50, humBtn);
       addStateButtonText(50, lightBtn);
@@ -81,14 +88,16 @@ async function fetchPlantMetrics(plantId) {
 
     // Usar la métrica más reciente
     const plantMetrics = Array.isArray(data) ? data[0] : data;
-    const [tempBtn, humBtn, lightBtn] = document.querySelectorAll(".state-button");
+    const [tempBtn, humBtn, lightBtn] =
+      document.querySelectorAll(".state-button");
     addStateButtonText(plantMetrics.temperature || 50, tempBtn);
     addStateButtonText(plantMetrics.soil_moisture || 50, humBtn);
     addStateButtonText(plantMetrics.light || 50, lightBtn);
   } catch (error) {
     console.error("Error cargando métricas:", error);
     // Usar valores por defecto en caso de error
-    const [tempBtn, humBtn, lightBtn] = document.querySelectorAll(".state-button");
+    const [tempBtn, humBtn, lightBtn] =
+      document.querySelectorAll(".state-button");
     addStateButtonText(50, tempBtn);
     addStateButtonText(50, humBtn);
     addStateButtonText(50, lightBtn);
@@ -98,11 +107,15 @@ async function fetchPlantMetrics(plantId) {
 async function fetchPlantStatus(plantId) {
   try {
     // Buscar por plant_id, no por id
-    const response = await fetch(`${API_BASE_URL}/plant_status?plant_id=${plantId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/plant_status?plant_id=${plantId}`
+    );
     const { success, data } = await response.json();
 
     if (!success || !data || data.length === 0) {
-      console.warn("No se encontró status para la planta, usando valor por defecto");
+      console.warn(
+        "No se encontró status para la planta, usando valor por defecto"
+      );
       // Usar valor por defecto si no hay status
       const moodBtn = document.querySelectorAll(".state-button")[3];
       addStateButtonText(50, moodBtn);
@@ -205,19 +218,16 @@ window.adoptPlant = async function () {
   console.log("Adoptando planta:", plantId);
 
   try {
-  const response = await fetch(
-      `${API_BASE_URL}/plants/` + plantId,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: USER_DATA.id,
-          is_adopted: true, // Marcar como adoptada
-        }),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/plants/` + plantId, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: USER_DATA.id,
+        is_adopted: true, // Marcar como adoptada
+      }),
+    });
 
     const { success, data: plant } = await response.json();
     console.log("Adopción exitosa:", success, plant);

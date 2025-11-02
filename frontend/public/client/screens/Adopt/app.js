@@ -1,6 +1,6 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
-const API_BASE_URL = "https://ecoa-nine.vercel.app";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
 
 // Función para obtener la URL de la imagen de la planta
 function getPlantImageUrl(plant) {
@@ -15,7 +15,9 @@ function getPlantImageUrl(plant) {
   }
   // Imagen por defecto única basada en el nombre de la planta
   const hash = plant.name ? plant.name.charCodeAt(0) % 10 : 0;
-  return `https://images.unsplash.com/photo-${1509937528035 + hash * 1000}?w=400&h=400&fit=crop`;
+  return `https://images.unsplash.com/photo-${
+    1509937528035 + hash * 1000
+  }?w=400&h=400&fit=crop`;
 }
 
 function createPlantCard(plant, index) {

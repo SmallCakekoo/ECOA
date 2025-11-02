@@ -2,7 +2,8 @@
 class AdminAPI {
   constructor() {
     this.baseURL =
-      window.AdminConfig?.API_BASE_URL || "https://ecoa-nine.vercel.app";
+      window.AdminConfig?.API_BASE_URL ||
+      "https://ecoa-backend-three.vercel.app/";
     this.token = localStorage.getItem(
       window.AdminConfig?.AUTH?.TOKEN_KEY || "admin_token"
     );

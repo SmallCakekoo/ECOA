@@ -660,7 +660,7 @@ function resolveImageUrl(url, fallback) {
   // Si es URL absoluta, devolver directamente
   if (candidate.startsWith("http://") || candidate.startsWith("https://")) return candidate;
   // Si viene relativa (/uploads/...), prepender base del backend
-  const baseUrl = window.AdminConfig?.API_BASE_URL || "https://ecoa-nine.vercel.app";
+  const baseUrl = window.AdminConfig?.API_BASE_URL || "https://ecoa-backend-three.vercel.app/";
   return `${baseUrl}${candidate.startsWith("/") ? candidate : "/" + candidate}`;
 }
 

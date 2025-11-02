@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-nine.vercel.app";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
 
 // Actualizar la hora actual
 function updateTime() {
@@ -50,7 +50,9 @@ function getPlantImageUrl(plant) {
   }
   // Imagen por defecto única basada en el nombre de la planta
   const hash = plant.name ? plant.name.charCodeAt(0) % 10 : 0;
-  return `https://images.unsplash.com/photo-${1509937528035 + hash * 1000}?w=400&h=400&fit=crop`;
+  return `https://images.unsplash.com/photo-${
+    1509937528035 + hash * 1000
+  }?w=400&h=400&fit=crop`;
 }
 
 function createPlantCard(plant, i) {
@@ -94,17 +96,13 @@ function createPlantCard(plant, i) {
 const plantsGrid = document.getElementById("plantsGrid");
 
 (async () => {
-  const response = await fetch(
-    `${API_BASE_URL}/users/${USER_DATA.id}/plants`
-  );
+  const response = await fetch(`${API_BASE_URL}/users/${USER_DATA.id}/plants`);
   const { success, data: plants } = await response.json();
 
   if (!success) return;
 
   const promises = plants.map(async (plant, index) => {
-    const res = await fetch(
-      `${API_BASE_URL}/plant_stats/${plant.id}`
-    );
+    const res = await fetch(`${API_BASE_URL}/plant_stats/${plant.id}`);
     const { data: plantMetrics = {} } = await res.json();
 
     const card = createPlantCard(
@@ -127,7 +125,7 @@ const plantsGrid = document.getElementById("plantsGrid");
   addButton.onclick = function () {
     console.log("Navegando a Adopt para adoptar nueva planta");
     window.location.href =
-      "https://ecoa-frontend-two.vercel.app/client/screens/Adopt";
+      "https://ecoa-frontend-three-sepia.vercel.app/client/screens/Adopt";
   };
   plantsGrid.appendChild(addButton);
 

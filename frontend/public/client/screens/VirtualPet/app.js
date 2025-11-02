@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-nine.vercel.app";
+const API_BASE_URL = "https://ecoa-backend-three.vercel.app/";
 
 // Obtener el ID de la planta desde la URL
 const params = new URLSearchParams(window.location.search);
@@ -15,7 +15,11 @@ if (!plantId) {
 function getPlantImageUrl(plant) {
   const url = plant.image || plant.image_url;
   if (url) {
-    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+    if (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("data:")
+    ) {
       return url;
     }
     return `${API_BASE_URL}${url}`;
@@ -44,9 +48,7 @@ setInterval(updateTime, 60000);
 (async function loadPlantData() {
   try {
     // Cargar datos básicos de la planta
-    const plantResponse = await fetch(
-      `${API_BASE_URL}/plants/${plantId}`
-    );
+    const plantResponse = await fetch(`${API_BASE_URL}/plants/${plantId}`);
     const { success: plantSuccess, data: plant } = await plantResponse.json();
 
     if (!plantSuccess || !plant) {
