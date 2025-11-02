@@ -131,13 +131,26 @@ function buildImageUrl(imagePath) {
     }
   }
 
-  // Si ya es una ruta absoluta (empieza con /), retornarla tal cual
+  // Si ya es una ruta absoluta (empieza con /), construirla correctamente
   if (imagePath.startsWith("/")) {
+    // Si empieza con /client/ es correcta, si no, agregar /client/
+    if (imagePath.startsWith("/client/")) {
+      return imagePath;
+    }
+    // Si empieza con /src/, convertirlo a /client/src/
+    if (imagePath.startsWith("/src/")) {
+      return "/client" + imagePath;
+    }
     return imagePath;
   }
 
   // Si es un nombre de archivo simple, agregarlo a la ruta base relativa
-  return getAssetBasePath() + imagePath;
+  const basePath = getAssetBasePath();
+  if (basePath.startsWith("../")) {
+    // Si la ruta base es relativa, concatenar directamente
+    return basePath + imagePath;
+  }
+  return basePath + imagePath;
 }
 
 // Cargar accesorios desde Supabase vía backend y renderizar
