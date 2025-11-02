@@ -102,9 +102,9 @@ function getAssetBasePath() {
     pathParts.pop(); // Shop
     pathParts.pop(); // screens
   }
-  // Construir ruta base
-  const basePath = '/' + pathParts.join('/') + '/src/assets/images/';
-  return basePath;
+  // Construir ruta base relativa (desde /client/screens/Shop/ a /client/src/assets/images/)
+  // Necesitamos subir 2 niveles y luego entrar a src/assets/images/
+  return '../../src/assets/images/';
 }
 
 // Función helper para construir URL de imagen
