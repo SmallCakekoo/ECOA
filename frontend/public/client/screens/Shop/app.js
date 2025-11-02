@@ -43,10 +43,20 @@ window.goToShopFeedback = function () {
 };
 
 // Función helper para obtener la ruta base de assets
-// En Vercel, usar ruta absoluta desde /client para que funcione correctamente
+// Usar new URL() para resolver rutas relativas correctamente desde la URL actual
 function getAssetBasePath() {
-  // Usar ruta absoluta que funcione en Vercel
-  return "/client/src/assets/images/";
+  // Obtener la URL base desde la ubicación actual
+  const baseUrl = new URL(window.location.href);
+  // Desde /client/screens/Shop, subir 2 niveles para llegar a /client/
+  const pathParts = baseUrl.pathname.split('/').filter(p => p);
+  // Remover 'screens' y 'Shop'
+  if (pathParts.length >= 2 && pathParts[pathParts.length - 2] === 'screens') {
+    pathParts.pop(); // Shop
+    pathParts.pop(); // screens
+  }
+  // Construir ruta base
+  const basePath = '/' + pathParts.join('/') + '/src/assets/images/';
+  return basePath;
 }
 
 // Función helper para construir URL de imagen
@@ -60,10 +70,17 @@ function buildImageUrl(imagePath) {
     return imagePath;
   }
 
-  // Si es una ruta relativa (empieza con ../), convertirla a absoluta
+  // Si es una ruta relativa (empieza con ../), convertirla usando new URL()
   if (imagePath.startsWith("../")) {
-    // Convertir ruta relativa a absoluta: ../../src/assets/images/ -> /client/src/assets/images/
-    return imagePath.replace(/^\.\.\/\.\.\//, "/client/");
+    try {
+      // Resolver ruta relativa desde la URL actual
+      const baseUrl = new URL(window.location.href);
+      const resolvedUrl = new URL(imagePath, baseUrl);
+      return resolvedUrl.pathname;
+    } catch (e) {
+      // Si falla, usar ruta relativa directamente
+      return imagePath;
+    }
   }
 
   // Si ya es una ruta absoluta (empieza con /), retornarla tal cual
@@ -216,14 +233,8 @@ function resolveAccessoryImage(image, accessoryName) {
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
       
-      // Usar la imagen directamente (ya viene con ruta absoluta correcta desde resolveAccessoryImage)
+      // Usar la imagen directamente (ya viene con ruta resuelta desde resolveAccessoryImage)
       let imageSrc = finalImg;
-      
-      // Asegurar que las rutas absolutas estén correctas para Vercel
-      if (imageSrc && imageSrc.startsWith("/src/assets/images/")) {
-        imageSrc = "/client" + imageSrc;
-        console.log(`🔧 Ruta absoluta corregida: ${finalImg} -> ${imageSrc}`);
-      }
 
       // Construir HTML sin placeholder de Unsplash en onerror
       card.innerHTML = `
