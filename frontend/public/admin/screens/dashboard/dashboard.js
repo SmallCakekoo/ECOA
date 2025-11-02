@@ -484,12 +484,20 @@ async function createPlant() {
     if (result.success) {
       showNotification("Planta creada exitosamente", "success");
       form.reset();
-      document.getElementById("photoPreview").style.display = "none";
-      document.querySelector(".upload-inner").style.display = "block";
+      const preview = document.getElementById("photoPreview");
+      if (preview) {
+        preview.style.display = "none";
+        preview.src = "";
+        preview.removeAttribute('data-image-url');
+      }
+      const uploadInner = document.querySelector(".upload-inner");
+      if (uploadInner) uploadInner.style.display = "block";
 
       // Recargar datos
       await loadStats();
       await loadRecentPlants();
+    } else {
+      showNotification(result.message || "Error al crear la planta", "error");
     }
   } catch (error) {
     console.error("Error creating plant:", error);
