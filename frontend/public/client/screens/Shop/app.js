@@ -168,7 +168,22 @@ function buildImageUrl(imagePath) {
 
 // Cargar accesorios desde Supabase vía backend y renderizar
 function resolveAccessoryImage(image, accessoryName) {
-  const basePath = getAssetBasePath();
+  // Función helper para construir ruta correcta de imagen
+  const getImagePath = (imageName) => {
+    // Construir ruta absoluta usando la ubicación actual
+    const currentPath = window.location.pathname;
+    // Si estamos en /client/screens/Shop/, subir 2 niveles y entrar a src/assets/images/
+    if (currentPath.includes('/client/screens/')) {
+      // Construir URL absoluta correcta
+      const baseUrl = new URL(window.location.href);
+      // Obtener el directorio base (/client/)
+      const pathParts = currentPath.split('/').filter(p => p && p !== 'screens' && p !== 'Shop');
+      const clientBase = '/' + pathParts.join('/') + '/src/assets/images/';
+      return clientBase + imageName;
+    }
+    // Fallback: usar ruta relativa
+    return `../../src/assets/images/${imageName}`;
+  };
 
   // Mapear nombre del accesorio a imagen de asset
   const nameMap = {
@@ -183,8 +198,7 @@ function resolveAccessoryImage(image, accessoryName) {
     const accessoryLower = (accessoryName || "").toLowerCase();
     for (const [key, value] of Object.entries(nameMap)) {
       if (accessoryLower.includes(key)) {
-        // Usar ruta relativa (igual que el HTML estático)
-        const fullUrl = `../../src/assets/images/${value}`;
+        const fullUrl = getImagePath(value);
         console.log(`Mapeando por nombre "${accessoryName}" a ${fullUrl}`);
         return fullUrl;
       }
@@ -209,7 +223,7 @@ function resolveAccessoryImage(image, accessoryName) {
   }
 
   // Si es un nombre de archivo (ej: "fertilizante.png", "lampara.png", "matera.png")
-  // intentar mapear a los assets del client - usar ruta absoluta directamente
+  // intentar mapear a los assets del client
   if (image.includes(".") && !image.includes("/")) {
     const imageNameMap = {
       "fertilizante.png": "accessory-3.png",
@@ -225,14 +239,13 @@ function resolveAccessoryImage(image, accessoryName) {
       imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
 
     if (mappedName) {
-      // Usar ruta relativa (igual que el HTML estático)
-      const fullUrl = `../../src/assets/images/${mappedName}`;
+      const fullUrl = getImagePath(mappedName);
       console.log(`Mapeando "${image}" a ${fullUrl}`);
       return fullUrl;
     }
 
-    // Si no está en el mapa, intentar directamente con ruta relativa
-    const fullUrl = `../../src/assets/images/${image}`;
+    // Si no está en el mapa, intentar directamente
+    const fullUrl = getImagePath(image);
     console.log(
       `Intentando cargar imagen de accesorio desde assets: ${fullUrl}`
     );
@@ -246,8 +259,7 @@ function resolveAccessoryImage(image, accessoryName) {
   const accessoryLower = (accessoryName || "").toLowerCase();
   for (const [key, value] of Object.entries(nameMap)) {
     if (accessoryLower.includes(key)) {
-      // Usar ruta relativa (igual que el HTML estático)
-      const fullUrl = `../../src/assets/images/${value}`;
+      const fullUrl = getImagePath(value);
       console.log(`Mapeando por nombre "${accessoryName}" a ${fullUrl}`);
       return fullUrl;
     }
