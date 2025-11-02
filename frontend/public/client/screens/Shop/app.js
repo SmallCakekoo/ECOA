@@ -24,19 +24,30 @@ setInterval(updateTime, 60000);
 
 // Cargar datos de la planta si hay plant_id en la URL
 (async function loadPlantData() {
+  const headerTitle = document.querySelector(".header-title");
+  
   if (!plantId) {
     console.warn("No plant ID provided in URL");
+    // Mantener "Shop" como título si no hay plantId
+    if (headerTitle && headerTitle.textContent === "Julio") {
+      headerTitle.textContent = "Shop";
+    }
     return;
   }
 
   try {
     const response = await fetch(`${API_BASE_URL}/plants/${plantId}`);
+    
+    if (!response.ok) {
+      console.warn(`Error obteniendo planta: ${response.status}`);
+      return;
+    }
+    
     const { success, data: plant } = await response.json();
 
     if (success && plant) {
       // Actualizar título y nombre en el DOM
       document.title = `Shop - ${plant.name}`;
-      const headerTitle = document.querySelector(".header-title");
       if (headerTitle) {
         headerTitle.textContent = plant.name;
       }

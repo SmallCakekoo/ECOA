@@ -16,15 +16,15 @@ export function createPlantModel(payload) {
     throw new Error("name y species son requeridos");
   }
 
-  // Limitar tamaño de imagen a 250KB en base64 (~187KB original)
+  // Limitar tamaño de imagen a 200KB en base64 para evitar problemas con Supabase
   // Si la imagen es muy grande, guardar null para evitar errores en Supabase
   let imageValue = image || null;
   if (imageValue && typeof imageValue === 'string') {
     // Si es data URL, validar tamaño de forma más estricta
     if (imageValue.startsWith('data:')) {
-      // Limitar el string completo a ~250KB para evitar problemas con Supabase TEXT
-      // (margen de seguridad más conservador)
-      const maxDataUrlLength = 250 * 1024; // ~250KB de data URL
+      // Limitar el string completo a ~200KB para evitar problemas con Supabase TEXT
+      // (margen más conservador para evitar errores de base de datos)
+      const maxDataUrlLength = 200 * 1024; // ~200KB de data URL
       
       if (imageValue.length > maxDataUrlLength) {
         console.warn(`⚠️ Imagen muy grande (${Math.round(imageValue.length / 1024)}KB), guardando null para evitar error en BD`);
@@ -33,10 +33,17 @@ export function createPlantModel(payload) {
         // Validar que la data URL esté bien formada
         try {
           // Intentar parsear para verificar formato
-          const [header, data] = imageValue.split(',');
-          if (!header || !data) {
+          const parts = imageValue.split(',');
+          if (parts.length < 2 || !parts[0] || !parts[1]) {
             console.warn('⚠️ Data URL mal formada, guardando null');
             imageValue = null;
+          } else {
+            // Verificar que el header tenga el formato correcto
+            const header = parts[0];
+            if (!header.includes('data:') || !header.includes('base64')) {
+              console.warn('⚠️ Data URL sin formato correcto, guardando null');
+              imageValue = null;
+            }
           }
         } catch (e) {
           console.warn('⚠️ Error validando data URL, guardando null:', e.message);
@@ -45,7 +52,7 @@ export function createPlantModel(payload) {
       }
     }
     // Si es URL externa o relativa, validar que no esté vacía
-    else if (imageValue.trim() === '') {
+    else if (typeof imageValue === 'string' && imageValue.trim() === '') {
       imageValue = null;
     }
   }
