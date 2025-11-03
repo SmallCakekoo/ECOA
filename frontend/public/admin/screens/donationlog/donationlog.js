@@ -1,6 +1,7 @@
 let currentPage = 1;
 let currentFilters = {};
 let allDonations = [];
+let filteredDonations = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Verificar autenticación
@@ -97,8 +98,23 @@ async function initializeApp() {
 async function loadDonations() {
   try {
     showLoading(true);
-    const response = await window.AdminAPI.getDonations(currentFilters);
-    allDonations = response.data;
+    // Solo enviar filtros que el backend soporta (status, user_id, plant_id)
+    const backendFilters = {};
+    if (currentFilters.status && currentFilters.status !== "all") {
+      backendFilters.status = currentFilters.status;
+    }
+    if (currentFilters.user_id) {
+      backendFilters.user_id = currentFilters.user_id;
+    }
+    if (currentFilters.plant_id) {
+      backendFilters.plant_id = currentFilters.plant_id;
+    }
+
+    const response = await window.AdminAPI.getDonations(backendFilters);
+    allDonations = response.data || [];
+
+    // Aplicar búsqueda en el frontend si existe
+    applySearchFilter();
 
     renderDonations();
     updatePagination();
@@ -110,6 +126,27 @@ async function loadDonations() {
   }
 }
 
+function applySearchFilter() {
+  filteredDonations = [...allDonations];
+  
+  if (currentFilters.search) {
+    const searchTerm = currentFilters.search.toLowerCase();
+    filteredDonations = allDonations.filter((donation) => {
+      const userName = (donation.user_name || donation.users?.name || "").toLowerCase();
+      const plantName = (donation.plant_name || donation.plants?.name || "").toLowerCase();
+      const amount = String(donation.amount || "");
+      const paymentMethod = (donation.payment_method || "").toLowerCase();
+      
+      return (
+        userName.includes(searchTerm) ||
+        plantName.includes(searchTerm) ||
+        amount.includes(searchTerm) ||
+        paymentMethod.includes(searchTerm)
+      );
+    });
+  }
+}
+
 function renderDonations() {
   const container = document.getElementById("donationsList");
   if (!container) return;
@@ -117,7 +154,7 @@ function renderDonations() {
   const donationsPerPage = 10;
   const startIndex = (currentPage - 1) * donationsPerPage;
   const endIndex = startIndex + donationsPerPage;
-  const donationsToShow = allDonations.slice(startIndex, endIndex);
+  const donationsToShow = filteredDonations.slice(startIndex, endIndex);
 
   if (donationsToShow.length === 0) {
     container.innerHTML = `
@@ -130,7 +167,12 @@ function renderDonations() {
 
   container.innerHTML = donationsToShow
     .map(
-      (donation) => `
+      (donation) => {
+        // Manejar diferentes formatos de datos (relaciones o campos directos)
+        const userName = donation.user_name || donation.users?.name || "N/A";
+        const plantName = donation.plant_name || donation.plants?.name || "N/A";
+        
+        return `
     <div class="donation-item" data-donation-id="${donation.id}">
       <div class="donation-info">
         <div class="donation-header">
@@ -140,8 +182,8 @@ function renderDonations() {
           </span>
         </div>
         <div class="donation-details">
-          <p><strong>Usuario:</strong> ${donation.user_name || "N/A"}</p>
-          <p><strong>Planta:</strong> ${donation.plant_name || "N/A"}</p>
+          <p><strong>Usuario:</strong> ${userName}</p>
+          <p><strong>Planta:</strong> ${plantName}</p>
           <p><strong>Monto:</strong> $${donation.amount || 0}</p>
           <p><strong>Fecha:</strong> ${formatDate(donation.created_at)}</p>
           <p><strong>Método:</strong> ${donation.payment_method || "N/A"}</p>
@@ -171,7 +213,8 @@ function renderDonations() {
         </div>
       </div>
     </div>
-  `
+  `;
+      }
     )
     .join("");
 }
@@ -183,6 +226,10 @@ function setupFilters() {
       document.querySelectorAll(".filters select").forEach((s) => {
         s.selectedIndex = 0;
       });
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.value = "";
+      }
       currentFilters = {};
       currentPage = 1;
       loadDonations();
@@ -224,7 +271,7 @@ function setupPagination() {
 }
 
 function updatePagination() {
-  const totalPages = Math.ceil(allDonations.length / 10);
+  const totalPages = Math.ceil(filteredDonations.length / 10);
   const pagination = document.querySelector(".pagination");
 
   if (pagination) {
@@ -256,7 +303,9 @@ function setupSearch() {
           delete currentFilters.search;
         }
         currentPage = 1;
-        loadDonations();
+        applySearchFilter();
+        renderDonations();
+        updatePagination();
       }, 500);
     });
   }
@@ -372,6 +421,7 @@ function showNotification(message, type = "error") {
 // Actualiza las tarjetas de métricas superiores con datos reales
 async function updateMetricsFromDonations() {
   try {
+    // Usar allDonations para las métricas (sin filtros de búsqueda)
     const totalAmount = allDonations.reduce(
       (sum, d) => sum + Number(d.amount || 0),
       0

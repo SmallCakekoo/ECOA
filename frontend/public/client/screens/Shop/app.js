@@ -324,6 +324,10 @@ async function loadAccessories() {
       // Construir HTML sin placeholder de Unsplash en onerror
       // Usar ruta relativa exacta como en el HTML estático
       const imagePath = imageSrc || `../../src/assets/images/${mappedName || 'accessory-1.png'}`;
+      // Formatear el precio
+      const price = acc.price_estimate || 0;
+      const formattedPrice = `$${price.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+      
       card.innerHTML = `
         <div class="shop-image">
           ${
@@ -335,6 +339,7 @@ async function loadAccessories() {
         <div class="shop-info">
           <div class="shop-title">${acc.name || "Sin nombre"}</div>
           <div class="shop-description">${acc.description || ""}</div>
+          <div class="shop-price">${formattedPrice}</div>
           <button class="add-button" onclick="goToShopFeedback()">
             <span class="iconify" data-icon="material-symbols:add"></span>
           </button>

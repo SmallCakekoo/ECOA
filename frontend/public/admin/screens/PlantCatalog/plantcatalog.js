@@ -190,6 +190,10 @@ function setupFilters() {
       document.querySelectorAll(".filters select").forEach((s) => {
         s.selectedIndex = 0;
       });
+      const searchInput = document.getElementById("searchInput");
+      if (searchInput) {
+        searchInput.value = "";
+      }
       currentFilters = {};
       currentPage = 1;
       loadPlants();

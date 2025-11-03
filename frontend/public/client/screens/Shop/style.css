@@ -92,6 +92,14 @@
 .shop-description {
     font-size: 13px;
     line-height: 1.4;
+    margin-bottom: 8px;
+    padding-right: 65px;
+}
+
+.shop-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
     margin-bottom: 0;
     padding-right: 65px;
 }
