@@ -108,19 +108,7 @@ export const PlantsController = {
         }
       });
       
-      console.log('📤 Intentando insertar en Supabase...');
       const { data, error } = await insertPlant(plantData);
-      
-      if (error) {
-        console.error('❌ Error inmediato de Supabase:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-      } else {
-        console.log('✅ Inserción exitosa en Supabase');
-      }
       
       if (error) {
         // Log completo del error para debugging
@@ -129,7 +117,6 @@ export const PlantsController = {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          stack: error.stack,
           plantDataKeys: Object.keys(plantData),
           plantDataSummary: {
             id: plantData.id,
@@ -137,22 +124,16 @@ export const PlantsController = {
             species: plantData.species,
             hasImage: !!plantData.image,
             imageLength: plantData.image ? plantData.image.length : 0,
-            imagePreview: plantData.image ? `${plantData.image.substring(0, 50)}...` : null,
             user_id: plantData.user_id,
             is_adopted: plantData.is_adopted
           }
         });
         
-        // Si es un error de tipo desconocido, loguear el objeto completo
-        if (!error.code && !error.message) {
-          console.error('❌ Error completo sin código/mensaje:', JSON.stringify(error, null, 2));
-        }
-        
         // Mensajes de error más claros basados en el código de error
         if (error.message && (error.message.includes('value too long') || error.message.includes('exceeds maximum') || error.message.includes('too long for type'))) {
           return res.status(400).json({ 
             success: false, 
-            message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<250KB)' 
+            message: 'La imagen es demasiado grande. Por favor usa una imagen más pequeña (<200KB)' 
           });
         }
         
@@ -178,7 +159,6 @@ export const PlantsController = {
         }
         
         // Error genérico con más detalles
-        // En producción, dar mensaje genérico pero loguear detalles
         const errorMessage = `Error al guardar en la base de datos${error.message ? ': ' + error.message : ''}`;
         
         // Loguear error completo para debugging
@@ -198,6 +178,14 @@ export const PlantsController = {
         });
       }
       
+      if (!data) {
+        console.error('❌ No se recibió data de Supabase después de insertar');
+        return res.status(500).json({
+          success: false,
+          message: 'Error al crear la planta: no se recibió respuesta del servidor'
+        });
+      }
+      
       req.io?.emit("plant_created", {
         type: "plant_created",
         data,
@@ -208,19 +196,7 @@ export const PlantsController = {
         .status(201)
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
-      console.error('❌ Error completo al crear planta:', error);
-      console.error('❌ Stack trace:', error.stack);
-      console.error('❌ Error name:', error.name);
-      console.error('❌ Error message:', error.message);
-      
-      // Si el error ya tiene un código de estado, usarlo
-      if (error.status) {
-        return res.status(error.status).json({
-          success: false,
-          message: error.message || "Error al crear la planta"
-        });
-      }
-      
+      console.error('❌ Error al crear planta:', error);
       return handleError(error, res);
     }
   },
