@@ -4,10 +4,6 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/$1"
-    },
-    {
       "source": "/",
       "destination": "/client/screens/Home/index.html"
     },
