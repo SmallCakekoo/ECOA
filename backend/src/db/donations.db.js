@@ -155,25 +155,85 @@ const DonationsDB = {
 
   // Crear nueva donación
   async create(donationData) {
-    const data = {
-      ...donationData,
-      created_at: new Date().toISOString(),
-    };
+    try {
+      // Remover created_at si existe (Supabase lo maneja automáticamente con timestamps)
+      const { created_at, ...dataWithoutTimestamp } = donationData;
+      
+      console.log("📝 Creando donación con datos:", dataWithoutTimestamp);
 
-    const { data: result, error } = await supabase
-      .from("donations")
-      .insert([data])
-      .select(
-        `
-        *,
-        users:user_id(name, email),
-        plants:plant_id(name, species)
-      `
-      )
-      .single();
+      // Insertar sin relaciones primero para evitar errores
+      const { data: result, error } = await supabase
+        .from("donations")
+        .insert([dataWithoutTimestamp])
+        .select("*")
+        .single();
 
-    if (error) throw error;
-    return result;
+      if (error) {
+        console.error("❌ Error en Supabase al crear donación:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
+
+      console.log("✅ Donación creada exitosamente:", result?.id);
+
+      // Si no hay resultado, retornar null
+      if (!result) {
+        throw new Error("No se pudo crear la donación");
+      }
+
+      // Enriquecer con datos de usuario y planta si existen
+      let enrichedResult = { ...result };
+
+      // Obtener datos del usuario si existe
+      if (result.user_id) {
+        try {
+          const { data: user, error: userError } = await supabase
+            .from("users")
+            .select("id, name, email")
+            .eq("id", result.user_id)
+            .single();
+
+          if (!userError && user) {
+            enrichedResult.user_name = user.name;
+            enrichedResult.user_email = user.email;
+            enrichedResult.users = { name: user.name, email: user.email };
+          }
+        } catch (e) {
+          console.warn("⚠️ No se pudo obtener datos del usuario:", e.message);
+        }
+      }
+
+      // Obtener datos de la planta si existe
+      if (result.plant_id) {
+        try {
+          const { data: plant, error: plantError } = await supabase
+            .from("plants")
+            .select("id, name, species")
+            .eq("id", result.plant_id)
+            .single();
+
+          if (!plantError && plant) {
+            enrichedResult.plant_name = plant.name;
+            enrichedResult.plant_species = plant.species;
+            enrichedResult.plants = { name: plant.name, species: plant.species };
+          }
+        } catch (e) {
+          console.warn("⚠️ No se pudo obtener datos de la planta:", e.message);
+        }
+      }
+
+      return enrichedResult;
+    } catch (error) {
+      console.error("❌ Error completo al crear donación:", {
+        message: error.message,
+        stack: error.stack
+      });
+      throw error;
+    }
   },
 
   // Actualizar donación

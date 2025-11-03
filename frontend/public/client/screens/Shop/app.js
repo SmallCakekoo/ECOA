@@ -134,17 +134,29 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
       }),
     });
 
+    // Verificar si la respuesta es OK (200-299)
+    if (!donationResponse.ok) {
+      const errorText = await donationResponse.text();
+      console.error("❌ Error HTTP al crear donación:", {
+        status: donationResponse.status,
+        statusText: donationResponse.statusText,
+        error: errorText
+      });
+      window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
+      return;
+    }
+
     const donationResult = await donationResponse.json();
 
     if (!donationResult.success) {
-      console.error("Error creando donación:", donationResult);
+      console.error("❌ Error en respuesta de donación:", donationResult);
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
 
     console.log("✅ Donación creada exitosamente:", donationResult.data);
 
-    // Asignar el accesorio a la planta en plants_accessories
+    // Intentar asignar el accesorio a la planta (opcional, no crítico)
     try {
       const assignmentResponse = await fetch(`${API_BASE_URL}/plants/${currentPlantId}/accessories`, {
         method: "POST",
@@ -156,19 +168,28 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
         }),
       });
 
-      const assignmentResult = await assignmentResponse.json();
-      
-      if (assignmentResult.success) {
-        console.log("✅ Accesorio asignado a la planta:", assignmentResult.data);
+      if (!assignmentResponse.ok) {
+        const errorText = await assignmentResponse.text();
+        console.warn("⚠️ Error HTTP al asignar accesorio:", {
+          status: assignmentResponse.status,
+          error: errorText
+        });
       } else {
-        console.warn("⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:", assignmentResult);
+        const assignmentResult = await assignmentResponse.json();
+        
+        if (assignmentResult.success) {
+          console.log("✅ Accesorio asignado a la planta:", assignmentResult.data);
+        } else {
+          console.warn("⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:", assignmentResult);
+        }
       }
     } catch (assignmentError) {
-      console.warn("⚠️ Error asignando accesorio a la planta:", assignmentError);
+      console.warn("⚠️ Error asignando accesorio a la planta (no crítico):", assignmentError);
       // No fallar si no se puede asignar, la donación ya se creó
     }
 
-    // Redirigir a la página de éxito
+    // SIEMPRE redirigir a success si la donación se creó exitosamente
+    console.log("✅ Redirigiendo a página de éxito...");
     window.location.href = `/client/screens/ShopFeedback/success?id=${currentPlantId}`;
 
   } catch (error) {
