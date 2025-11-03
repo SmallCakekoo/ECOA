@@ -4,13 +4,13 @@ const DonationsDB = {
   // Listar todas las donaciones
   async list({ user_id, plant_id, status } = {}) {
     try {
-      // Construir query base
+      // Construir query base sin filtro de status (puede no existir en la tabla)
       let query = supabase
         .from("donations")
         .select("*")
         .order("created_at", { ascending: false });
 
-      // Aplicar filtros
+      // Aplicar filtros que sabemos que existen
       if (user_id) {
         query = query.eq("user_id", user_id);
       }
@@ -19,12 +19,8 @@ const DonationsDB = {
         query = query.eq("plant_id", plant_id);
       }
 
-      if (status && status !== "all") {
-        query = query.eq("status", status);
-      }
-
       // Ejecutar query
-      const { data, error } = await query;
+      let { data, error } = await query;
       
       if (error) {
         console.error("❌ Error en query de donaciones:", {
@@ -38,6 +34,22 @@ const DonationsDB = {
       }
 
       // Si no hay datos, retornar array vacío
+      if (!data || data.length === 0) {
+        console.log("✅ Query exitosa, pero no hay donaciones");
+        return [];
+      }
+
+      // Aplicar filtro de status en memoria si se especificó
+      if (status && status !== "all") {
+        const beforeFilter = data.length;
+        data = data.filter(donation => {
+          // Asegurar que el status existe y coincide (case insensitive)
+          return donation.status && donation.status.toLowerCase() === status.toLowerCase();
+        });
+        console.log(`✅ Filtrado por status "${status}": ${beforeFilter} -> ${data.length} donaciones`);
+      }
+
+      // Si después del filtro no hay datos, retornar array vacío
       if (!data || data.length === 0) {
         console.log("✅ Query exitosa, pero no hay donaciones con los filtros aplicados");
         return [];
