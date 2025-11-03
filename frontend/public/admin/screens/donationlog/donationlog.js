@@ -262,12 +262,24 @@ function updatePagination() {
   const pagination = document.querySelector(".pagination");
 
   if (pagination) {
-    let paginationHTML = "";
-
-    for (let i = 1; i <= totalPages; i++) {
+    const donationsPerPage = 10;
+    const startIndex = (currentPage - 1) * donationsPerPage;
+    const endIndex = Math.min(startIndex + donationsPerPage, filteredDonations.length);
+    const showing = filteredDonations.length > 0 ? endIndex - startIndex : 0;
+    
+    let paginationHTML = `<div style="margin-right: auto; color: #263238; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;">Showing ${showing} of ${filteredDonations.length} donations</div>`;
+    
+    // Botón Previous
+    paginationHTML += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">Previous</button>`;
+    
+    // Números de página (máximo 2 páginas visibles como en la imagen)
+    for (let i = 1; i <= totalPages && i <= 2; i++) {
       const isActive = i === currentPage ? "active" : "";
       paginationHTML += `<button class="page-num ${isActive}" data-page="${i}">${i}</button>`;
     }
+    
+    // Botón Next
+    paginationHTML += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">Next</button>`;
 
     pagination.innerHTML = paginationHTML;
 
