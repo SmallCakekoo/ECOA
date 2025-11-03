@@ -81,14 +81,8 @@ async function initializeApp() {
     await loadDonations();
     await updateMetricsFromDonations();
 
-    // Configurar filtros
-    setupFilters();
-
     // Configurar paginación
     setupPagination();
-
-    // Configurar búsqueda
-    setupSearch();
   } catch (error) {
     console.error("Error initializing app:", error);
     showNotification("Error al cargar las donaciones", "error");
@@ -98,23 +92,10 @@ async function initializeApp() {
 async function loadDonations() {
   try {
     showLoading(true);
-    // Solo enviar filtros que el backend soporta (status, user_id, plant_id)
-    const backendFilters = {};
-    if (currentFilters.status && currentFilters.status !== "all") {
-      backendFilters.status = currentFilters.status;
-    }
-    if (currentFilters.user_id) {
-      backendFilters.user_id = currentFilters.user_id;
-    }
-    if (currentFilters.plant_id) {
-      backendFilters.plant_id = currentFilters.plant_id;
-    }
-
-    const response = await window.AdminAPI.getDonations(backendFilters);
+    // Cargar todas las donaciones sin filtros
+    const response = await window.AdminAPI.getDonations({});
     allDonations = response.data || [];
-
-    // Aplicar búsqueda en el frontend si existe
-    applySearchFilter();
+    filteredDonations = allDonations; // Sin filtros, mostrar todas
 
     renderDonations();
     updatePagination();
@@ -206,39 +187,9 @@ function renderDonations() {
     .join("");
 }
 
+// Función mantenida por compatibilidad pero ya no se usa (no hay filtros)
 function setupFilters() {
-  const resetBtn = document.getElementById("resetFilters");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      document.querySelectorAll(".filters select").forEach((s) => {
-        s.selectedIndex = 0;
-      });
-      const searchInput = document.getElementById("searchInput");
-      if (searchInput) {
-        searchInput.value = "";
-      }
-      currentFilters = {};
-      currentPage = 1;
-      loadDonations();
-    });
-  }
-
-  // Event listeners para filtros
-  document.querySelectorAll(".filters select").forEach((select) => {
-    select.addEventListener("change", () => {
-      const filterName = select.name;
-      const filterValue = select.value;
-
-      if (filterValue && filterValue !== "all") {
-        currentFilters[filterName] = filterValue;
-      } else {
-        delete currentFilters[filterName];
-      }
-
-      currentPage = 1;
-      loadDonations();
-    });
-  });
+  // No hay filtros en la nueva versión
 }
 
 function setupPagination() {
@@ -247,11 +198,20 @@ function setupPagination() {
       const page = parseInt(btn.dataset.page);
       if (page && page !== currentPage) {
         currentPage = page;
-        document
-          .querySelectorAll(".page-num")
-          .forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
         renderDonations();
+        updatePagination();
+      }
+    });
+  });
+  
+  // También manejar los botones Previous/Next
+  document.querySelectorAll(".page-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const page = parseInt(btn.dataset.page);
+      if (page && page !== currentPage && !btn.disabled) {
+        currentPage = page;
+        renderDonations();
+        updatePagination();
       }
     });
   });
@@ -288,26 +248,9 @@ function updatePagination() {
   }
 }
 
+// Función mantenida por compatibilidad pero ya no se usa
 function setupSearch() {
-  const searchInput = document.getElementById("searchInput");
-  if (searchInput) {
-    let searchTimeout;
-    searchInput.addEventListener("input", (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        const searchTerm = e.target.value.trim();
-        if (searchTerm) {
-          currentFilters.search = searchTerm;
-        } else {
-          delete currentFilters.search;
-        }
-        currentPage = 1;
-        applySearchFilter();
-        renderDonations();
-        updatePagination();
-      }, 500);
-    });
-  }
+  // No hay búsqueda en la nueva versión sin filtros
 }
 
 async function updateDonationStatus(donationId, status) {

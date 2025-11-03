@@ -252,23 +252,66 @@ export const PlantsController = {
     try {
       const { id } = req.params;
       const metricsData = sanitizePlantMetrics(req.body);
-      const { data, error } = await updatePlant(id, metricsData);
+      
+      console.log("📝 Actualizando métricas para planta:", id, metricsData);
+      
+      // Si hay health_status, insertar un nuevo registro en plant_status
+      if (metricsData.health_status) {
+        const { insertPlantStatus } = await import("../db/plant_status.db.js");
+        const { createPlantStatusModel } = await import("../models/plant_status.model.js");
+        
+        try {
+          const statusData = createPlantStatusModel({
+            plant_id: id,
+            status: metricsData.health_status
+          });
+          
+          const { data: statusResult, error: statusError } = await insertPlantStatus(statusData);
+          
+          if (statusError) {
+            console.error("❌ Error insertando plant_status:", statusError);
+            throw statusError;
+          }
+          
+          console.log("✅ Health status registrado en plant_status:", statusResult);
+        } catch (statusError) {
+          console.error("❌ Error al registrar health_status:", statusError);
+          throw statusError;
+        }
+      }
+      
+      // Obtener la planta actualizada para devolver
+      const { data, error } = await findPlantById(id);
       if (error) throw error;
-      if (!data)
+      if (!data) {
         return res
           .status(404)
           .json({ success: false, message: "Planta no encontrada" });
+      }
+      
+      // Enriquecer con el último health_status
+      const { findAllPlantStatus } = await import("../db/plant_status.db.js");
+      const { data: statuses } = await findAllPlantStatus({ plant_id: id });
+      if (statuses && statuses.length > 0) {
+        const latestStatus = statuses.sort((a, b) => 
+          new Date(b.recorded_at) - new Date(a.recorded_at)
+        )[0];
+        data.health_status = latestStatus.status;
+      }
+      
       req.io?.emit("plant_metrics_updated", {
         type: "plant_metrics_updated",
         data,
         timestamp: new Date().toISOString(),
       });
+      
       return res.status(200).json({
         success: true,
         message: "Métricas actualizadas exitosamente",
         data,
       });
     } catch (error) {
+      console.error("❌ Error en updateMetrics:", error);
       return handleError(error, res);
     }
   },

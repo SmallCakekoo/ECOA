@@ -565,13 +565,20 @@ async function updatePlant(plantId) {
     }
 
     // Actualizar health_status si se especificó
+    let healthStatusUpdated = false;
     if (healthStatus) {
       try {
         const metricsResult = await window.AdminAPI.updatePlantMetrics(plantId, { health_status: healthStatus });
         console.log("✅ Health status actualizado:", healthStatus, metricsResult);
+        healthStatusUpdated = true;
+        // NO mostrar notificación aquí, solo una al final
       } catch (statusError) {
         console.error("❌ Error al actualizar health_status:", statusError);
-        showNotification("La planta se actualizó, pero hubo un error al actualizar el estado de salud", "warning");
+        // No mostrar notificación de warning aquí para evitar duplicados
+        // Solo lanzar error si es crítico
+        if (statusError.message && statusError.message.includes("coerce")) {
+          throw new Error("Error al actualizar el estado de salud. Por favor, inténtalo de nuevo.");
+        }
       }
     }
 
@@ -586,7 +593,11 @@ async function updatePlant(plantId) {
       console.log("✅ Objeto local actualizado:", allPlants[plantIndex]);
     }
 
-    showNotification("Planta actualizada exitosamente", "success");
+    // Mostrar UNA sola notificación
+    const notificationMessage = healthStatusUpdated && healthStatus
+      ? `Planta actualizada exitosamente. Estado: ${healthStatus}`
+      : "Planta actualizada exitosamente";
+    showNotification(notificationMessage, "success");
     closeEditModal();
     
     // Recargar plantas desde el servidor para obtener los datos más actualizados

@@ -97,6 +97,15 @@ export function sanitizePlantUpdate(payload) {
 // Esta función ya no es necesaria ya que plant_stats es una tabla separada
 // Mantenemos por compatibilidad pero vacía
 export function sanitizePlantMetrics(payload) {
-  // Las métricas ahora van a la tabla plant_stats
-  return {};
+  // Permite health_status que se guardará en plant_status
+  const allowed = ["health_status"];
+  const sanitized = {};
+  
+  Object.keys(payload).forEach((key) => {
+    if (allowed.includes(key) && payload[key] !== undefined && payload[key] !== null) {
+      sanitized[key] = payload[key];
+    }
+  });
+  
+  return sanitized;
 }
