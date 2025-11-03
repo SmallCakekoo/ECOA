@@ -51,16 +51,28 @@ const DonationsController = {
   // Crear nueva donación
   async create(req, res) {
     try {
+      console.log("📥 Recibida petición para crear donación:", req.body);
+      
       // Usar el modelo para validar y sanitizar los datos
       const donationData = createDonationModel(req.body);
+      console.log("✅ Datos validados:", donationData);
+      
       const data = await DonationsDB.create(donationData);
+      console.log("✅ Donación creada en DB:", data?.id);
 
-      // Emitir evento de Socket.IO
-      req.io.emit("donation_created", {
-        type: "donation_created",
-        data: data,
-        timestamp: new Date().toISOString(),
-      });
+      // Emitir evento de Socket.IO solo si existe
+      if (req.io) {
+        try {
+          req.io.emit("donation_created", {
+            type: "donation_created",
+            data: data,
+            timestamp: new Date().toISOString(),
+          });
+          console.log("✅ Evento Socket.IO emitido");
+        } catch (ioError) {
+          console.warn("⚠️ Error emitiendo evento Socket.IO (no crítico):", ioError.message);
+        }
+      }
 
       res.status(201).json({
         success: true,
@@ -68,6 +80,11 @@ const DonationsController = {
         data: data,
       });
     } catch (error) {
+      console.error("❌ Error en create() de donations controller:", {
+        message: error.message,
+        stack: error.stack,
+        body: req.body
+      });
       res.status(500).json({
         success: false,
         message: "Error al crear donación",
