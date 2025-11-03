@@ -1,5 +1,5 @@
 export function createDonationModel(payload) {
-  const { user_id, plant_id, amount, accessory_type, status, payment_method } = payload;
+  const { user_id, plant_id, amount, accessory_type, status } = payload;
 
   if (!user_id || !plant_id || amount === undefined || amount === null) {
     throw new Error("user_id, plant_id y amount son requeridos");
@@ -12,14 +12,19 @@ export function createDonationModel(payload) {
   }
 
   // No incluir created_at - Supabase lo maneja automáticamente con timestamps
-  return {
+  // No incluir payment_method si no existe en la tabla
+  const donationData = {
     user_id,
     plant_id,
     amount: amountNum,
     accessory_type: accessory_type || null,
     status: status || "pending",
-    payment_method: payment_method || null,
   };
+
+  // Solo incluir payment_method si se envía y si existe en la tabla (no incluirlo por defecto)
+  // Removido porque la columna no existe en la tabla donations
+
+  return donationData;
 }
 
 export function sanitizeDonationUpdate(payload) {

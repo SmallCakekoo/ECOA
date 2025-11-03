@@ -129,8 +129,8 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
         plant_id: currentPlantId,
         amount: price,
         accessory_type: accessoryName,
-        status: "pending", // Estado inicial de la compra
-        payment_method: "accessory_purchase"
+        status: "pending" // Estado inicial de la compra
+        // No incluir payment_method - no existe en la tabla
       }),
     });
 
