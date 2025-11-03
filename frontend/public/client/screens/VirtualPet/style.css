@@ -189,27 +189,38 @@ body {
     flex: 1;
     background-color: #7EB234;
     border-radius: 0 25px 25px 0;
-    padding: 25px 30px;
+    padding: 20px 25px;
     color: white;
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     height: 180px;
+    overflow: hidden;
 }
 
 .accessory-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     line-height: 1.2;
+    padding-right: 65px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .accessory-description {
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.4;
     margin-bottom: 8px;
-    padding-right: 70px;
+    padding-right: 65px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    flex: 1;
+    min-height: 0;
 }
 
 .accessory-price {
@@ -217,13 +228,14 @@ body {
     font-weight: 700;
     color: white;
     margin-bottom: 0;
-    padding-right: 70px;
+    padding-right: 65px;
+    flex-shrink: 0;
 }
 
 .add-button-small {
     position: absolute;
-    bottom: 30px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
     background-color: rgba(255, 255, 255, 0.3);
     border: none;
     border-radius: 12px;
@@ -234,6 +246,7 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s;
+    flex-shrink: 0;
 }
 
 .add-button-small:hover {
@@ -375,16 +388,41 @@ body {
     }
 
     .accessory-card {
-        flex-direction: column;
-        text-align: center;
+        flex-direction: row;
     }
 
     .accessory-image {
-        border-radius: 25px 25px 0 0;
+        width: 150px;
+        height: 180px;
+        border-radius: 25px 0 0 25px;
     }
 
     .accessory-content {
-        border-radius: 0 0 25px 25px;
+        height: 180px;
+        border-radius: 0 25px 25px 0;
+        padding: 18px 20px;
+    }
+
+    .accessory-title {
+        font-size: 18px;
+        padding-right: 60px;
+    }
+
+    .accessory-description {
+        font-size: 12px;
+        padding-right: 60px;
+    }
+
+    .accessory-price {
+        font-size: 16px;
+        padding-right: 60px;
+    }
+
+    .add-button-small {
+        bottom: 18px;
+        right: 18px;
+        width: 45px;
+        height: 45px;
     }
 
     .bottom-nav {
