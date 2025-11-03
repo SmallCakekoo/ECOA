@@ -399,6 +399,62 @@
       </div>
     </div>
 
+    <!-- Edit Plant Modal -->
+    <div class="overlay" id="editPlantModal" aria-hidden="true">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">Edit Plant</h2>
+          <button class="close" onclick="closeEditModal()" aria-label="Close">✕</button>
+        </div>
+        <form class="plant-form" id="editPlantForm">
+          <div class="form-group">
+            <label class="label" for="editPlantName">Name</label>
+            <input
+              id="editPlantName"
+              name="plantName"
+              class="input"
+              placeholder="Plant name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="editSpecies">Species</label>
+            <input
+              id="editSpecies"
+              name="species"
+              class="input"
+              placeholder="Plant species"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="editDescription">Description</label>
+            <textarea
+              id="editDescription"
+              name="description"
+              class="input"
+              placeholder="Plant description..."
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="editHealthStatus">Health Status</label>
+            <select id="editHealthStatus" name="healthStatus" class="input">
+              <option value="healthy">Healthy</option>
+              <option value="needs_care">Needs Care</option>
+              <option value="sick">Sick</option>
+              <option value="dying">Dying</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Update Plant</button>
+        </form>
+      </div>
+    </div>
+
     <script src="../../src/config.js"></script>
     <script src="../../src/api.js"></script>
     <script src="../../src/auth.js"></script>

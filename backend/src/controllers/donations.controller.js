@@ -1,4 +1,5 @@
 import DonationsDB from "../db/donations.db.js";
+import { createDonationModel } from "../models/donations.model.js";
 
 const DonationsController = {
   // Listar todas las donaciones
@@ -50,7 +51,8 @@ const DonationsController = {
   // Crear nueva donación
   async create(req, res) {
     try {
-      const donationData = req.body;
+      // Usar el modelo para validar y sanitizar los datos
+      const donationData = createDonationModel(req.body);
       const data = await DonationsDB.create(donationData);
 
       // Emitir evento de Socket.IO

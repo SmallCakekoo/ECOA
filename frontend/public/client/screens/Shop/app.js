@@ -90,7 +90,94 @@ window.goToProfile = function (event) {
   window.location.href = "/client/screens/Profile";
 };
 
-// Función para ir a Shop Feedback Success (expuesta globalmente)
+// Función para comprar un accesorio (expuesta globalmente)
+window.purchaseAccessory = async function (accessoryId, accessoryName, price, pId) {
+  try {
+    // Usar el plantId de la variable global o del parámetro
+    const currentPlantId = pId || plantId;
+    
+    // Verificar que hay un usuario logueado
+    if (!USER_DATA || !USER_DATA.id) {
+      console.error("Usuario no autenticado");
+      window.location.href = "/client/screens/ShopFeedback/error";
+      return;
+    }
+
+    // Verificar que hay una planta seleccionada
+    if (!currentPlantId) {
+      console.error("No se ha seleccionado una planta");
+      window.location.href = "/client/screens/ShopFeedback/error";
+      return;
+    }
+
+    console.log("Comprando accesorio:", {
+      accessoryId,
+      accessoryName,
+      price,
+      plantId: currentPlantId,
+      userId: USER_DATA.id
+    });
+
+    // Crear la donación (compra) en Supabase
+    const donationResponse = await fetch(`${API_BASE_URL}/donations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: USER_DATA.id,
+        plant_id: currentPlantId,
+        amount: price,
+        accessory_type: accessoryName,
+        status: "pending", // Estado inicial de la compra
+        payment_method: "accessory_purchase"
+      }),
+    });
+
+    const donationResult = await donationResponse.json();
+
+    if (!donationResult.success) {
+      console.error("Error creando donación:", donationResult);
+      window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
+      return;
+    }
+
+    console.log("✅ Donación creada exitosamente:", donationResult.data);
+
+    // Asignar el accesorio a la planta en plants_accessories
+    try {
+      const assignmentResponse = await fetch(`${API_BASE_URL}/plants/${currentPlantId}/accessories`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accessory_id: accessoryId
+        }),
+      });
+
+      const assignmentResult = await assignmentResponse.json();
+      
+      if (assignmentResult.success) {
+        console.log("✅ Accesorio asignado a la planta:", assignmentResult.data);
+      } else {
+        console.warn("⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:", assignmentResult);
+      }
+    } catch (assignmentError) {
+      console.warn("⚠️ Error asignando accesorio a la planta:", assignmentError);
+      // No fallar si no se puede asignar, la donación ya se creó
+    }
+
+    // Redirigir a la página de éxito
+    window.location.href = `/client/screens/ShopFeedback/success?id=${currentPlantId}`;
+
+  } catch (error) {
+    console.error("❌ Error en la compra:", error);
+    window.location.href = `/client/screens/ShopFeedback/error?id=${plantId || ''}`;
+  }
+};
+
+// Función para ir a Shop Feedback Success (expuesta globalmente) - Mantener para compatibilidad
 window.goToShopFeedback = function () {
   if (plantId) {
     window.location.href = `/client/screens/ShopFeedback/success?id=${plantId}`;
@@ -340,7 +427,7 @@ async function loadAccessories() {
           <div class="shop-title">${acc.name || "Sin nombre"}</div>
           <div class="shop-description">${acc.description || ""}</div>
           <div class="shop-price">${formattedPrice}</div>
-          <button class="add-button" onclick="goToShopFeedback()">
+          <button class="add-button" onclick="purchaseAccessory('${acc.id}', '${acc.name}', ${price}, '${plantId || ''}')">
             <span class="iconify" data-icon="material-symbols:add"></span>
           </button>
         </div>`;

@@ -494,9 +494,15 @@ async function editPlant(plantId) {
     const plant = response.data;
 
     // Llenar formulario de edición
-    document.getElementById("editPlantName").value = plant.name;
-    document.getElementById("editSpecies").value = plant.species;
+    document.getElementById("editPlantName").value = plant.name || "";
+    document.getElementById("editSpecies").value = plant.species || "";
     document.getElementById("editDescription").value = plant.description || "";
+    
+    // Establecer el health_status si existe
+    const healthStatusSelect = document.getElementById("editHealthStatus");
+    if (healthStatusSelect && plant.health_status) {
+      healthStatusSelect.value = plant.health_status;
+    }
 
     // Mostrar modal de edición
     const editModal = document.getElementById("editPlantModal");
@@ -527,12 +533,25 @@ async function updatePlant(plantId) {
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
-    health_status: formData.get("healthStatus") || "healthy",
   };
+
+  // health_status se maneja en la tabla plant_status, no directamente en plants
+  // Si se quiere actualizar el health_status, se debe hacer en plant_status
+  const healthStatus = formData.get("healthStatus");
 
   try {
     showFormLoading(true);
     const result = await window.AdminAPI.updatePlant(plantId, plantData);
+
+    // Si hay un cambio de health_status, actualizarlo en plant_status
+    if (healthStatus && result.success) {
+      try {
+        await window.AdminAPI.updatePlantMetrics(plantId, { health_status: healthStatus });
+      } catch (statusError) {
+        console.warn("No se pudo actualizar el health_status:", statusError);
+        // No fallar si no se puede actualizar el status
+      }
+    }
 
     if (result.success) {
       showNotification("Planta actualizada exitosamente", "success");
@@ -606,6 +625,10 @@ function showFormLoading(show = true) {
   const submitBtn = document.querySelector(
     '#overlayPlantForm button[type="submit"]'
   );
+  const editSubmitBtn = document.querySelector(
+    '#editPlantForm button[type="submit"]'
+  );
+  
   if (submitBtn) {
     if (show) {
       submitBtn.disabled = true;
@@ -615,6 +638,18 @@ function showFormLoading(show = true) {
       submitBtn.disabled = false;
       submitBtn.innerHTML = "Register Plant";
       submitBtn.style.opacity = "1";
+    }
+  }
+  
+  if (editSubmitBtn) {
+    if (show) {
+      editSubmitBtn.disabled = true;
+      editSubmitBtn.innerHTML = '<span class="spinner"></span> Actualizando...';
+      editSubmitBtn.style.opacity = "0.7";
+    } else {
+      editSubmitBtn.disabled = false;
+      editSubmitBtn.innerHTML = "Update Plant";
+      editSubmitBtn.style.opacity = "1";
     }
   }
 }
