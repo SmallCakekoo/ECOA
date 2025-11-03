@@ -100,11 +100,15 @@ async function initializeApp() {
     // Cargar plantas recientes
     await loadRecentPlants();
 
+    // Cargar donaciones recientes
+    await loadRecentDonations();
+
     // Configurar formulario de nueva planta
     setupPlantForm();
 
     // Configurar actualización automática
     setInterval(loadStats, 30000); // Actualizar cada 30 segundos
+    setInterval(loadRecentDonations, 30000); // Actualizar donaciones cada 30 segundos
   } catch (error) {
     console.error("Error initializing app:", error);
     showNotification("Error al cargar los datos del dashboard", "error");
@@ -116,13 +120,25 @@ async function loadStats() {
     const stats = await window.AdminAPI.getStats();
     console.log("Stats loaded:", stats);
 
+    // Calcular nuevas adopciones este mes
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const adoptedThisMonth = stats.plants.adopted || 0; // Simplificado, podría mejorarse con fecha de adopción
+
     // Actualizar contadores correctamente (IDs según index.html)
     updateStatCard("totalUsers", stats.plants.adopted || 0); // Total Adoptions
-    updateStatCard(
-      "totalAmount",
-      `$${Number(stats.donations.totalAmount || 0).toLocaleString()}`
-    );
+    updateStatSubtext("newUsers", `${adoptedThisMonth} nuevos este mes`); // Actualizar subtítulo
+
+    // Total Donations
+    const totalDonations = Number(stats.donations.totalAmount || 0);
+    updateStatCard("totalAmount", `$${totalDonations.toLocaleString()}`);
+    updateStatSubtext("activeDonations", `${stats.donations.active || 0} donaciones activas`);
+
+    // Plants in Catalog
     updateStatCard("totalPlants", stats.plants.total || 0);
+    updateStatSubtext("availablePlants", `${stats.plants.available || 0} disponibles`);
+
+    // Health Score
     const healthScore = (() => {
       const total = stats.plants.total || 0;
       const healthy = stats.plants.healthy || 0;
@@ -136,10 +152,18 @@ async function loadStats() {
     updateCharts(stats);
   } catch (error) {
     console.error("Error loading stats:", error);
+    showNotification("Error al cargar estadísticas", "error");
   }
 }
 
 function updateStatCard(elementId, value) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = value;
+  }
+}
+
+function updateStatSubtext(elementId, value) {
   const element = document.getElementById(elementId);
   if (element) {
     element.textContent = value;
@@ -516,6 +540,83 @@ async function createPlant() {
     showNotification(error.message || "Error al crear la planta", "error");
   } finally {
     showLoading(false);
+  }
+}
+
+async function loadRecentDonations() {
+  try {
+    const response = await window.AdminAPI.getDonations({});
+    const donations = response.data || [];
+    
+    // Ordenar por fecha de creación (más recientes primero) y tomar las primeras 3
+    const sortedDonations = donations
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at || 0);
+        const dateB = new Date(b.created_at || 0);
+        return dateB - dateA;
+      })
+      .slice(0, 3);
+
+    const container = document.getElementById("recentDonations");
+    if (!container) return;
+
+    if (sortedDonations.length === 0) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #666;">
+          No hay donaciones recientes
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = sortedDonations
+      .map((donation) => {
+        // Obtener nombre del usuario
+        const userName = donation.user_name || donation.users?.name || "Usuario";
+        
+        // Obtener nombre de la planta o tipo de accesorio
+        const plantName = donation.plant_name || donation.plants?.name || "";
+        const accessoryType = donation.accessory_type || "";
+        const donationNote = accessoryType 
+          ? `For ${accessoryType}` 
+          : plantName 
+          ? `For ${plantName}` 
+          : "Donation";
+
+        // Formatear monto
+        const amount = Number(donation.amount || 0);
+        const formattedAmount = `$${amount.toLocaleString()}`;
+
+        return `
+          <div class="donation-item">
+            <div class="donation-left">
+              <div class="donation-icon">
+                <span
+                  class="iconify"
+                  data-icon="material-symbols:attach-money-rounded"
+                  style="font-size: 28px; color: white"
+                ></span>
+              </div>
+              <div class="donation-info">
+                <div class="donation-name">${userName}</div>
+                <div class="donation-note">${donationNote}</div>
+              </div>
+            </div>
+            <div class="donation-amount">${formattedAmount}</div>
+          </div>
+        `;
+      })
+      .join("");
+  } catch (error) {
+    console.error("Error loading recent donations:", error);
+    const container = document.getElementById("recentDonations");
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #d32f2f;">
+          Error al cargar donaciones
+        </div>
+      `;
+    }
   }
 }
 
