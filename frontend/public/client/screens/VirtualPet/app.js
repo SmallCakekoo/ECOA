@@ -178,14 +178,24 @@ window.goToProfile = function (event) {
 };
 
 // Funciones para los botones de accesorios (expuestas globalmente)
+// Nota: Estas funciones ya no se usan, pero se mantienen para compatibilidad
+// Ahora se usa purchaseAccessory() que registra la compra y redirige correctamente
 window.goToShopSuccess = function () {
   console.log("Navegando a Shop Feedback Success");
-  window.location.href = "/client/screens/ShopFeedback/success";
+  if (plantId) {
+    window.location.href = `/client/screens/ShopFeedback/success?id=${plantId}`;
+  } else {
+    window.location.href = "/client/screens/ShopFeedback/success";
+  }
 };
 
 window.goToShopError = function () {
   console.log("Navegando a Shop Feedback Error");
-  window.location.href = "/client/screens/ShopFeedback/error";
+  if (plantId) {
+    window.location.href = `/client/screens/ShopFeedback/error?id=${plantId}`;
+  } else {
+    window.location.href = "/client/screens/ShopFeedback/error";
+  }
 };
 
 // Función para el botón View More (expuesta globalmente)

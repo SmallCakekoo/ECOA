@@ -44,5 +44,12 @@ window.goBack = function () {
 // Función para ir a Shop
 window.goToShop = function () {
   console.log("Volviendo a Shop...");
-  window.location.href = "/client/screens/Shop";
+  // Obtener el plantId de la URL si existe
+  const params = new URLSearchParams(window.location.search);
+  const plantId = params.get("id");
+  if (plantId) {
+    window.location.href = `/client/screens/Shop?id=${plantId}`;
+  } else {
+    window.location.href = "/client/screens/Shop";
+  }
 };
