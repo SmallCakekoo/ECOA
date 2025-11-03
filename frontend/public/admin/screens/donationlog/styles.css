@@ -380,20 +380,35 @@ body {
 .pagination {
   display: flex;
   gap: 8px;
+  align-items: center;
   justify-content: flex-end;
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .page-btn,
 .page-num {
   height: 34px;
-  padding: 0 10px;
+  min-width: 34px;
+  padding: 0 12px;
   border-radius: 8px;
   border: 1px solid #dbe7d7;
   background: #fff;
   color: #2f7a23;
   font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled),
+.page-num:hover:not(.active) {
+  background: #f4fbf3;
+  border-color: #7EB234;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .page-num.active {

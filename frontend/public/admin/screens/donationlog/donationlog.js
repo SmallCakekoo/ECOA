@@ -170,48 +170,35 @@ function renderDonations() {
       (donation) => {
         // Manejar diferentes formatos de datos (relaciones o campos directos)
         const userName = donation.user_name || donation.users?.name || "N/A";
-        const plantName = donation.plant_name || donation.plants?.name || "N/A";
+        
+        // Generar iniciales para el avatar si no hay imagen
+        const initials = userName
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+        
+        // Formatear fecha para mostrar solo la fecha (sin hora)
+        const donationDate = donation.created_at
+          ? new Date(donation.created_at).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "N/A";
+        
+        // Formatear monto
+        const formattedAmount = `$${donation.amount || 0}`;
         
         return `
-    <div class="donation-item" data-donation-id="${donation.id}">
-      <div class="donation-info">
-        <div class="donation-header">
-          <h3>Donación #${donation.id}</h3>
-          <span class="donation-status ${donation.status}">
-            ${getStatusText(donation.status)}
-          </span>
-        </div>
-        <div class="donation-details">
-          <p><strong>Usuario:</strong> ${userName}</p>
-          <p><strong>Planta:</strong> ${plantName}</p>
-          <p><strong>Monto:</strong> $${donation.amount || 0}</p>
-          <p><strong>Fecha:</strong> ${formatDate(donation.created_at)}</p>
-          <p><strong>Método:</strong> ${donation.payment_method || "N/A"}</p>
-        </div>
-        <div class="donation-actions">
-          <button class="btn-approve" onclick="updateDonationStatus(${
-            donation.id
-          }, 'approved')" 
-                  ${donation.status === "approved" ? "disabled" : ""}>
-            <i class="icon-check"></i> Aprobar
-          </button>
-          <button class="btn-reject" onclick="updateDonationStatus(${
-            donation.id
-          }, 'rejected')"
-                  ${donation.status === "rejected" ? "disabled" : ""}>
-            <i class="icon-close"></i> Rechazar
-          </button>
-          <button class="btn-pending" onclick="updateDonationStatus(${
-            donation.id
-          }, 'pending')"
-                  ${donation.status === "pending" ? "disabled" : ""}>
-            <i class="icon-clock"></i> Pendiente
-          </button>
-          <button class="btn-delete" onclick="deleteDonation(${donation.id})">
-            <i class="icon-delete"></i> Eliminar
-          </button>
-        </div>
+    <div class="trow" data-donation-id="${donation.id}">
+      <div class="cell donor">
+        <div class="avatar" style="background: #E6F2D8; color: #5f7a59; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">${initials}</div>
+        <span>${userName}</span>
       </div>
+      <div class="cell amount">${formattedAmount}</div>
+      <div class="cell date">${donationDate}</div>
     </div>
   `;
       }
