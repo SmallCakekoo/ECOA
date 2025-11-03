@@ -136,12 +136,25 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
 
     // Verificar si la respuesta es OK (200-299)
     if (!donationResponse.ok) {
-      const errorText = await donationResponse.text();
-      console.error("❌ Error HTTP al crear donación:", {
-        status: donationResponse.status,
-        statusText: donationResponse.statusText,
-        error: errorText
-      });
+      let errorText;
+      try {
+        errorText = await donationResponse.text();
+        const errorJson = JSON.parse(errorText);
+        console.error("❌ Error HTTP al crear donación:", {
+          status: donationResponse.status,
+          statusText: donationResponse.statusText,
+          error: errorJson.error || errorJson.message || errorText,
+          fullError: errorJson
+        });
+      } catch (e) {
+        errorText = await donationResponse.text();
+        console.error("❌ Error HTTP al crear donación (texto):", {
+          status: donationResponse.status,
+          statusText: donationResponse.statusText,
+          error: errorText
+        });
+      }
+      alert(`Error al crear donación: ${JSON.stringify({ status: donationResponse.status, error: errorText })}`);
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
@@ -150,6 +163,7 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
 
     if (!donationResult.success) {
       console.error("❌ Error en respuesta de donación:", donationResult);
+      alert(`Error: ${donationResult.message || donationResult.error || 'Error desconocido'}`);
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
