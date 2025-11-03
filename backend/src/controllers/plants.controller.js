@@ -108,54 +108,35 @@ export const PlantsController = {
         }
       });
       
-      let result;
-      let data, error;
+      // Limpiar campos undefined para evitar problemas con Supabase
+      const cleanPlantData = Object.fromEntries(
+        Object.entries(plantData).filter(([_, v]) => v !== undefined)
+      );
       
-      try {
-        result = await insertPlant(plantData);
-        data = result?.data;
-        error = result?.error;
-        
-        console.log('🔍 Resultado de insertPlant:', {
-          hasResult: !!result,
-          hasData: !!data,
-          hasError: !!error,
-          errorType: error ? typeof error : 'none',
-          errorKeys: error ? Object.keys(error) : [],
-          dataType: data ? typeof data : 'none',
-          resultKeys: result ? Object.keys(result) : []
-        });
-      } catch (insertError) {
-        console.error('❌ Excepción al llamar insertPlant:', insertError);
-        return res.status(500).json({
-          success: false,
-          message: 'Error al insertar la planta en la base de datos',
-          error: {
-            message: insertError.message || 'Error desconocido',
-            stack: process.env.NODE_ENV !== 'production' ? insertError.stack : undefined
-          }
-        });
-      }
+      console.log('📤 Enviando a Supabase:', {
+        keys: Object.keys(cleanPlantData),
+        hasImage: !!cleanPlantData.image,
+        imageIsString: typeof cleanPlantData.image === 'string'
+      });
+      
+      const { data, error } = await insertPlant(cleanPlantData);
       
       if (error) {
         // Log completo del error para debugging
-        console.error('❌ Error insertando en Supabase:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          errorObject: error,
-          errorString: JSON.stringify(error, null, 2),
-          plantDataKeys: Object.keys(plantData),
-          plantDataSummary: {
-            id: plantData.id,
-            name: plantData.name,
-            species: plantData.species,
-            hasImage: !!plantData.image,
-            imageLength: plantData.image ? plantData.image.length : 0,
-            user_id: plantData.user_id,
-            is_adopted: plantData.is_adopted
-          }
+        console.error('❌ Error insertando en Supabase:', error);
+        console.error('❌ Error code:', error?.code);
+        console.error('❌ Error message:', error?.message);
+        console.error('❌ Error details:', error?.details);
+        console.error('❌ Error hint:', error?.hint);
+        console.error('❌ Plant data keys:', Object.keys(plantData));
+        console.error('❌ Plant data:', {
+          id: plantData.id,
+          name: plantData.name,
+          species: plantData.species,
+          hasImage: !!plantData.image,
+          imageLength: plantData.image ? plantData.image.length : 0,
+          user_id: plantData.user_id,
+          is_adopted: plantData.is_adopted
         });
         
         // Mensajes de error más claros basados en el código de error
@@ -188,23 +169,11 @@ export const PlantsController = {
         }
         
         // Error genérico con más detalles
-        const errorMessage = error.message || `Error al guardar en la base de datos`;
-        
-        // Loguear error completo para debugging
-        console.error('❌ Error completo de Supabase:', JSON.stringify(error, null, 2));
-        console.error('❌ Error completo (objeto):', error);
-        console.error('❌ Error completo (toString):', error.toString());
+        const errorMessage = error?.message || 'Error al guardar en la base de datos';
         
         return res.status(500).json({
           success: false,
-          message: errorMessage || 'Error interno del servidor',
-          // Incluir más detalles siempre para debugging
-          error: {
-            code: error.code || 'UNKNOWN',
-            message: error.message || 'Error desconocido',
-            details: error.details || null,
-            hint: error.hint || null
-          }
+          message: errorMessage || 'Error interno del servidor'
         });
       }
       
