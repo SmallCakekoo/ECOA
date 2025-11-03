@@ -108,7 +108,34 @@ export const PlantsController = {
         }
       });
       
-      const { data, error } = await insertPlant(plantData);
+      let result;
+      let data, error;
+      
+      try {
+        result = await insertPlant(plantData);
+        data = result?.data;
+        error = result?.error;
+        
+        console.log('🔍 Resultado de insertPlant:', {
+          hasResult: !!result,
+          hasData: !!data,
+          hasError: !!error,
+          errorType: error ? typeof error : 'none',
+          errorKeys: error ? Object.keys(error) : [],
+          dataType: data ? typeof data : 'none',
+          resultKeys: result ? Object.keys(result) : []
+        });
+      } catch (insertError) {
+        console.error('❌ Excepción al llamar insertPlant:', insertError);
+        return res.status(500).json({
+          success: false,
+          message: 'Error al insertar la planta en la base de datos',
+          error: {
+            message: insertError.message || 'Error desconocido',
+            stack: process.env.NODE_ENV !== 'production' ? insertError.stack : undefined
+          }
+        });
+      }
       
       if (error) {
         // Log completo del error para debugging
@@ -117,6 +144,8 @@ export const PlantsController = {
           message: error.message,
           details: error.details,
           hint: error.hint,
+          errorObject: error,
+          errorString: JSON.stringify(error, null, 2),
           plantDataKeys: Object.keys(plantData),
           plantDataSummary: {
             id: plantData.id,
@@ -159,22 +188,23 @@ export const PlantsController = {
         }
         
         // Error genérico con más detalles
-        const errorMessage = `Error al guardar en la base de datos${error.message ? ': ' + error.message : ''}`;
+        const errorMessage = error.message || `Error al guardar en la base de datos`;
         
         // Loguear error completo para debugging
         console.error('❌ Error completo de Supabase:', JSON.stringify(error, null, 2));
+        console.error('❌ Error completo (objeto):', error);
+        console.error('❌ Error completo (toString):', error.toString());
         
         return res.status(500).json({
           success: false,
-          message: errorMessage,
-          // En desarrollo, incluir más detalles
-          ...(process.env.NODE_ENV !== 'production' && {
-            error: {
-              code: error.code,
-              details: error.details,
-              hint: error.hint
-            }
-          })
+          message: errorMessage || 'Error interno del servidor',
+          // Incluir más detalles siempre para debugging
+          error: {
+            code: error.code || 'UNKNOWN',
+            message: error.message || 'Error desconocido',
+            details: error.details || null,
+            hint: error.hint || null
+          }
         });
       }
       
@@ -196,7 +226,9 @@ export const PlantsController = {
         .status(201)
         .json({ success: true, message: "Planta creada exitosamente", data });
     } catch (error) {
-      console.error('❌ Error al crear planta:', error);
+      console.error('❌ Error al crear planta (catch general):', error);
+      console.error('❌ Stack:', error.stack);
+      console.error('❌ Error completo:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       return handleError(error, res);
     }
   },
