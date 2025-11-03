@@ -157,17 +157,18 @@ function renderPlants() {
       // Mapear health_status para mostrar correctamente (usar lowercase para clases CSS)
       let healthStatusValue = plant.health_status;
       // Normalizar valores legacy a nuevos valores para consistencia
+      if (healthStatusValue === 'excellent') healthStatusValue = 'healthy'; // Mapear excellent a healthy
       if (healthStatusValue === 'needs_care') healthStatusValue = 'recovering';
-      if (healthStatusValue === 'dying') healthStatusValue = 'critical';
-      if (healthStatusValue === 'sick') healthStatusValue = 'critical';
+      if (healthStatusValue === 'dying') healthStatusValue = 'bad';
+      if (healthStatusValue === 'sick') healthStatusValue = 'bad';
+      if (healthStatusValue === 'critical') healthStatusValue = 'bad'; // Mapeo legacy
       
       // Usar AdminUtils.getStatusText si está disponible, sino usar función local
       const statusText = window.AdminUtils && window.AdminUtils.getStatusText 
         ? window.AdminUtils.getStatusText(healthStatusValue, 'health')
-        : (healthStatusValue === 'excellent' ? 'Excellent' :
-           healthStatusValue === 'healthy' ? 'Healthy' :
+        : (healthStatusValue === 'healthy' ? 'Healthy' :
            healthStatusValue === 'recovering' ? 'Recovering' :
-           healthStatusValue === 'critical' ? 'Critical' : healthStatusValue);
+           healthStatusValue === 'bad' ? 'Bad' : healthStatusValue);
       
       const statusBadge = healthStatusValue 
         ? `<span class="badge ${healthStatusValue.toLowerCase()}">${statusText}</span>`
@@ -766,6 +767,7 @@ async function updateMetricsFromPlants() {
         p.health_status === "recovering" || p.health_status === "needs_care"
       ).length,
       bad: allPlants.filter((p) => 
+        p.health_status === "bad" || 
         p.health_status === "critical" || 
         p.health_status === "dying" || 
         p.health_status === "sick"

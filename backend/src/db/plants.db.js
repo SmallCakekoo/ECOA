@@ -62,12 +62,11 @@ export async function findAllPlants(filters = {}) {
       }
 
       // Mapear valores del filtro a valores de la BD si es necesario
-      const statusMap = {
-        'excellent': ['excellent'],
-        'healthy': ['healthy'],
-        'recovering': ['recovering', 'needs_care'], // Compatibilidad con valores legacy
-        'critical': ['critical', 'dying'], // Compatibilidad con valores legacy
-      };
+           const statusMap = {
+             'healthy': ['healthy', 'excellent'], // Mapear excellent a healthy
+             'recovering': ['recovering', 'needs_care'], // Compatibilidad con valores legacy
+             'bad': ['bad', 'critical', 'dying', 'sick'], // Compatibilidad con valores legacy
+           };
       
       const statusValuesToMatch = statusMap[healthStatusFilter] || [healthStatusFilter];
       

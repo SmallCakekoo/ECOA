@@ -96,14 +96,15 @@ function getStatusText(status, type = 'general') {
       'cancelled': 'Cancelado'
     },
     health: {
-      'excellent': 'Excellent',
       'healthy': 'Healthy',
       'recovering': 'Recovering',
-      'critical': 'Critical',
+      'bad': 'Bad',
       // Mapeos legacy para compatibilidad
+      'excellent': 'Healthy', // Mapear excellent a healthy si existe en datos legacy
       'needs_care': 'Recovering',
-      'sick': 'Sick',
-      'dying': 'Critical'
+      'sick': 'Bad',
+      'dying': 'Bad',
+      'critical': 'Bad' // Mapeo para valores legacy
     },
     donation: {
       'pending': 'Pendiente',

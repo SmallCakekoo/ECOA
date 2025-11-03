@@ -307,14 +307,15 @@ async function loadRecentPlants() {
 
 function getStatusText(status) {
   const statusMap = {
-    excellent: "Excellent",
     healthy: "Healthy",
     recovering: "Recovering",
-    critical: "Critical",
+    bad: "Bad",
     // Mapeos legacy para compatibilidad
+    excellent: "Healthy", // Mapear excellent a healthy si existe en datos legacy
     needs_care: "Recovering",
-    sick: "Sick",
-    dying: "Critical",
+    sick: "Bad",
+    dying: "Bad",
+    critical: "Bad", // Mapeo para valores legacy
   };
   return statusMap[status] || status;
 }
@@ -481,11 +482,26 @@ async function createPlant() {
     // status, health_status, water_level, etc. van en otras tablas relacionadas
   };
 
+  // Obtener healthStatus del select (valor en lowercase: excellent, healthy, recovering, bad)
+  const healthStatusSelect = document.getElementById("healthStatus");
+  const healthStatus = healthStatusSelect ? healthStatusSelect.value : null;
+
   try {
     showLoading(true);
     const result = await window.AdminAPI.createPlant(plantData);
 
     if (result.success) {
+      // Si se especificó un healthStatus, actualizarlo en plant_status
+      if (healthStatus && result.data && result.data.id) {
+        try {
+          await window.AdminAPI.updatePlantMetrics(result.data.id, { health_status: healthStatus });
+          console.log("✅ Health status registrado:", healthStatus);
+        } catch (statusError) {
+          console.warn("⚠️ No se pudo registrar el health_status, pero la planta se creó:", statusError);
+          // No fallar si no se puede actualizar el status, la planta ya se creó
+        }
+      }
+
       showNotification("Planta creada exitosamente", "success");
       form.reset();
       document.getElementById("photoPreview").style.display = "none";
