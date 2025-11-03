@@ -337,47 +337,75 @@ class AdminAPI {
 
   // ===== ESTADÍSTICAS =====
   async getStats() {
-    const [users, plants, donations] = await Promise.all([
-      this.getUsers(),
-      this.getPlants(),
-      this.getDonations(),
-    ]);
+    try {
+      const [users, plants, donations] = await Promise.all([
+        this.getUsers(),
+        this.getPlants(),
+        this.getDonations(),
+      ]);
 
-    const adoptedPlants = plants.data.filter((p) => p.is_adopted);
-    const availablePlants = plants.data.filter((p) => !p.is_adopted);
-    const activeDonations = donations.data.filter((d) => d.status === "active");
-    const completedDonations = donations.data.filter(
-      (d) => d.status === "completed"
-    );
+      const adoptedPlants = plants.data.filter((p) => p.is_adopted);
+      const availablePlants = plants.data.filter((p) => !p.is_adopted);
+      
+      // Contar donaciones activas (si no tienen status, considerar todas como activas)
+      const activeDonations = donations.data.filter((d) => 
+        !d.status || d.status === "active" || d.status === "pending"
+      );
+      
+      // Calcular plantas saludables (healthy o excellent mapeado a healthy)
+      const healthyPlants = plants.data.filter((p) => {
+        const status = p.health_status;
+        return status === "healthy" || status === "excellent";
+      });
 
-    return {
-      users: {
-        total: users.count,
-        new: users.data.filter((u) => {
-          const created = new Date(u.created_at);
-          const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-          return created > weekAgo;
-        }).length,
-      },
-      plants: {
-        total: plants.count,
-        adopted: adoptedPlants.length,
-        available: availablePlants.length,
-        healthy: plants.data.filter((p) => p.health_status === "healthy")
-          .length,
-        needsCare: plants.data.filter((p) => p.health_status === "needs_care")
-          .length,
-      },
-      donations: {
-        total: donations.count,
-        active: activeDonations.length,
-        completed: completedDonations.length,
-        totalAmount: donations.data.reduce(
-          (sum, d) => sum + (d.amount || 0),
-          0
-        ),
-      },
-    };
+      // Calcular nuevas adopciones este mes
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const adoptedThisMonth = adoptedPlants.filter((p) => {
+        if (!p.created_at && !p.updated_at) return false;
+        const date = new Date(p.updated_at || p.created_at);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      }).length;
+
+      return {
+        users: {
+          total: users.count || users.data?.length || 0,
+          new: users.data?.filter((u) => {
+            if (!u.created_at) return false;
+            const created = new Date(u.created_at);
+            const monthAgo = new Date();
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            return created > monthAgo;
+          }).length || 0,
+        },
+        plants: {
+          total: plants.count || plants.data?.length || 0,
+          adopted: adoptedPlants.length,
+          available: availablePlants.length,
+          healthy: healthyPlants.length,
+          needsCare: plants.data.filter((p) => 
+            p.health_status === "needs_care" || p.health_status === "recovering"
+          ).length,
+        },
+        donations: {
+          total: donations.count || donations.data?.length || 0,
+          active: activeDonations.length,
+          completed: donations.data.filter((d) => d.status === "completed").length,
+          totalAmount: donations.data.reduce(
+            (sum, d) => sum + (Number(d.amount) || 0),
+            0
+          ),
+        },
+      };
+    } catch (error) {
+      console.error("Error in getStats:", error);
+      // Devolver estructura vacía en caso de error
+      return {
+        users: { total: 0, new: 0 },
+        plants: { total: 0, adopted: 0, available: 0, healthy: 0, needsCare: 0 },
+        donations: { total: 0, active: 0, completed: 0, totalAmount: 0 },
+      };
+    }
   }
 
   // ===== SUBIDA DE ARCHIVOS =====
