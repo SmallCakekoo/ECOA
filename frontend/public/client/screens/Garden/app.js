@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-backend-three.vercel.app";
+const API_BASE_URL = "https://ecoa-frontend-four-k32o.vercel.app";
 
 // Actualizar la hora actual
 function updateTime() {
@@ -148,7 +148,7 @@ const plantsGrid = document.getElementById("plantsGrid");
   addButton.onclick = function () {
     console.log("Navegando a Adopt para adoptar nueva planta");
     window.location.href =
-      "https://ecoa-frontend-three-sepia.vercel.app/client/screens/Adopt";
+      "https://ecoa-frontend-four.vercel.app/client/screens/Adopt";
   };
   plantsGrid.appendChild(addButton);
 

@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoa-backend-three.vercel.app";
+const API_BASE_URL = "https://ecoa-frontend-four-k32o.vercel.app";
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 const params = new URLSearchParams(window.location.search);

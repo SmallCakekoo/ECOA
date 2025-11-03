@@ -27,7 +27,7 @@ loginForm.addEventListener("submit", async (e) => {
 
   try {
     // Obtener todos los usuarios y buscar por email
-    const response = await fetch("https://ecoa-backend-three.vercel.app/users");
+    const response = await fetch("https://ecoa-frontend-four-k32o.vercel.app/users");
     const data = await response.json();
     console.log(data);
 

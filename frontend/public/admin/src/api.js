@@ -2,7 +2,7 @@
 class AdminAPI {
   constructor() {
     const baseURL = window.AdminConfig?.API_BASE_URL ||
-      "https://ecoa-backend-three.vercel.app";
+      "https://ecoa-frontend-four-k32o.vercel.app";
     // Asegurar que baseURL no termine con /
     this.baseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
     this.token = localStorage.getItem(
