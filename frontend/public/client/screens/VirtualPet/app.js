@@ -197,3 +197,206 @@ window.goToShop = function () {
     window.location.href = "/client/screens/Shop";
   }
 };
+
+// Función helper para resolver imagen de accesorio
+function resolveAccessoryImage(image, accessoryName) {
+  const getImagePath = (imageName) => {
+    return `../../src/assets/images/${imageName}`;
+  };
+
+  const nameMap = {
+    fertilizante: "accessory-3.png",
+    lámpara: "accessory-1.png",
+    lampara: "accessory-1.png",
+    matera: "accessory-2.png",
+    "care kit": "accessory-3.png",
+    fertilizer: "accessory-3.png",
+    pot: "accessory-2.png",
+    lamp: "accessory-1.png",
+  };
+
+  if (!image || image.trim() === "") {
+    const accessoryLower = (accessoryName || "").toLowerCase();
+    for (const [key, value] of Object.entries(nameMap)) {
+      if (accessoryLower.includes(key)) {
+        return getImagePath(value);
+      }
+    }
+    return getImagePath("accessory-1.png");
+  }
+
+  if (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("data:")) {
+    return image;
+  }
+
+  if (image.startsWith("/")) {
+    return `${API_BASE_URL}${image}`;
+  }
+
+  if (image.includes(".") && !image.includes("/")) {
+    const imageNameMap = {
+      "fertilizante.png": "accessory-3.png",
+      "lampara.png": "accessory-1.png",
+      "matera.png": "accessory-2.png",
+    };
+    const fileName = image.toLowerCase();
+    const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
+    if (mappedName) {
+      return getImagePath(mappedName);
+    }
+    return getImagePath(image);
+  }
+
+  const accessoryLower = (accessoryName || "").toLowerCase();
+  for (const [key, value] of Object.entries(nameMap)) {
+    if (accessoryLower.includes(key)) {
+      return getImagePath(value);
+    }
+  }
+
+  return getImagePath("accessory-1.png");
+}
+
+// Función para comprar un accesorio (expuesta globalmente)
+window.purchaseAccessory = async function (accessoryId, accessoryName, price, pId) {
+  try {
+    const currentPlantId = pId || plantId;
+    
+    if (!USER_DATA || !USER_DATA.id) {
+      console.error("Usuario no autenticado");
+      window.location.href = "/client/screens/ShopFeedback/error";
+      return;
+    }
+
+    if (!currentPlantId) {
+      console.error("No se ha seleccionado una planta");
+      window.location.href = "/client/screens/ShopFeedback/error";
+      return;
+    }
+
+    console.log("Comprando accesorio:", {
+      accessoryId,
+      accessoryName,
+      price,
+      plantId: currentPlantId,
+      userId: USER_DATA.id
+    });
+
+    const donationResponse = await fetch(`${API_BASE_URL}/donations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: USER_DATA.id,
+        plant_id: currentPlantId,
+        amount: price,
+        accessory_type: accessoryName,
+        status: "pending",
+        payment_method: "accessory_purchase"
+      }),
+    });
+
+    const donationResult = await donationResponse.json();
+
+    if (!donationResult.success) {
+      console.error("Error creando donación:", donationResult);
+      window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
+      return;
+    }
+
+    console.log("✅ Donación creada exitosamente:", donationResult.data);
+
+    try {
+      const assignmentResponse = await fetch(`${API_BASE_URL}/plants/${currentPlantId}/accessories`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accessory_id: accessoryId
+        }),
+      });
+
+      const assignmentResult = await assignmentResponse.json();
+      
+      if (assignmentResult.success) {
+        console.log("✅ Accesorio asignado a la planta:", assignmentResult.data);
+      } else {
+        console.warn("⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:", assignmentResult);
+      }
+    } catch (assignmentError) {
+      console.warn("⚠️ Error asignando accesorio a la planta:", assignmentError);
+    }
+
+    window.location.href = `/client/screens/ShopFeedback/success?id=${currentPlantId}`;
+
+  } catch (error) {
+    console.error("❌ Error en la compra:", error);
+    window.location.href = `/client/screens/ShopFeedback/error?id=${plantId || ''}`;
+  }
+};
+
+// Cargar accesorios desde la API
+async function loadAccessories() {
+  try {
+    const container = document.getElementById("accessoriesList");
+    if (!container) return;
+
+    console.log("🔍 Cargando accesorios desde:", `${API_BASE_URL}/accessories`);
+    const res = await fetch(`${API_BASE_URL}/accessories`);
+
+    if (!res.ok) {
+      console.error("❌ Error en respuesta:", res.status, res.statusText);
+      container.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No se pudieron cargar los accesorios</div>';
+      return;
+    }
+
+    const result = await res.json();
+    console.log("✅ Respuesta recibida:", result);
+
+    if (!result.success || !result.data || !Array.isArray(result.data) || result.data.length === 0) {
+      console.warn("⚠️ No hay accesorios disponibles");
+      container.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No hay accesorios disponibles</div>';
+      return;
+    }
+
+    // Mostrar solo los primeros 2 accesorios en VirtualPet
+    const accessoriesToShow = result.data.slice(0, 2);
+    container.innerHTML = "";
+
+    accessoriesToShow.forEach((acc) => {
+      const img = resolveAccessoryImage(acc.image, acc.name);
+      const price = acc.price_estimate || 0;
+      const formattedPrice = `$${price.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
+      const card = document.createElement("div");
+      card.className = "accessory-card";
+      card.innerHTML = `
+        <div class="accessory-image">
+          <img src="${img}" alt="${acc.name}" onerror="this.src='../../src/assets/images/accessory-1.png';" />
+        </div>
+        <div class="accessory-content">
+          <div class="accessory-title">${acc.name || "Sin nombre"}</div>
+          <div class="accessory-description">${acc.description || ""}</div>
+          <div class="accessory-price">${formattedPrice}</div>
+          <button class="add-button-small" onclick="purchaseAccessory('${acc.id}', '${acc.name}', ${price}, '${plantId || ''}')">
+            <span class="iconify" data-icon="material-symbols:add"></span>
+          </button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    console.log("✅ Accesorios renderizados correctamente");
+  } catch (e) {
+    console.error("❌ Error loading accessories", e);
+    const container = document.getElementById("accessoriesList");
+    if (container) {
+      container.innerHTML = `<div style="padding: 20px; text-align: center; color: red;">Error al cargar accesorios: ${e.message}</div>`;
+    }
+  }
+}
+
+// Cargar accesorios al cargar la página
+loadAccessories();

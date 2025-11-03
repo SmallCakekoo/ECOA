@@ -208,6 +208,14 @@ body {
 .accessory-description {
     font-size: 14px;
     line-height: 1.5;
+    margin-bottom: 8px;
+    padding-right: 70px;
+}
+
+.accessory-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
     margin-bottom: 0;
     padding-right: 70px;
 }
