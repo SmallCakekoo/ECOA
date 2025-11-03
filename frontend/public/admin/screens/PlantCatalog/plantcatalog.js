@@ -154,8 +154,15 @@ function renderPlants() {
             year: "numeric",
           })
         : "";
-      const statusBadge = plant.health_status 
-        ? `<span class="badge ${plant.health_status}">${getStatusText(plant.health_status)}</span>`
+      // Mapear health_status para mostrar correctamente (usar lowercase para clases CSS)
+      let healthStatusValue = plant.health_status;
+      // Normalizar valores legacy a nuevos valores para consistencia
+      if (healthStatusValue === 'needs_care') healthStatusValue = 'recovering';
+      if (healthStatusValue === 'dying') healthStatusValue = 'critical';
+      if (healthStatusValue === 'sick') healthStatusValue = 'critical';
+      
+      const statusBadge = healthStatusValue 
+        ? `<span class="badge ${healthStatusValue.toLowerCase()}">${window.AdminUtils ? window.AdminUtils.getStatusText(healthStatusValue, 'health') : getStatusText(healthStatusValue)}</span>`
         : '<span class="badge healthy">Healthy</span>';
       const adoptBadge = plant.is_adopted
         ? '<span class="badge adopted">Adopted</span>'
@@ -541,29 +548,47 @@ async function updatePlant(plantId) {
 
   try {
     showFormLoading(true);
+    
+    // Actualizar primero los datos básicos de la planta
     const result = await window.AdminAPI.updatePlant(plantId, plantData);
 
-    // Si hay un cambio de health_status, actualizarlo en plant_status
-    if (healthStatus && result.success) {
+    if (!result.success) {
+      throw new Error(result.message || "Error al actualizar la planta");
+    }
+
+    // Actualizar health_status si se especificó
+    if (healthStatus) {
       try {
-        await window.AdminAPI.updatePlantMetrics(plantId, { health_status: healthStatus });
+        const metricsResult = await window.AdminAPI.updatePlantMetrics(plantId, { health_status: healthStatus });
+        console.log("✅ Health status actualizado:", healthStatus, metricsResult);
       } catch (statusError) {
-        console.warn("No se pudo actualizar el health_status:", statusError);
-        // No fallar si no se puede actualizar el status
+        console.error("❌ Error al actualizar health_status:", statusError);
+        showNotification("La planta se actualizó, pero hubo un error al actualizar el estado de salud", "warning");
       }
     }
 
-    if (result.success) {
-      showNotification("Planta actualizada exitosamente", "success");
-      closeEditModal();
-      // Recargar plantas para reflejar los cambios
-      await loadPlants();
-      // Asegurar que se renderice correctamente
-      renderPlants();
-      updatePagination();
+    // Actualizar el objeto local inmediatamente para reflejar cambios sin esperar recarga
+    const plantIndex = allPlants.findIndex(p => p.id === plantId);
+    if (plantIndex !== -1) {
+      allPlants[plantIndex] = {
+        ...allPlants[plantIndex],
+        ...plantData,
+        health_status: healthStatus || allPlants[plantIndex].health_status
+      };
+      console.log("✅ Objeto local actualizado:", allPlants[plantIndex]);
     }
+
+    showNotification("Planta actualizada exitosamente", "success");
+    closeEditModal();
+    
+    // Recargar plantas desde el servidor para obtener los datos más actualizados
+    await loadPlants();
+    // Renderizar y actualizar paginación
+    renderPlants();
+    updatePagination();
+    
   } catch (error) {
-    console.error("Error updating plant:", error);
+    console.error("❌ Error updating plant:", error);
     showNotification(error.message || "Error al actualizar la planta", "error");
   } finally {
     showFormLoading(false);
@@ -739,3 +764,4 @@ async function updateMetricsFromPlants() {
     console.error("Error updating metrics:", e);
   }
 }
+
