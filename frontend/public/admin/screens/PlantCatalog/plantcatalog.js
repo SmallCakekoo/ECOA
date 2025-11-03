@@ -556,7 +556,11 @@ async function updatePlant(plantId) {
     if (result.success) {
       showNotification("Planta actualizada exitosamente", "success");
       closeEditModal();
+      // Recargar plantas para reflejar los cambios
       await loadPlants();
+      // Asegurar que se renderice correctamente
+      renderPlants();
+      updatePagination();
     }
   } catch (error) {
     console.error("Error updating plant:", error);
