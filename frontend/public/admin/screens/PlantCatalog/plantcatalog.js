@@ -161,8 +161,16 @@ function renderPlants() {
       if (healthStatusValue === 'dying') healthStatusValue = 'critical';
       if (healthStatusValue === 'sick') healthStatusValue = 'critical';
       
+      // Usar AdminUtils.getStatusText si está disponible, sino usar función local
+      const statusText = window.AdminUtils && window.AdminUtils.getStatusText 
+        ? window.AdminUtils.getStatusText(healthStatusValue, 'health')
+        : (healthStatusValue === 'excellent' ? 'Excellent' :
+           healthStatusValue === 'healthy' ? 'Healthy' :
+           healthStatusValue === 'recovering' ? 'Recovering' :
+           healthStatusValue === 'critical' ? 'Critical' : healthStatusValue);
+      
       const statusBadge = healthStatusValue 
-        ? `<span class="badge ${healthStatusValue.toLowerCase()}">${window.AdminUtils ? window.AdminUtils.getStatusText(healthStatusValue, 'health') : getStatusText(healthStatusValue)}</span>`
+        ? `<span class="badge ${healthStatusValue.toLowerCase()}">${statusText}</span>`
         : '<span class="badge healthy">Healthy</span>';
       const adoptBadge = plant.is_adopted
         ? '<span class="badge adopted">Adopted</span>'
