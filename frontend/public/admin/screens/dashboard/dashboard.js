@@ -307,10 +307,14 @@ async function loadRecentPlants() {
 
 function getStatusText(status) {
   const statusMap = {
+    excellent: "Excellent",
     healthy: "Healthy",
+    recovering: "Recovering",
+    critical: "Critical",
+    // Mapeos legacy para compatibilidad
     needs_care: "Recovering",
     sick: "Sick",
-    dying: "Dying",
+    dying: "Critical",
   };
   return statusMap[status] || status;
 }

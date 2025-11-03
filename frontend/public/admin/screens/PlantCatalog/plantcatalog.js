@@ -718,10 +718,14 @@ async function updateMetricsFromPlants() {
     const totals = {
       total: allPlants.length,
       healthy: allPlants.filter((p) => p.health_status === "healthy").length,
-      recovering: allPlants.filter((p) => p.health_status === "needs_care").length,
-      bad:
-        allPlants.filter((p) => p.health_status === "sick").length +
-        allPlants.filter((p) => p.health_status === "dying").length,
+      recovering: allPlants.filter((p) => 
+        p.health_status === "recovering" || p.health_status === "needs_care"
+      ).length,
+      bad: allPlants.filter((p) => 
+        p.health_status === "critical" || 
+        p.health_status === "dying" || 
+        p.health_status === "sick"
+      ).length,
     };
 
     const values = document.querySelectorAll(

@@ -61,10 +61,20 @@ export async function findAllPlants(filters = {}) {
         });
       }
 
+      // Mapear valores del filtro a valores de la BD si es necesario
+      const statusMap = {
+        'excellent': ['excellent'],
+        'healthy': ['healthy'],
+        'recovering': ['recovering', 'needs_care'], // Compatibilidad con valores legacy
+        'critical': ['critical', 'dying'], // Compatibilidad con valores legacy
+      };
+      
+      const statusValuesToMatch = statusMap[healthStatusFilter] || [healthStatusFilter];
+      
       // Filtrar plantas y agregar health_status
       data.forEach(plant => {
         const latestStatus = latestStatusMap[plant.id];
-        if (latestStatus && latestStatus.status === healthStatusFilter) {
+        if (latestStatus && statusValuesToMatch.includes(latestStatus.status)) {
           plant.health_status = latestStatus.status;
           filteredData.push(plant);
         } else if (!latestStatus && healthStatusFilter === "healthy") {

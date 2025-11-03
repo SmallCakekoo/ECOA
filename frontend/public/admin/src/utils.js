@@ -96,10 +96,14 @@ function getStatusText(status, type = 'general') {
       'cancelled': 'Cancelado'
     },
     health: {
-      'healthy': 'Saludable',
-      'needs_care': 'Necesita cuidado',
-      'sick': 'Enferma',
-      'dying': 'En peligro'
+      'excellent': 'Excellent',
+      'healthy': 'Healthy',
+      'recovering': 'Recovering',
+      'critical': 'Critical',
+      // Mapeos legacy para compatibilidad
+      'needs_care': 'Recovering',
+      'sick': 'Sick',
+      'dying': 'Critical'
     },
     donation: {
       'pending': 'Pendiente',
