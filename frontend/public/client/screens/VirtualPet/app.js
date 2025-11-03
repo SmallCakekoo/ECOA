@@ -301,8 +301,8 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
         user_id: USER_DATA.id,
         plant_id: currentPlantId,
         amount: price,
-        accessory_type: accessoryName,
-        status: "pending" // Donación automática al agregar accesorio
+        accessory_type: accessoryName
+        // Solo campos básicos: user_id, plant_id, amount, accessory_type
       }),
     });
 
