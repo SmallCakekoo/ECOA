@@ -144,45 +144,60 @@ function renderPlants() {
       if (!img) {
         // Placeholder único para cada planta basado en su índice y nombre
         const placeholderIndex = (index % 10) + 1; // Ciclar entre 1-10
-        img = `https://images.unsplash.com/photo-${1506905925346 + placeholderIndex * 1000}?w=400&h=400&fit=crop`;
+        img = `https://images.unsplash.com/photo-${
+          1506905925346 + placeholderIndex * 1000
+        }?w=400&h=400&fit=crop`;
       }
-      
-      const date = plant.created_at || plant.registration_date
-        ? new Date(plant.created_at || plant.registration_date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          })
-        : "";
+
+      const date =
+        plant.created_at || plant.registration_date
+          ? new Date(
+              plant.created_at || plant.registration_date
+            ).toLocaleDateString("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "numeric",
+            })
+          : "";
       // Mapear health_status para mostrar correctamente (usar lowercase para clases CSS)
       let healthStatusValue = plant.health_status;
       // Normalizar valores legacy a nuevos valores para consistencia
-      if (healthStatusValue === 'excellent') healthStatusValue = 'healthy'; // Mapear excellent a healthy
-      if (healthStatusValue === 'needs_care') healthStatusValue = 'recovering';
-      if (healthStatusValue === 'dying') healthStatusValue = 'bad';
-      if (healthStatusValue === 'sick') healthStatusValue = 'bad';
-      if (healthStatusValue === 'critical') healthStatusValue = 'bad'; // Mapeo legacy
-      
+      if (healthStatusValue === "excellent") healthStatusValue = "healthy"; // Mapear excellent a healthy
+      if (healthStatusValue === "needs_care") healthStatusValue = "recovering";
+      if (healthStatusValue === "dying") healthStatusValue = "bad";
+      if (healthStatusValue === "sick") healthStatusValue = "bad";
+      if (healthStatusValue === "critical") healthStatusValue = "bad"; // Mapeo legacy
+
       // Usar AdminUtils.getStatusText si está disponible, sino usar función local
-      const statusText = window.AdminUtils && window.AdminUtils.getStatusText 
-        ? window.AdminUtils.getStatusText(healthStatusValue, 'health')
-        : (healthStatusValue === 'healthy' ? 'Healthy' :
-           healthStatusValue === 'recovering' ? 'Recovering' :
-           healthStatusValue === 'bad' ? 'Bad' : healthStatusValue);
-      
-      const statusBadge = healthStatusValue 
+      const statusText =
+        window.AdminUtils && window.AdminUtils.getStatusText
+          ? window.AdminUtils.getStatusText(healthStatusValue, "health")
+          : healthStatusValue === "healthy"
+          ? "Healthy"
+          : healthStatusValue === "recovering"
+          ? "Recovering"
+          : healthStatusValue === "bad"
+          ? "Bad"
+          : healthStatusValue;
+
+      const statusBadge = healthStatusValue
         ? `<span class="badge ${healthStatusValue.toLowerCase()}">${statusText}</span>`
         : '<span class="badge healthy">Healthy</span>';
       const adoptBadge = plant.is_adopted
         ? '<span class="badge adopted">Adopted</span>'
-        : '';
+        : "";
       return `
         <div class="trow">
           <div class="cell plant">
-            <div class="thumb"><img src="${img}" alt="${plant.name}" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'"></div>
+            <div class="thumb"><img src="${img}" alt="${
+        plant.name
+      }" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'"></div>
             <div>
               <div class="plant-name">${plant.name}</div>
-              <div class="plant-id">ID: PLT-${String(plant.id).substring(0, 8)}</div>
+              <div class="plant-id">ID: PLT-${String(plant.id).substring(
+                0,
+                8
+              )}</div>
             </div>
           </div>
           <div class="cell">${plant.species || ""}</div>
@@ -190,7 +205,9 @@ function renderPlants() {
           <div class="cell">${statusBadge} ${adoptBadge}</div>
           <div class="cell actions">
             <a class="edit" href="#" onclick="editPlant('${plant.id}')">Edit</a>
-            <a class="delete" href="#" onclick="deletePlant('${plant.id}')">Delete</a>
+            <a class="delete" href="#" onclick="deletePlant('${
+              plant.id
+            }')">Delete</a>
           </div>
         </div>`;
     })
@@ -331,20 +348,20 @@ function setupPlantForm() {
         // Comprimir la imagen antes de convertirla a data URL
         // Límite: 200KB en data URL para evitar problemas con Supabase
         const maxDataUrlSize = 200 * 1024; // 200KB
-        
+
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
             // Crear canvas para comprimir
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             // Calcular dimensiones manteniendo aspecto
             let width = img.width;
             let height = img.height;
             const maxDimension = 800; // Máximo 800px en la dimensión más grande
-            
+
             if (width > height && width > maxDimension) {
               height = (height * maxDimension) / width;
               width = maxDimension;
@@ -352,51 +369,66 @@ function setupPlantForm() {
               width = (width * maxDimension) / height;
               height = maxDimension;
             }
-            
+
             canvas.width = width;
             canvas.height = height;
-            
+
             // Dibujar imagen redimensionada
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // Convertir a data URL con calidad ajustada
             let quality = 0.9;
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            
+            let dataUrl = canvas.toDataURL("image/jpeg", quality);
+
             // Si aún es muy grande, reducir calidad gradualmente
             while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
               quality -= 0.1;
-              dataUrl = canvas.toDataURL('image/jpeg', quality);
-              console.log(`🔄 Comprimiendo imagen, calidad: ${quality.toFixed(1)}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
+              console.log(
+                `🔄 Comprimiendo imagen, calidad: ${quality.toFixed(
+                  1
+                )}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`
+              );
             }
-            
+
             // Si sigue siendo muy grande después de comprimir, usar PNG
             if (dataUrl.length > maxDataUrlSize) {
-              dataUrl = canvas.toDataURL('image/png');
+              dataUrl = canvas.toDataURL("image/png");
               // Si PNG también es muy grande, reducir dimensiones más
               if (dataUrl.length > maxDataUrlSize) {
                 const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
                 canvas.width = Math.round(width * scale);
                 canvas.height = Math.round(height * scale);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                dataUrl = canvas.toDataURL("image/jpeg", 0.7);
               }
             }
-            
+
             if (dataUrl.length > maxDataUrlSize) {
-              console.warn(`⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(dataUrl.length / 1024)}KB`);
-              showNotification("La imagen es muy grande. Se guardará sin imagen.", "warning");
+              console.warn(
+                `⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(
+                  dataUrl.length / 1024
+                )}KB`
+              );
+              showNotification(
+                "La imagen es muy grande. Se guardará sin imagen.",
+                "warning"
+              );
               dataUrl = null;
             } else {
-              console.log(`✅ Plant Catalog - Imagen comprimida, tamaño final: ${Math.round(dataUrl.length / 1024)}KB`);
+              console.log(
+                `✅ Plant Catalog - Imagen comprimida, tamaño final: ${Math.round(
+                  dataUrl.length / 1024
+                )}KB`
+              );
             }
-            
-            overlayPreview.src = dataUrl || '/placeholder.png';
+
+            overlayPreview.src = dataUrl || "/placeholder.png";
             overlayPreview.style.display = "block";
             const inner = overlayUpload.querySelector(".upload-inner");
             if (inner) inner.style.display = "none";
             // Guardar el data URL en un atributo del preview para usarlo después
-            overlayPreview.setAttribute('data-image-url', dataUrl || '');
+            overlayPreview.setAttribute("data-image-url", dataUrl || "");
           };
           img.onerror = () => {
             console.error("Error cargando imagen para compresión");
@@ -434,40 +466,49 @@ async function createPlant() {
   // Obtener la imagen subida (data URL)
   const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
   let imageUrl = null;
-  
+
   // Obtener el data URL del atributo o del src
   if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none") {
     // Primero intentar obtener del atributo data-image-url (más confiable)
-    const dataImageUrl = overlayPhotoPreview.getAttribute('data-image-url');
+    const dataImageUrl = overlayPhotoPreview.getAttribute("data-image-url");
     if (dataImageUrl && dataImageUrl.startsWith("data:")) {
       imageUrl = dataImageUrl;
-      console.log("✅ Plant Catalog - Imagen obtenida del atributo data-image-url");
-    } 
+      console.log(
+        "✅ Plant Catalog - Imagen obtenida del atributo data-image-url"
+      );
+    }
     // Si no está en el atributo, usar el src si es data URL
-    else if (overlayPhotoPreview.src && overlayPhotoPreview.src.startsWith("data:")) {
+    else if (
+      overlayPhotoPreview.src &&
+      overlayPhotoPreview.src.startsWith("data:")
+    ) {
       imageUrl = overlayPhotoPreview.src;
       console.log("✅ Plant Catalog - Imagen obtenida del src (data URL)");
     }
     // Si el src no es data URL, verificar que no sea placeholder
-    else if (overlayPhotoPreview.src && 
-             overlayPhotoPreview.src !== "" && 
-             overlayPhotoPreview.src !== "about:blank" &&
-             !overlayPhotoPreview.src.includes("unsplash.com/photo-1506905925346") && 
-             !overlayPhotoPreview.src.includes("placeholder") && 
-             !overlayPhotoPreview.src.includes("upgrade_access.jpg")) {
+    else if (
+      overlayPhotoPreview.src &&
+      overlayPhotoPreview.src !== "" &&
+      overlayPhotoPreview.src !== "about:blank" &&
+      !overlayPhotoPreview.src.includes("unsplash.com/photo-1506905925346") &&
+      !overlayPhotoPreview.src.includes("placeholder") &&
+      !overlayPhotoPreview.src.includes("upgrade_access.jpg")
+    ) {
       imageUrl = overlayPhotoPreview.src;
       console.log("✅ Plant Catalog - Imagen obtenida del src (URL)");
     }
-    
+
     if (imageUrl) {
-      console.log("🔍 Plant Catalog - Imagen validada:", { 
-        hasImage: true, 
+      console.log("🔍 Plant Catalog - Imagen validada:", {
+        hasImage: true,
         isDataUrl: imageUrl.startsWith("data:"),
         imageLength: imageUrl.length,
-        imagePreview: imageUrl.substring(0, 50) + "..."
+        imagePreview: imageUrl.substring(0, 50) + "...",
       });
     } else {
-      console.warn("⚠️ Plant Catalog - No se encontró imagen válida en el preview");
+      console.warn(
+        "⚠️ Plant Catalog - No se encontró imagen válida en el preview"
+      );
     }
   }
 
@@ -489,7 +530,9 @@ async function createPlant() {
       showNotification("Planta creada exitosamente", "success");
       form.reset();
       document.getElementById("overlayPhotoPreview").style.display = "none";
-      const uploadInner = document.querySelector("#overlayUpload .upload-inner");
+      const uploadInner = document.querySelector(
+        "#overlayUpload .upload-inner"
+      );
       if (uploadInner) uploadInner.style.display = "block";
 
       // Recargar datos
@@ -513,7 +556,7 @@ async function editPlant(plantId) {
     document.getElementById("editPlantName").value = plant.name || "";
     document.getElementById("editSpecies").value = plant.species || "";
     document.getElementById("editDescription").value = plant.description || "";
-    
+
     // Establecer el health_status si existe
     const healthStatusSelect = document.getElementById("editHealthStatus");
     if (healthStatusSelect && plant.health_status) {
@@ -557,7 +600,7 @@ async function updatePlant(plantId) {
 
   try {
     showFormLoading(true);
-    
+
     // Actualizar primero los datos básicos de la planta
     const result = await window.AdminAPI.updatePlant(plantId, plantData);
 
@@ -569,8 +612,15 @@ async function updatePlant(plantId) {
     let healthStatusUpdated = false;
     if (healthStatus) {
       try {
-        const metricsResult = await window.AdminAPI.updatePlantMetrics(plantId, { health_status: healthStatus });
-        console.log("✅ Health status actualizado:", healthStatus, metricsResult);
+        const metricsResult = await window.AdminAPI.updatePlantMetrics(
+          plantId,
+          { health_status: healthStatus }
+        );
+        console.log(
+          "✅ Health status actualizado:",
+          healthStatus,
+          metricsResult
+        );
         healthStatusUpdated = true;
         // NO mostrar notificación aquí, solo una al final
       } catch (statusError) {
@@ -578,35 +628,37 @@ async function updatePlant(plantId) {
         // No mostrar notificación de warning aquí para evitar duplicados
         // Solo lanzar error si es crítico
         if (statusError.message && statusError.message.includes("coerce")) {
-          throw new Error("Error al actualizar el estado de salud. Por favor, inténtalo de nuevo.");
+          throw new Error(
+            "Error al actualizar el estado de salud. Por favor, inténtalo de nuevo."
+          );
         }
       }
     }
 
     // Actualizar el objeto local inmediatamente para reflejar cambios sin esperar recarga
-    const plantIndex = allPlants.findIndex(p => p.id === plantId);
+    const plantIndex = allPlants.findIndex((p) => p.id === plantId);
     if (plantIndex !== -1) {
       allPlants[plantIndex] = {
         ...allPlants[plantIndex],
         ...plantData,
-        health_status: healthStatus || allPlants[plantIndex].health_status
+        health_status: healthStatus || allPlants[plantIndex].health_status,
       };
       console.log("✅ Objeto local actualizado:", allPlants[plantIndex]);
     }
 
     // Mostrar UNA sola notificación
-    const notificationMessage = healthStatusUpdated && healthStatus
-      ? `Planta actualizada exitosamente. Estado: ${healthStatus}`
-      : "Planta actualizada exitosamente";
+    const notificationMessage =
+      healthStatusUpdated && healthStatus
+        ? `Planta actualizada exitosamente. Estado: ${healthStatus}`
+        : "Planta actualizada exitosamente";
     showNotification(notificationMessage, "success");
     closeEditModal();
-    
+
     // Recargar plantas desde el servidor para obtener los datos más actualizados
     await loadPlants();
     // Renderizar y actualizar paginación
     renderPlants();
     updatePagination();
-    
   } catch (error) {
     console.error("❌ Error updating plant:", error);
     showNotification(error.message || "Error al actualizar la planta", "error");
@@ -656,7 +708,7 @@ function resetForm() {
   if (preview) {
     preview.style.display = "none";
     preview.src = "";
-    preview.removeAttribute('data-image-url');
+    preview.removeAttribute("data-image-url");
   }
 
   const uploadInner = document.querySelector("#overlayUpload .upload-inner");
@@ -677,7 +729,7 @@ function showFormLoading(show = true) {
   const editSubmitBtn = document.querySelector(
     '#editPlantForm button[type="submit"]'
   );
-  
+
   if (submitBtn) {
     if (show) {
       submitBtn.disabled = true;
@@ -689,7 +741,7 @@ function showFormLoading(show = true) {
       submitBtn.style.opacity = "1";
     }
   }
-  
+
   if (editSubmitBtn) {
     if (show) {
       editSubmitBtn.disabled = true;
@@ -750,11 +802,13 @@ function resolveImageUrl(url, fallback) {
   // Si es data URL, devolver directamente
   if (candidate.startsWith("data:")) return candidate;
   // Si es URL absoluta, devolver directamente
-  if (candidate.startsWith("http://") || candidate.startsWith("https://")) return candidate;
+  if (candidate.startsWith("http://") || candidate.startsWith("https://"))
+    return candidate;
   // Si viene relativa (/uploads/...), prepender base del backend
-  let baseUrl = window.AdminConfig?.API_BASE_URL || "https://ecoa-frontend-four-k32o.vercel.app";
+  let baseUrl =
+    window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app";
   // Asegurar que baseUrl no termine con /
-  baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
   return `${baseUrl}${candidate.startsWith("/") ? candidate : "/" + candidate}`;
 }
 
@@ -763,14 +817,16 @@ async function updateMetricsFromPlants() {
     const totals = {
       total: allPlants.length,
       healthy: allPlants.filter((p) => p.health_status === "healthy").length,
-      recovering: allPlants.filter((p) => 
-        p.health_status === "recovering" || p.health_status === "needs_care"
+      recovering: allPlants.filter(
+        (p) =>
+          p.health_status === "recovering" || p.health_status === "needs_care"
       ).length,
-      bad: allPlants.filter((p) => 
-        p.health_status === "bad" || 
-        p.health_status === "critical" || 
-        p.health_status === "dying" || 
-        p.health_status === "sick"
+      bad: allPlants.filter(
+        (p) =>
+          p.health_status === "bad" ||
+          p.health_status === "critical" ||
+          p.health_status === "dying" ||
+          p.health_status === "sick"
       ).length,
     };
 
@@ -785,4 +841,3 @@ async function updateMetricsFromPlants() {
     console.error("Error updating metrics:", e);
   }
 }
-

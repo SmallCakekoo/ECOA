@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-frontend-four-k32o.vercel.app";
+const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 
 function resolvePlantImage(plant) {
   const url = plant.image || plant.image_url;
@@ -75,15 +75,17 @@ function getMostRecentPlant(plants) {
 async function fetchPlantMetrics(plantId) {
   try {
     // Usar query params para buscar por plant_id y obtener el más reciente
-    const response = await fetch(`${API_BASE_URL}/plant_status?plant_id=${plantId}`);
-    
+    const response = await fetch(
+      `${API_BASE_URL}/plant_status?plant_id=${plantId}`
+    );
+
     if (!response.ok) {
       console.warn(`No se encontró estado para planta ${plantId}`);
       return;
     }
-    
+
     const { success, data: statuses } = await response.json();
-    
+
     if (!success || !statuses || statuses.length === 0) {
       console.warn(`No hay estados registrados para la planta ${plantId}`);
       return;
@@ -97,7 +99,7 @@ async function fetchPlantMetrics(plantId) {
     if (progressText) {
       progressText.textContent = percent + "%";
     }
-    
+
     // Animar progreso circular
     const circumference = 2 * Math.PI * 30;
     const progressCircle = document.getElementById("progressCircle");

@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoa-frontend-four-k32o.vercel.app";
+const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 // Obtener el ID de la planta desde la URL
@@ -25,7 +25,7 @@ setInterval(updateTime, 60000);
 // Cargar datos de la planta si hay plant_id en la URL
 async function loadPlantData() {
   const headerTitle = document.querySelector(".header-title");
-  
+
   if (!plantId) {
     console.warn("No plant ID provided in URL");
     // Mantener "Shop" como título si no hay plantId
@@ -37,12 +37,12 @@ async function loadPlantData() {
 
   try {
     const response = await fetch(`${API_BASE_URL}/plants/${plantId}`);
-    
+
     if (!response.ok) {
       console.warn(`Error obteniendo planta: ${response.status}`);
       return;
     }
-    
+
     const { success, data: plant } = await response.json();
 
     if (success && plant) {
@@ -64,7 +64,7 @@ async function loadPlantData() {
 (async function initializeShop() {
   // Cargar datos de la planta primero
   await loadPlantData();
-  
+
   // Luego cargar accesorios
   await loadAccessories();
 })();
@@ -91,11 +91,16 @@ window.goToProfile = function (event) {
 };
 
 // Función para comprar un accesorio (expuesta globalmente)
-window.purchaseAccessory = async function (accessoryId, accessoryName, price, pId) {
+window.purchaseAccessory = async function (
+  accessoryId,
+  accessoryName,
+  price,
+  pId
+) {
   try {
     // Usar el plantId de la variable global o del parámetro
     const currentPlantId = pId || plantId;
-    
+
     // Verificar que hay un usuario logueado
     if (!USER_DATA || !USER_DATA.id) {
       console.error("Usuario no autenticado");
@@ -115,7 +120,7 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
       accessoryName,
       price,
       plantId: currentPlantId,
-      userId: USER_DATA.id
+      userId: USER_DATA.id,
     });
 
     // Crear la donación (compra) en Supabase
@@ -128,7 +133,7 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
         user_id: USER_DATA.id,
         plant_id: currentPlantId,
         amount: price,
-        accessory_type: accessoryName
+        accessory_type: accessoryName,
         // Solo campos básicos: user_id, plant_id, amount, accessory_type
       }),
     });
@@ -143,17 +148,22 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
           status: donationResponse.status,
           statusText: donationResponse.statusText,
           error: errorJson.error || errorJson.message || errorText,
-          fullError: errorJson
+          fullError: errorJson,
         });
       } catch (e) {
         errorText = await donationResponse.text();
         console.error("❌ Error HTTP al crear donación (texto):", {
           status: donationResponse.status,
           statusText: donationResponse.statusText,
-          error: errorText
+          error: errorText,
         });
       }
-      alert(`Error al crear donación: ${JSON.stringify({ status: donationResponse.status, error: errorText })}`);
+      alert(
+        `Error al crear donación: ${JSON.stringify({
+          status: donationResponse.status,
+          error: errorText,
+        })}`
+      );
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
@@ -162,7 +172,11 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
 
     if (!donationResult.success) {
       console.error("❌ Error en respuesta de donación:", donationResult);
-      alert(`Error: ${donationResult.message || donationResult.error || 'Error desconocido'}`);
+      alert(
+        `Error: ${
+          donationResult.message || donationResult.error || "Error desconocido"
+        }`
+      );
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
@@ -171,43 +185,56 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
 
     // Intentar asignar el accesorio a la planta (opcional, no crítico)
     try {
-      const assignmentResponse = await fetch(`${API_BASE_URL}/plants/${currentPlantId}/accessories`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          accessory_id: accessoryId
-        }),
-      });
+      const assignmentResponse = await fetch(
+        `${API_BASE_URL}/plants/${currentPlantId}/accessories`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            accessory_id: accessoryId,
+          }),
+        }
+      );
 
       if (!assignmentResponse.ok) {
         const errorText = await assignmentResponse.text();
         console.warn("⚠️ Error HTTP al asignar accesorio:", {
           status: assignmentResponse.status,
-          error: errorText
+          error: errorText,
         });
       } else {
         const assignmentResult = await assignmentResponse.json();
-        
+
         if (assignmentResult.success) {
-          console.log("✅ Accesorio asignado a la planta:", assignmentResult.data);
+          console.log(
+            "✅ Accesorio asignado a la planta:",
+            assignmentResult.data
+          );
         } else {
-          console.warn("⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:", assignmentResult);
+          console.warn(
+            "⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:",
+            assignmentResult
+          );
         }
       }
     } catch (assignmentError) {
-      console.warn("⚠️ Error asignando accesorio a la planta (no crítico):", assignmentError);
+      console.warn(
+        "⚠️ Error asignando accesorio a la planta (no crítico):",
+        assignmentError
+      );
       // No fallar si no se puede asignar, la donación ya se creó
     }
 
     // SIEMPRE redirigir a success si la donación se creó exitosamente
     console.log("✅ Redirigiendo a página de éxito...");
     window.location.href = `/client/screens/ShopFeedback/success?id=${currentPlantId}`;
-
   } catch (error) {
     console.error("❌ Error en la compra:", error);
-    window.location.href = `/client/screens/ShopFeedback/error?id=${plantId || ''}`;
+    window.location.href = `/client/screens/ShopFeedback/error?id=${
+      plantId || ""
+    }`;
   }
 };
 
@@ -226,15 +253,15 @@ function getAssetBasePath() {
   // Obtener la URL base desde la ubicación actual
   const baseUrl = new URL(window.location.href);
   // Desde /client/screens/Shop, subir 2 niveles para llegar a /client/
-  const pathParts = baseUrl.pathname.split('/').filter(p => p);
+  const pathParts = baseUrl.pathname.split("/").filter((p) => p);
   // Remover 'screens' y 'Shop'
-  if (pathParts.length >= 2 && pathParts[pathParts.length - 2] === 'screens') {
+  if (pathParts.length >= 2 && pathParts[pathParts.length - 2] === "screens") {
     pathParts.pop(); // Shop
     pathParts.pop(); // screens
   }
   // Construir ruta base relativa (desde /client/screens/Shop/ a /client/src/assets/images/)
   // Necesitamos subir 2 niveles y luego entrar a src/assets/images/
-  return '../../src/assets/images/';
+  return "../../src/assets/images/";
 }
 
 // Función helper para construir URL de imagen
@@ -256,7 +283,7 @@ function buildImageUrl(imagePath) {
       const resolvedUrl = new URL(imagePath, baseUrl);
       // Extraer solo el pathname y asegurar que tenga /client/
       let pathname = resolvedUrl.pathname;
-      
+
       // Si la ruta resuelta no tiene /client/, agregarlo
       if (!pathname.startsWith("/client/") && pathname.startsWith("/src/")) {
         pathname = "/client" + pathname;
@@ -438,17 +465,22 @@ async function loadAccessories() {
 
       // Si no hay imagen, intentar mapear por nombre directamente
       const finalImg = img || resolveAccessoryImage(null, acc.name);
-      
+
       // Usar la imagen directamente (ya viene con ruta resuelta desde resolveAccessoryImage)
       let imageSrc = finalImg;
 
       // Construir HTML sin placeholder de Unsplash en onerror
       // Usar ruta relativa exacta como en el HTML estático
-      const imagePath = imageSrc || `../../src/assets/images/${mappedName || 'accessory-1.png'}`;
+      const imagePath =
+        imageSrc ||
+        `../../src/assets/images/${mappedName || "accessory-1.png"}`;
       // Formatear el precio
       const price = acc.price_estimate || 0;
-      const formattedPrice = `$${price.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-      
+      const formattedPrice = `$${price.toLocaleString("es-ES", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })}`;
+
       card.innerHTML = `
         <div class="shop-image">
           ${
@@ -461,7 +493,9 @@ async function loadAccessories() {
           <div class="shop-title">${acc.name || "Sin nombre"}</div>
           <div class="shop-description">${acc.description || ""}</div>
           <div class="shop-price">${formattedPrice}</div>
-          <button class="add-button" onclick="purchaseAccessory('${acc.id}', '${acc.name}', ${price}, '${plantId || ''}')">
+          <button class="add-button" onclick="purchaseAccessory('${acc.id}', '${
+        acc.name
+      }', ${price}, '${plantId || ""}')">
             <span class="iconify" data-icon="material-symbols:add"></span>
           </button>
         </div>`;

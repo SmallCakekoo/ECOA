@@ -30,7 +30,7 @@ async function loadUserData() {
 
   try {
     const response = await fetch(
-      `https://ecoa-frontend-four-k32o.vercel.app/users/${USER_DATA.id}/plants`
+      `https://ecoabackendecoa.vercel.app/users/${USER_DATA.id}/plants`
     );
     const { success, count } = await response.json();
     console.log(success, count);

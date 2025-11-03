@@ -1,7 +1,7 @@
 // Configuración del panel de administración
 const AdminConfig = {
   // URL del backend - Servidor en producción
-  API_BASE_URL: "https://ecoa-frontend-four-k32o.vercel.app",
+  API_BASE_URL: "https://ecoabackendecoa.vercel.app",
 
   // Configuración de autenticación
   AUTH: {

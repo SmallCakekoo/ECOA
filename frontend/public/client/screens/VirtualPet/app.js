@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-frontend-four-k32o.vercel.app";
+const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 
 // Obtener el ID de la planta desde la URL
 const params = new URLSearchParams(window.location.search);
@@ -79,7 +79,7 @@ setInterval(updateTime, 60000);
       const statsResponse = await fetch(
         `${API_BASE_URL}/plant_stats?plant_id=${plantId}`
       );
-      
+
       let stats = null;
       if (statsResponse.ok) {
         const result = await statsResponse.json();
@@ -118,7 +118,7 @@ setInterval(updateTime, 60000);
       const statusResponse = await fetch(
         `${API_BASE_URL}/plant_status?plant_id=${plantId}`
       );
-      
+
       let status = null;
       if (statusResponse.ok) {
         const result = await statusResponse.json();
@@ -235,7 +235,11 @@ function resolveAccessoryImage(image, accessoryName) {
     return getImagePath("accessory-1.png");
   }
 
-  if (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("data:")) {
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("data:")
+  ) {
     return image;
   }
 
@@ -250,7 +254,8 @@ function resolveAccessoryImage(image, accessoryName) {
       "matera.png": "accessory-2.png",
     };
     const fileName = image.toLowerCase();
-    const mappedName = imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
+    const mappedName =
+      imageNameMap[fileName] || imageNameMap[fileName.replace(".png", "")];
     if (mappedName) {
       return getImagePath(mappedName);
     }
@@ -268,10 +273,15 @@ function resolveAccessoryImage(image, accessoryName) {
 }
 
 // Función para comprar un accesorio (expuesta globalmente)
-window.purchaseAccessory = async function (accessoryId, accessoryName, price, pId) {
+window.purchaseAccessory = async function (
+  accessoryId,
+  accessoryName,
+  price,
+  pId
+) {
   try {
     const currentPlantId = pId || plantId;
-    
+
     if (!USER_DATA || !USER_DATA.id) {
       console.error("Usuario no autenticado");
       window.location.href = "/client/screens/ShopFeedback/error";
@@ -289,7 +299,7 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
       accessoryName,
       price,
       plantId: currentPlantId,
-      userId: USER_DATA.id
+      userId: USER_DATA.id,
     });
 
     const donationResponse = await fetch(`${API_BASE_URL}/donations`, {
@@ -301,7 +311,7 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
         user_id: USER_DATA.id,
         plant_id: currentPlantId,
         amount: price,
-        accessory_type: accessoryName
+        accessory_type: accessoryName,
         // Solo campos básicos: user_id, plant_id, amount, accessory_type
       }),
     });
@@ -316,17 +326,22 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
           status: donationResponse.status,
           statusText: donationResponse.statusText,
           error: errorJson.error || errorJson.message || errorText,
-          fullError: errorJson
+          fullError: errorJson,
         });
       } catch (e) {
         errorText = await donationResponse.text();
         console.error("❌ Error HTTP al crear donación (texto):", {
           status: donationResponse.status,
           statusText: donationResponse.statusText,
-          error: errorText
+          error: errorText,
         });
       }
-      alert(`Error al crear donación: ${JSON.stringify({ status: donationResponse.status, error: errorText })}`);
+      alert(
+        `Error al crear donación: ${JSON.stringify({
+          status: donationResponse.status,
+          error: errorText,
+        })}`
+      );
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
@@ -335,7 +350,11 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
 
     if (!donationResult.success) {
       console.error("❌ Error en respuesta de donación:", donationResult);
-      alert(`Error: ${donationResult.message || donationResult.error || 'Error desconocido'}`);
+      alert(
+        `Error: ${
+          donationResult.message || donationResult.error || "Error desconocido"
+        }`
+      );
       window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
       return;
     }
@@ -344,42 +363,55 @@ window.purchaseAccessory = async function (accessoryId, accessoryName, price, pI
 
     // Intentar asignar el accesorio a la planta (opcional, no crítico)
     try {
-      const assignmentResponse = await fetch(`${API_BASE_URL}/plants/${currentPlantId}/accessories`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          accessory_id: accessoryId
-        }),
-      });
+      const assignmentResponse = await fetch(
+        `${API_BASE_URL}/plants/${currentPlantId}/accessories`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            accessory_id: accessoryId,
+          }),
+        }
+      );
 
       if (!assignmentResponse.ok) {
         const errorText = await assignmentResponse.text();
         console.warn("⚠️ Error HTTP al asignar accesorio:", {
           status: assignmentResponse.status,
-          error: errorText
+          error: errorText,
         });
       } else {
         const assignmentResult = await assignmentResponse.json();
-        
+
         if (assignmentResult.success) {
-          console.log("✅ Accesorio asignado a la planta:", assignmentResult.data);
+          console.log(
+            "✅ Accesorio asignado a la planta:",
+            assignmentResult.data
+          );
         } else {
-          console.warn("⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:", assignmentResult);
+          console.warn(
+            "⚠️ No se pudo asignar el accesorio a la planta, pero la donación se creó:",
+            assignmentResult
+          );
         }
       }
     } catch (assignmentError) {
-      console.warn("⚠️ Error asignando accesorio a la planta (no crítico):", assignmentError);
+      console.warn(
+        "⚠️ Error asignando accesorio a la planta (no crítico):",
+        assignmentError
+      );
     }
 
     // SIEMPRE redirigir a success si la donación se creó exitosamente
     console.log("✅ Redirigiendo a página de éxito...");
     window.location.href = `/client/screens/ShopFeedback/success?id=${currentPlantId}`;
-
   } catch (error) {
     console.error("❌ Error en la compra:", error);
-    window.location.href = `/client/screens/ShopFeedback/error?id=${plantId || ''}`;
+    window.location.href = `/client/screens/ShopFeedback/error?id=${
+      plantId || ""
+    }`;
   }
 };
 
@@ -394,16 +426,23 @@ async function loadAccessories() {
 
     if (!res.ok) {
       console.error("❌ Error en respuesta:", res.status, res.statusText);
-      container.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No se pudieron cargar los accesorios</div>';
+      container.innerHTML =
+        '<div style="padding: 20px; text-align: center; color: #666;">No se pudieron cargar los accesorios</div>';
       return;
     }
 
     const result = await res.json();
     console.log("✅ Respuesta recibida:", result);
 
-    if (!result.success || !result.data || !Array.isArray(result.data) || result.data.length === 0) {
+    if (
+      !result.success ||
+      !result.data ||
+      !Array.isArray(result.data) ||
+      result.data.length === 0
+    ) {
       console.warn("⚠️ No hay accesorios disponibles");
-      container.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No hay accesorios disponibles</div>';
+      container.innerHTML =
+        '<div style="padding: 20px; text-align: center; color: #666;">No hay accesorios disponibles</div>';
       return;
     }
 
@@ -414,19 +453,26 @@ async function loadAccessories() {
     accessoriesToShow.forEach((acc) => {
       const img = resolveAccessoryImage(acc.image, acc.name);
       const price = acc.price_estimate || 0;
-      const formattedPrice = `$${price.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+      const formattedPrice = `$${price.toLocaleString("es-ES", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })}`;
 
       const card = document.createElement("div");
       card.className = "accessory-card";
       card.innerHTML = `
         <div class="accessory-image">
-          <img src="${img}" alt="${acc.name}" onerror="this.src='../../src/assets/images/accessory-1.png';" />
+          <img src="${img}" alt="${
+        acc.name
+      }" onerror="this.src='../../src/assets/images/accessory-1.png';" />
         </div>
         <div class="accessory-content">
           <div class="accessory-title">${acc.name || "Sin nombre"}</div>
           <div class="accessory-description">${acc.description || ""}</div>
           <div class="accessory-price">${formattedPrice}</div>
-          <button class="add-button-small" onclick="purchaseAccessory('${acc.id}', '${acc.name}', ${price}, '${plantId || ''}')">
+          <button class="add-button-small" onclick="purchaseAccessory('${
+            acc.id
+          }', '${acc.name}', ${price}, '${plantId || ""}')">
             <span class="iconify" data-icon="material-symbols:add"></span>
           </button>
         </div>

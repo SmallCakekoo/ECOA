@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoa-frontend-four-k32o.vercel.app";
+const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 
 // Actualizar la hora actual
 function updateTime() {
@@ -104,8 +104,10 @@ const plantsGrid = document.getElementById("plantsGrid");
   const promises = plants.map(async (plant, index) => {
     try {
       // Usar query params para buscar por plant_id y obtener el más reciente
-      const res = await fetch(`${API_BASE_URL}/plant_stats?plant_id=${plant.id}`);
-      
+      const res = await fetch(
+        `${API_BASE_URL}/plant_stats?plant_id=${plant.id}`
+      );
+
       let plantMetrics = {};
       if (res.ok) {
         const result = await res.json();
@@ -114,7 +116,7 @@ const plantsGrid = document.getElementById("plantsGrid");
           plantMetrics = result.data[0];
         }
       }
-      
+
       const card = createPlantCard(
         {
           ...plant,
@@ -148,7 +150,7 @@ const plantsGrid = document.getElementById("plantsGrid");
   addButton.onclick = function () {
     console.log("Navegando a Adopt para adoptar nueva planta");
     window.location.href =
-      "https://ecoa-frontend-four.vercel.app/client/screens/Adopt";
+      "https://ecoafrontendecoa.vercel.app/client/screens/Adopt";
   };
   plantsGrid.appendChild(addButton);
 
