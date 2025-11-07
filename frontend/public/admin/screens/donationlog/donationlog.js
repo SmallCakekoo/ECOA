@@ -83,6 +83,9 @@ async function initializeApp() {
 
     // Configurar paginación
     setupPagination();
+
+    // Cargar distribución de donaciones (vista simulada)
+    loadDonationDistribution();
   } catch (error) {
     console.error("Error initializing app:", error);
     showNotification("Error al cargar las donaciones", "error");
@@ -390,5 +393,84 @@ async function updateMetricsFromDonations() {
     if (values[3]) values[3].textContent = Math.round(avg).toLocaleString();
   } catch (e) {
     console.error("Error updating donation metrics:", e);
+  }
+}
+
+// Función para cargar distribución de donaciones (vista simulada con datos de prueba)
+function loadDonationDistribution() {
+  try {
+    // Generar datos simulados basados en los últimos 4 meses
+    const now = new Date();
+    const months = [];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Obtener los últimos 4 meses
+    for (let i = 3; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({
+        name: monthNames[date.getMonth()],
+        shortName: monthNames[date.getMonth()].substring(0, 3),
+        monthIndex: date.getMonth(),
+        year: date.getFullYear()
+      });
+    }
+
+    // Calcular distribución basada en donaciones reales si existen, sino usar datos simulados
+    let distributionData = [];
+    
+    if (allDonations && allDonations.length > 0) {
+      // Calcular distribución real basada en las donaciones
+      months.forEach(month => {
+        const monthDonations = allDonations.filter(d => {
+          if (!d.created_at) return false;
+          const donationDate = new Date(d.created_at);
+          return donationDate.getMonth() === month.monthIndex && 
+                 donationDate.getFullYear() === month.year;
+        });
+        
+        const monthTotal = monthDonations.reduce((sum, d) => sum + Number(d.amount || 0), 0);
+        distributionData.push({
+          ...month,
+          amount: monthTotal,
+          count: monthDonations.length
+        });
+      });
+    } else {
+      // Datos simulados si no hay donaciones reales
+      const simulatedAmounts = [45000, 38000, 42000, 50000]; // Montos simulados
+      months.forEach((month, index) => {
+        distributionData.push({
+          ...month,
+          amount: simulatedAmounts[index] || 0,
+          count: Math.floor(Math.random() * 10) + 5
+        });
+      });
+    }
+
+    // Calcular total para porcentajes
+    const totalAmount = distributionData.reduce((sum, m) => sum + m.amount, 0);
+
+    // Actualizar la leyenda con los datos
+    const legend = document.querySelector('.legend');
+    if (legend) {
+      const dotClasses = ['dot-june', 'dot-may', 'dot-april', 'dot-march'];
+      
+      legend.innerHTML = distributionData.map((month, index) => {
+        const percentage = totalAmount > 0 ? Math.round((month.amount / totalAmount) * 100) : 0;
+        const formattedAmount = `$${month.amount.toLocaleString()}`;
+        const dotClass = dotClasses[index] || dotClasses[dotClasses.length - 1];
+        
+        return `
+          <li>
+            <span class="dot ${dotClass}"></span>
+            <span class="month-name">${month.name}</span>
+            <span class="month-stats">${formattedAmount} (${percentage}%)</span>
+          </li>
+        `;
+      }).join('');
+    }
+  } catch (error) {
+    console.error("Error loading donation distribution:", error);
+    // En caso de error, mantener la vista estática original
   }
 }

@@ -557,6 +557,19 @@ body {
   gap: 12px;
   color: #1f2937;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+}
+
+.legend .month-name {
+  min-width: 60px;
+  font-weight: 500;
+}
+
+.legend .month-stats {
+  margin-left: auto;
+  color: #62727b;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 /* Estilos para iconos de Iconify en el menú del sidebar */
