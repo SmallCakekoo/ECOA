@@ -558,15 +558,18 @@ async function editPlant(plantId) {
       }
     }
 
-    // Configurar subida de nueva imagen
-    setupEditImageUpload();
-
-    // Mostrar modal de edición
+    // Mostrar modal de edición primero
     const editModal = document.getElementById("editPlantModal");
     if (editModal) {
       editModal.classList.add("show");
       document.body.style.overflow = "hidden";
     }
+
+    // Configurar subida de nueva imagen DESPUÉS de mostrar el modal
+    // Usar setTimeout para asegurar que el DOM esté completamente renderizado
+    setTimeout(() => {
+      setupEditImageUpload();
+    }, 100);
 
     // Configurar envío del formulario de edición
     const editForm = document.getElementById("editPlantForm");
@@ -648,35 +651,43 @@ function setupEditImageUpload() {
   const editInput = document.getElementById("editPhotoInput");
   const editPreview = document.getElementById("editPhotoPreview");
 
-  if (editUpload && editInput && editPreview) {
-    // Remover listeners anteriores si existen
-    const newEditInput = editInput.cloneNode(true);
-    editInput.parentNode.replaceChild(newEditInput, editInput);
-    
-    const editUploadInner = editUpload.querySelector(".upload-inner");
-
-    editUpload.addEventListener("click", (e) => {
-      e.preventDefault();
-      document.getElementById("editPhotoInput").click();
-    });
-    
-    document.getElementById("editPhotoInput").addEventListener("change", async () => {
-      const file = document.getElementById("editPhotoInput").files && document.getElementById("editPhotoInput").files[0];
-      if (!file) return;
-
-      compressImage(file, (dataUrl) => {
-        if (dataUrl) {
-          editPreview.src = dataUrl;
-          editPreview.style.display = "block";
-          if (editUploadInner) editUploadInner.style.display = "none";
-          editPreview.setAttribute('data-image-url', dataUrl);
-          console.log(`✅ Plant Catalog - Imagen comprimida para edición, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
-        } else {
-          showNotification("La imagen es muy grande. Se guardará sin cambiar la imagen.", "warning");
-        }
-      });
-    });
+  if (!editUpload || !editInput || !editPreview) {
+    console.warn("⚠️ Elementos de edición de imagen no encontrados");
+    return;
   }
+
+  // Remover listeners anteriores si existen (usando cloneNode para limpiar)
+  const newEditInput = editInput.cloneNode(true);
+  editInput.parentNode.replaceChild(newEditInput, editInput);
+  
+  // Obtener referencias actualizadas después del clone
+  const currentEditInput = document.getElementById("editPhotoInput");
+  const editUploadInner = editUpload.querySelector(".upload-inner");
+
+  // El label ya maneja el click automáticamente, solo necesitamos el change event
+  currentEditInput.addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+      console.log("⚠️ No se seleccionó ningún archivo");
+      return;
+    }
+
+    console.log("📸 Archivo seleccionado para edición:", file.name, "Tamaño:", Math.round(file.size / 1024), "KB");
+
+    compressImage(file, (dataUrl) => {
+      if (dataUrl) {
+        editPreview.src = dataUrl;
+        editPreview.style.display = "block";
+        if (editUploadInner) editUploadInner.style.display = "none";
+        editPreview.setAttribute('data-image-url', dataUrl);
+        console.log(`✅ Plant Catalog - Imagen comprimida para edición, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+      } else {
+        showNotification("La imagen es muy grande. Se guardará sin cambiar la imagen.", "warning");
+      }
+    });
+  });
+
+  console.log("✅ Event listeners de edición de imagen configurados");
 }
 
 async function updatePlant(plantId) {
@@ -755,6 +766,7 @@ async function updatePlant(plantId) {
       allPlants[plantIndex] = {
         ...allPlants[plantIndex],
         ...plantData,
+        image: imageUrl || allPlants[plantIndex].image, // Actualizar imagen si hay nueva
         health_status: healthStatus || allPlants[plantIndex].health_status
       };
       console.log("✅ Objeto local actualizado:", allPlants[plantIndex]);

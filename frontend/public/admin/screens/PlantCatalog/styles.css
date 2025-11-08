@@ -670,6 +670,7 @@ body {
   border-radius: 12px;
   max-width: 100%;
   max-height: 100%;
+  pointer-events: none;
 }
 
 /* Colores específicos para los iconos de las métricas */
