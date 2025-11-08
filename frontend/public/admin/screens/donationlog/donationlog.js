@@ -50,7 +50,10 @@ function setupProfileDropdown() {
   // Cargar información del usuario
   const user = window.AdminAPI.getCurrentUser();
   if (user) {
-    updateProfileDisplay(user);
+    const userNameEl = document.getElementById("userName");
+    const userEmailEl = document.getElementById("userEmail");
+    if (userNameEl) userNameEl.textContent = user.name || "Administrador";
+    if (userEmailEl) userEmailEl.textContent = user.email || "admin@ecoa.org";
   }
 
   // Toggle dropdown al hacer clic en el avatar
@@ -70,21 +73,9 @@ function setupProfileDropdown() {
   window.addEventListener("scroll", () => {
     dropdown.classList.remove("active");
   });
-
-  // Botón para editar perfil
-  const editProfileBtn = document.getElementById("editProfileBtn");
-  if (editProfileBtn) {
-    editProfileBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdown.classList.remove("active");
-      openEditProfileModal();
-    });
-  }
 }
 
 async function initializeApp() {
-  // Configurar modal de edición de perfil
-  setupEditProfileModal();
   try {
     // Cargar donaciones
     await loadDonations();
