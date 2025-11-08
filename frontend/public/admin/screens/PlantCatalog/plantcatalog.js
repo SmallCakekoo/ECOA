@@ -803,16 +803,37 @@ async function updatePlant(plantId) {
       }
     }
 
+    // Si la actualización fue exitosa y hay una nueva imagen, asegurarse de que se guardó
+    if (result.success && result.data) {
+      console.log("✅ Respuesta del servidor:", {
+        hasImage: !!result.data.image,
+        imageLength: result.data.image ? result.data.image.length : 0,
+        imagePreview: result.data.image ? `${result.data.image.substring(0, 50)}...` : null
+      });
+      
+      // Si se envió una imagen pero no está en la respuesta, podría no haberse guardado
+      if (imageUrl && !result.data.image) {
+        console.warn("⚠️ Se envió una imagen pero no está en la respuesta del servidor");
+      }
+    }
+
     // Actualizar el objeto local inmediatamente para reflejar cambios sin esperar recarga
     const plantIndex = allPlants.findIndex(p => p.id === plantId);
     if (plantIndex !== -1) {
+      // Usar la imagen de la respuesta del servidor si está disponible, sino la que enviamos
+      const updatedImage = result.data?.image || imageUrl || allPlants[plantIndex].image;
       allPlants[plantIndex] = {
         ...allPlants[plantIndex],
         ...plantData,
-        image: imageUrl || allPlants[plantIndex].image, // Actualizar imagen si hay nueva
+        image: updatedImage, // Usar imagen de la respuesta del servidor
         health_status: healthStatus || allPlants[plantIndex].health_status
       };
-      console.log("✅ Objeto local actualizado:", allPlants[plantIndex]);
+      console.log("✅ Objeto local actualizado:", {
+        id: allPlants[plantIndex].id,
+        name: allPlants[plantIndex].name,
+        hasImage: !!allPlants[plantIndex].image,
+        imageLength: allPlants[plantIndex].image ? allPlants[plantIndex].image.length : 0
+      });
     }
 
     // Mostrar UNA sola notificación
