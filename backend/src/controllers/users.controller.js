@@ -82,20 +82,54 @@ export const UsersController = {
       const updateData = sanitizeUserUpdate(req.body);
       
       // Log para debugging
-      console.log("📝 Actualizando usuario:", id, "con datos:", Object.keys(updateData));
+      console.log("📝 Actualizando usuario:", id);
+      console.log("📝 Datos recibidos:", Object.keys(req.body));
+      console.log("📝 Datos sanitizados:", Object.keys(updateData));
+      console.log("📝 Contenido de updateData:", JSON.stringify(updateData, null, 2).substring(0, 500));
       
       // Verificar que hay datos para actualizar
       if (Object.keys(updateData).length === 0) {
+        console.warn("⚠️ No hay datos válidos para actualizar después de sanitización");
         return res.status(400).json({
           success: false,
           message: "No hay datos válidos para actualizar",
         });
       }
       
+      // Intentar actualizar con todos los campos
       const { data, error } = await updateUser(id, updateData);
       
       if (error) {
-        console.error("❌ Error de Supabase al actualizar usuario:", error);
+        console.error("❌ Error de Supabase al actualizar usuario:");
+        console.error("   Código:", error.code);
+        console.error("   Mensaje:", error.message);
+        console.error("   Detalles:", error.details);
+        console.error("   Hint:", error.hint);
+        
+        // Si el error es porque el campo avatar_url no existe, intentar sin él
+        const hasAvatarUrl = 'avatar_url' in updateData;
+        if (hasAvatarUrl && (error.code === '42703' || error.message?.includes('column') || error.message?.includes('does not exist') || error.message?.includes('avatar_url'))) {
+          console.warn("⚠️ Campo avatar_url puede no existir en la tabla, intentando actualizar sin él...");
+          const updateWithoutAvatar = { ...updateData };
+          delete updateWithoutAvatar.avatar_url;
+          
+          if (Object.keys(updateWithoutAvatar).length > 0) {
+            const { data: dataRetry, error: errorRetry } = await updateUser(id, updateWithoutAvatar);
+            if (!errorRetry && dataRetry) {
+              console.log("✅ Usuario actualizado sin avatar_url (campo no existe en tabla)");
+              return res.status(200).json({
+                success: true,
+                message: "Usuario actualizado exitosamente (nota: el campo de imagen no está disponible en la base de datos)",
+                data: dataRetry,
+              });
+            } else if (errorRetry) {
+              console.error("❌ Error incluso sin avatar_url:", errorRetry.message);
+            }
+          } else {
+            console.warn("⚠️ No hay otros campos para actualizar además de avatar_url");
+          }
+        }
+        
         throw error;
       }
       
@@ -104,6 +138,8 @@ export const UsersController = {
           .status(404)
           .json({ success: false, message: "Usuario no encontrado" });
       }
+      
+      console.log("✅ Usuario actualizado exitosamente:", data.id);
       
       req.io?.emit("user_updated", {
         type: "user_updated",
@@ -117,7 +153,10 @@ export const UsersController = {
         data,
       });
     } catch (error) {
-      console.error("❌ Error en update de usuario:", error);
+      console.error("❌ Error en update de usuario:");
+      console.error("   Tipo:", error.constructor.name);
+      console.error("   Mensaje:", error.message);
+      console.error("   Stack:", error.stack?.substring(0, 500));
       return handleError(error, res);
     }
   },
