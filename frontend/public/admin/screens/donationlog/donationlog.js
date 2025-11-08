@@ -261,7 +261,18 @@ function setupEditProfileModal() {
         }
       } catch (error) {
         console.error("Error al actualizar perfil:", error);
-        alert(`Error al actualizar el perfil: ${error.message}`);
+        console.error("Detalles del error:", {
+          message: error.message,
+          response: error.response,
+          stack: error.stack
+        });
+        
+        let errorMessage = error.message || "Error al actualizar el perfil";
+        if (error.response && error.response.message) {
+          errorMessage = error.response.message;
+        }
+        
+        alert(`Error al actualizar el perfil: ${errorMessage}`);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
