@@ -183,105 +183,58 @@ setInterval(updateTime, 60000);
       console.warn("Could not load plant status:", error);
     }
 
-    // Crear cards informativas
+    // Crear cards informativas - Solo 4 cards principales como en la imagen
     const infoCardsContainer = document.getElementById("infoCardsContainer");
     if (infoCardsContainer) {
       infoCardsContainer.innerHTML = "";
 
-      // Card 1: Nombre y Tipo
-      const nameCard = createInfoCard(
-        "Plant Name",
-        plant.name || "Unknown",
-        "Species",
-        plant.species || "Not specified",
-        "mdi:leaf",
+      // Card 1: Luz/Sunlight (Sol)
+      const lightValue = stats?.light || 0;
+      const lightCard = createInfoCard(
+        "Light",
+        `${lightValue}%`,
+        "Sunlight Level",
+        getLightDescription(lightValue),
+        "wi:day-sunny",
         "#7EB234"
       );
-      infoCardsContainer.appendChild(nameCard);
+      infoCardsContainer.appendChild(lightCard);
 
-      // Card 2: Estado de Salud
-      const healthStatus = status?.status || plant.health_status || "Healthy";
-      const healthStatusText = healthStatus.charAt(0).toUpperCase() + healthStatus.slice(1);
-      const healthCard = createInfoCard(
-        "Health Status",
-        healthStatusText,
-        "Current Condition",
-        getHealthDescription(healthStatus),
-        getHealthIcon(healthStatus),
-        getHealthColor(healthStatus)
+      // Card 2: Agua/Water (Gota de agua)
+      const moistureValue = stats?.soil_moisture || 0;
+      const waterCard = createInfoCard(
+        "Water",
+        `${moistureValue}%`,
+        "Water Level",
+        getMoistureDescription(moistureValue),
+        "mdi:water-outline",
+        "#7EB234"
       );
-      infoCardsContainer.appendChild(healthCard);
+      infoCardsContainer.appendChild(waterCard);
 
-      // Card 3: Luz/Sunlight
-      if (stats) {
-        const lightValue = stats.light || 0;
-        const lightCard = createInfoCard(
-          "Light",
-          `${lightValue}%`,
-          "Sunlight Level",
-          getLightDescription(lightValue),
-          "solar:sun-linear",
-          "#FFA500"
-        );
-        infoCardsContainer.appendChild(lightCard);
+      // Card 3: Humedad/Rain (Lluvia)
+      const humidityValue = stats?.soil_moisture || 0; // Usar soil_moisture como humedad
+      const rainCard = createInfoCard(
+        "Humidity",
+        `${humidityValue}%`,
+        "Humidity Level",
+        getMoistureDescription(humidityValue),
+        "mdi:weather-rainy",
+        "#7EB234"
+      );
+      infoCardsContainer.appendChild(rainCard);
 
-        // Card 4: Agua/Soil Moisture
-        const moistureValue = stats.soil_moisture || 0;
-        const waterCard = createInfoCard(
-          "Soil Moisture",
-          `${moistureValue}%`,
-          "Water Level",
-          getMoistureDescription(moistureValue),
-          "lets-icons:water-light",
-          "#4A90E2"
-        );
-        infoCardsContainer.appendChild(waterCard);
-
-        // Card 5: Temperatura
-        const tempValue = stats.temperature || 0;
-        const tempCard = createInfoCard(
-          "Temperature",
-          `${tempValue}°C`,
-          "Current Temp",
-          getTemperatureDescription(tempValue),
-          "material-symbols-light:shower-outline",
-          "#E74C3C"
-        );
-        infoCardsContainer.appendChild(tempCard);
-      }
-
-      // Card 6: Mood/Happiness
-      if (status) {
-        const moodPercent = Math.round((status.mood_index || 0) * 100);
-        const moodCard = createInfoCard(
-          "Mood",
-          `${moodPercent}%`,
-          "Happiness Level",
-          getMoodDescription(moodPercent),
-          "mingcute:happy-line",
-          "#F39C12"
-        );
-        infoCardsContainer.appendChild(moodCard);
-      }
-
-      // Card 7: Fecha de Registro
-      if (plant.registration_date || plant.created_at) {
-        const regDate = new Date(plant.registration_date || plant.created_at);
-        const formattedDate = regDate.toLocaleDateString("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric"
-        });
-        const dateCard = createInfoCard(
-          "Adopted On",
-          formattedDate,
-          "Registration Date",
-          "When this plant joined your garden",
-          "mdi:calendar",
-          "#9B59B6"
-        );
-        infoCardsContainer.appendChild(dateCard);
-      }
+      // Card 4: Mood/Happiness (Cara feliz)
+      const moodPercent = status ? Math.round((status.mood_index || 0) * 100) : 0;
+      const moodCard = createInfoCard(
+        "Mood",
+        `${moodPercent}%`,
+        "Happiness Level",
+        getMoodDescription(moodPercent),
+        "mdi:emoticon-happy-outline",
+        "#7EB234"
+      );
+      infoCardsContainer.appendChild(moodCard);
     }
   } catch (error) {
     console.error("Error loading plant data:", error);
@@ -290,25 +243,17 @@ setInterval(updateTime, 60000);
   }
 })();
 
-// Función para crear cards informativas
+// Función para crear cards informativas (estilo cuadrado con solo icono)
 function createInfoCard(title, value, subtitle, description, icon, color) {
   const card = document.createElement("div");
   card.className = "info-card";
-  card.style.setProperty("--card-color", color);
   
   card.innerHTML = `
     <div class="info-card-icon">
       <span class="iconify" data-icon="${icon}"></span>
     </div>
     <div class="info-card-content">
-      <div class="info-card-header">
-        <h3 class="info-card-title">${title}</h3>
-        <p class="info-card-value">${value}</p>
-      </div>
-      <div class="info-card-body">
-        <p class="info-card-subtitle">${subtitle}</p>
-        <p class="info-card-description">${description}</p>
-      </div>
+      <p class="info-card-value">${value}</p>
     </div>
   `;
   

@@ -109,118 +109,96 @@ body {
 
 /* Info Cards Container */
 .info-cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    display: flex;
+    gap: 12px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 480px) {
     .info-cards-container {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 10px;
     }
 }
 
-/* Info Card */
+/* Info Card - Estilo cuadrado como en la imagen */
 .info-card {
-    background: #A8D574; /* Verde claro sólido */
+    background: #7EB234; /* Verde sólido */
     border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    width: 90px;
+    height: 90px;
     display: flex;
-    gap: 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    flex-shrink: 0;
+    gap: 0;
 }
 
 .info-card:hover {
-    background: #9BCF5A; /* Verde un poco más intenso al hover */
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(126, 178, 52, 0.3);
-}
-
-.info-card-icon {
-    flex-shrink: 0;
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.info-card-icon .iconify {
-    font-size: 32px;
-    color: white;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-.info-card-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.info-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.info-card-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.info-card-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: white;
-    margin: 0;
-    white-space: nowrap;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.info-card-body {
-    display: flex;
-    flex-direction: column;
     gap: 4px;
 }
 
-.info-card-subtitle {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    margin: 0;
+.info-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex: 1;
+    transition: all 0.3s ease;
 }
 
-.info-card-description {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.75);
-    line-height: 1.5;
-    margin: 0;
+.info-card-icon .iconify {
+    font-size: 44px;
+    color: white;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: all 0.3s ease;
 }
 
-/* Hover effect - estilo del primer icono */
-.info-card:hover .info-card-value {
-    font-size: 28px;
-    transform: scale(1.05);
+.info-card-content {
+    display: none; /* Ocultar contenido por defecto */
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* Hover effect - mostrar valor como en el primer icono */
+.info-card:hover .info-card-icon {
+    flex: 0 0 auto;
 }
 
 .info-card:hover .info-card-icon .iconify {
     font-size: 36px;
-    transform: scale(1.1);
+}
+
+.info-card:hover .info-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.info-card-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    line-height: 1;
+}
+
+.info-card-title,
+.info-card-subtitle,
+.info-card-description {
+    display: none; /* Siempre ocultos */
 }
 
 /* Legacy state-button styles (mantener por compatibilidad) */
