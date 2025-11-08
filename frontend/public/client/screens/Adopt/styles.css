@@ -123,27 +123,30 @@ body {
   box-shadow: 0 12px 24px rgba(126, 178, 52, 0.4);
 }
 
-/* Contenedor de imagen con tamaño fijo y centrado */
+/* Imágenes de plantas - estilo como en la foto */
 .plant-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 15px;
-  object-fit: cover;
+  /* Tamaño flexible que se ajusta a la altura de la card */
+  height: 120px;
+  width: auto;
+  /* Mantener relación de aspecto original */
+  object-fit: contain;
+  object-position: bottom left;
   flex-shrink: 0;
   position: absolute;
   z-index: 5;
-  bottom: 20px;
-  left: 20px;
-  /* Centrar la imagen dentro del contenedor */
-  object-position: center;
-  /* Asegurar que todas tengan el mismo tamaño */
-  min-width: 100px;
-  min-height: 100px;
-  max-width: 100px;
-  max-height: 100px;
+  /* Alineado al fondo y extendiéndose más allá del borde izquierdo */
+  bottom: 0;
+  left: -10px;
+  /* Sin border-radius para mantener forma natural de la planta */
+  border-radius: 0;
+  /* Permitir que la imagen se extienda naturalmente */
+  min-width: auto;
+  min-height: auto;
+  max-width: none;
+  max-height: 120px;
 }
 
-/* Eliminar todos los scales diferentes - todas las imágenes del mismo tamaño */
+/* Permitir variación en tamaños pero mantener altura consistente */
 .plant-image1,
 .plant-image2,
 .plant-image3,
@@ -154,7 +157,10 @@ body {
 .plant-image8,
 .plant-image9,
 .plant-image10 {
-  scale: 1;
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom left;
 }
 
 /* Textos movidos más a la izquierda */
@@ -334,12 +340,10 @@ body {
   }
 
   .plant-image {
-    width: 100px;
-    height: 100px;
-    min-width: 100px;
-    min-height: 100px;
-    max-width: 100px;
-    max-height: 100px;
+    height: 110px;
+    width: auto;
+    max-height: 110px;
+    left: -8px;
   }
 
   .plant-name {
