@@ -86,9 +86,84 @@ async function initializeApp() {
 
     // Cargar distribución de donaciones (vista simulada)
     loadDonationDistribution();
+
+    // Configurar botones de Quick Actions
+    setupQuickActions();
   } catch (error) {
     console.error("Error initializing app:", error);
     showNotification("Error al cargar las donaciones", "error");
+  }
+}
+
+// Configurar botones de Quick Actions
+function setupQuickActions() {
+  const exportDataBtn = document.getElementById("exportDataBtn");
+  const viewAnalyticsBtn = document.getElementById("viewAnalyticsBtn");
+  const closeFeatureModal = document.getElementById("closeFeatureModal");
+  const featureModal = document.getElementById("featureModal");
+  const featureModalMessage = document.getElementById("featureModalMessage");
+
+  // Botón Export Data
+  if (exportDataBtn) {
+    exportDataBtn.addEventListener("click", () => {
+      if (featureModalMessage) {
+        featureModalMessage.textContent = 
+          "La funcionalidad de exportar datos está en desarrollo y estará disponible pronto. Podrás exportar todas las donaciones en formato CSV o Excel.";
+      }
+      showFeatureModal();
+    });
+  }
+
+  // Botón View Analytics
+  if (viewAnalyticsBtn) {
+    viewAnalyticsBtn.addEventListener("click", () => {
+      if (featureModalMessage) {
+        featureModalMessage.textContent = 
+          "La funcionalidad de análisis detallado está en desarrollo y estará disponible pronto. Podrás ver gráficos avanzados, tendencias y estadísticas detalladas de las donaciones.";
+      }
+      showFeatureModal();
+    });
+  }
+
+  // Cerrar modal
+  if (closeFeatureModal) {
+    closeFeatureModal.addEventListener("click", () => {
+      hideFeatureModal();
+    });
+  }
+
+  // Cerrar modal al hacer click fuera
+  if (featureModal) {
+    featureModal.addEventListener("click", (e) => {
+      if (e.target.classList.contains("feature-modal-overlay")) {
+        hideFeatureModal();
+      }
+    });
+  }
+
+  // Cerrar modal con ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && featureModal && featureModal.classList.contains("show")) {
+      hideFeatureModal();
+    }
+  });
+}
+
+// Mostrar modal de feature en desarrollo
+function showFeatureModal() {
+  const featureModal = document.getElementById("featureModal");
+  if (featureModal) {
+    featureModal.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+// Ocultar modal de feature en desarrollo
+function hideFeatureModal() {
+  const featureModal = document.getElementById("featureModal");
+  if (featureModal) {
+    featureModal.classList.remove("show");
+    document.body.style.overflow = "";
   }
 }
 

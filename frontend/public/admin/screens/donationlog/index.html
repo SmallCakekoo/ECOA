@@ -166,7 +166,7 @@
           <div class="right-col">
             <div class="panel quick">
               <h2 class="panel-title">Quick Actions</h2>
-              <button class="qa-item">
+              <button class="qa-item" id="exportDataBtn">
                 <span class="qa-icon">
                   <span
                     class="iconify"
@@ -179,7 +179,7 @@
                   <div class="qa-sub">Record new donation</div>
                 </span>
               </button>
-              <button class="qa-item">
+              <button class="qa-item" id="viewAnalyticsBtn">
                 <span class="qa-icon">
                   <span
                     class="iconify"
@@ -213,6 +213,25 @@
           </div>
         </section>
       </main>
+    </div>
+
+    <!-- Modal de Feature en Desarrollo -->
+    <div class="feature-modal" id="featureModal">
+      <div class="feature-modal-overlay"></div>
+      <div class="feature-modal-content">
+        <div class="feature-modal-icon">
+          <span
+            class="iconify"
+            data-icon="mdi:code-braces"
+            style="font-size: 48px; color: #65b845"
+          ></span>
+        </div>
+        <h2 class="feature-modal-title">Feature en Desarrollo</h2>
+        <p class="feature-modal-message" id="featureModalMessage">
+          Esta funcionalidad está en desarrollo y estará disponible pronto.
+        </p>
+        <button class="btn" id="closeFeatureModal">Entendido</button>
+      </div>
     </div>
 
     <script src="../../src/config.js"></script>
