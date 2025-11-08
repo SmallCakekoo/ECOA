@@ -70,6 +70,30 @@ function getPlantImageUrl(plant) {
   return "/client/src/assets/images/plant.png";
 }
 
+// Función para manejar errores de imagen en Garden
+function handleGardenImageError(imgElement, plantId) {
+  if (plantId) {
+    const plantIdStr = String(plantId);
+    let hash = 0;
+    for (let i = 0; i < plantIdStr.length; i++) {
+      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = hash & hash;
+    }
+    const imageIndex = (Math.abs(hash) % 10) + 1;
+    imgElement.src = `/client/src/assets/images/plants/plant-${imageIndex}.png`;
+    imgElement.onerror = function() {
+      this.onerror = null;
+      this.src = "/client/src/assets/images/plant.png";
+    };
+  } else {
+    imgElement.onerror = null;
+    imgElement.src = "/client/src/assets/images/plant.png";
+  }
+}
+
+// Exponer función globalmente para uso en onerror inline
+window.handleGardenImageError = handleGardenImageError;
+
 function createPlantCard(plant, i) {
   const card = document.createElement("div");
   card.className = "plant-card";
@@ -77,7 +101,7 @@ function createPlantCard(plant, i) {
         <div class="card-background"></div>
         <img class="plant-image" src="${getPlantImageUrl(
           plant
-        )}" alt="Planta ${i}" onerror="(function() { const plantIdStr = '${plant.id || ''}'; let hash = 0; for (let i = 0; i < plantIdStr.length; i++) { hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i); hash = hash & hash; } const imageIndex = (Math.abs(hash) % 10) + 1; this.src = '/client/src/assets/images/plants/plant-' + imageIndex + '.png'; this.onerror = function() { this.onerror = null; this.src = '/client/src/assets/images/plant.png'; }; })()">
+        )}" alt="Planta ${i}" onerror="handleGardenImageError(this, '${plant.id || ''}')">
         <div class="card-overlay">
             <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">
