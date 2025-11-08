@@ -246,12 +246,26 @@ document.addEventListener("DOMContentLoaded", function() {
   // Cerrar modal con ESC
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      const modal = document.getElementById("editProfileModal");
-      if (modal && modal.classList.contains("show")) {
+      const editModal = document.getElementById("editProfileModal");
+      const aboutModal = document.getElementById("aboutModal");
+      if (editModal && editModal.classList.contains("show")) {
         closeEditProfileModal();
+      }
+      if (aboutModal && aboutModal.classList.contains("show")) {
+        closeAboutModal();
       }
     }
   });
+
+  // Cerrar modal About al hacer click fuera
+  const aboutModal = document.getElementById("aboutModal");
+  if (aboutModal) {
+    aboutModal.addEventListener("click", (e) => {
+      if (e.target.classList.contains("about-overlay")) {
+        closeAboutModal();
+      }
+    });
+  }
 });
 
 // Función para actualizar perfil
@@ -355,10 +369,21 @@ window.goToPrivacy = function () {
   alert("Privacy & Security settings - Create this page next!");
 };
 
-window.goToAbout = function () {
-  console.log("Navegando a About");
-  // Aquí iría la navegación a la página de acerca de
-  alert("About ECOA - Version 1.0.0");
+// Funciones para el modal de About ECOA
+window.openAboutModal = function () {
+  const modal = document.getElementById("aboutModal");
+  if (modal) {
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+};
+
+window.closeAboutModal = function () {
+  const modal = document.getElementById("aboutModal");
+  if (modal) {
+    modal.classList.remove("show");
+    document.body.style.overflow = "";
+  }
 };
 
 // Función para cerrar sesión (expuesta globalmente)

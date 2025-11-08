@@ -82,7 +82,7 @@
             ></span>
           </div>
 
-          <div class="setting-item" onclick="goToAbout()">
+          <div class="setting-item" onclick="openAboutModal()">
             <div class="setting-content">
               <div class="setting-icon">
                 <span
@@ -165,6 +165,68 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Modal de About ECOA -->
+    <div class="about-modal" id="aboutModal">
+      <div class="about-overlay"></div>
+      <div class="about-content">
+        <div class="about-header">
+          <div class="about-logo">
+            <span class="iconify" data-icon="mdi:leaf"></span>
+          </div>
+          <h2 class="about-title">ECOA</h2>
+          <button class="about-close" onclick="closeAboutModal()">
+            <span class="iconify" data-icon="mdi:close"></span>
+          </button>
+        </div>
+        
+        <div class="about-body">
+          <p class="about-tagline">
+            Connecting people with nature through plant adoption
+          </p>
+          
+          <div class="about-section">
+            <h3 class="about-section-title">Our Mission</h3>
+            <p class="about-section-text">
+              ECOA is dedicated to fostering a deeper connection between people and nature by making plant adoption accessible, educational, and meaningful. We believe that caring for plants enriches our lives and helps create a more sustainable future.
+            </p>
+          </div>
+
+          <div class="about-section">
+            <h3 class="about-section-title">Features</h3>
+            <ul class="about-features">
+              <li>
+                <span class="iconify" data-icon="mdi:check-circle"></span>
+                Adopt and care for virtual plants
+              </li>
+              <li>
+                <span class="iconify" data-icon="mdi:check-circle"></span>
+                Track plant health and growth
+              </li>
+              <li>
+                <span class="iconify" data-icon="mdi:check-circle"></span>
+                Support environmental causes
+              </li>
+              <li>
+                <span class="iconify" data-icon="mdi:check-circle"></span>
+                Learn about plant care
+              </li>
+            </ul>
+          </div>
+
+          <div class="about-section">
+            <h3 class="about-section-title">Version</h3>
+            <p class="about-version">1.0.0</p>
+          </div>
+
+          <div class="about-footer">
+            <p class="about-footer-text">
+              Made with <span class="iconify" data-icon="mdi:heart" style="color: #7EB234;"></span> for the environment
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 

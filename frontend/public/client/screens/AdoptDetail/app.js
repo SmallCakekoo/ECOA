@@ -322,6 +322,11 @@ window.adoptPlant = async function () {
     // Si hay error, redirigir a pantalla de error
     if (response.status !== 200) {
       console.error("Error en adopción:", response.status, errorMessage);
+      // Restaurar botón antes de redirigir
+      adoptButton.disabled = false;
+      adoptButton.style.opacity = "1";
+      adoptButton.style.cursor = "pointer";
+      adoptButton.innerHTML = originalText;
       // Guardar mensaje de error en sessionStorage para mostrarlo en la pantalla de error
       sessionStorage.setItem("adoptionError", errorMessage);
       window.location.href = "/client/screens/AdoptFeedback/error";
