@@ -150,7 +150,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: -1;
+    position: relative;
+    z-index: 1;
 }
 
 .plant-image img {
@@ -158,6 +159,8 @@ body {
     max-width: 250px;
     height: auto;
     object-fit: contain;
+    position: relative;
+    z-index: 1;
 }
 
 /* More About Section */
@@ -381,23 +384,29 @@ body {
     .plant-image {
         width: 100%;
         order: 2;
-        margin-top: -50px;
-        margin-bottom: -80px;
-        z-index: 10;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        z-index: 1;
         position: relative;
+        padding: 0 20px;
     }
 
     .plant-image img {
         max-width: 200px;
-        margin-left: auto;
+        margin: 0 auto;
         display: block;
         object-fit: contain;
+        position: relative;
+        z-index: 1;
     }
 
     .more-about-section {
         border-radius: 25px 25px 0 0;
-        padding: 90px 25px 25px;
+        padding: 25px;
+        margin-top: 20px;
         margin-bottom: 0;
+        position: relative;
+        z-index: 2;
     }
 
     .section-title {

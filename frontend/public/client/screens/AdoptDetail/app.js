@@ -7,26 +7,25 @@ const plantId = params.get("id");
 
 // Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
-  // Usar la función helper si está disponible
+  // Siempre usar el helper de plant-images.js si está disponible
   if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
     return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
   }
   
-  // Fallback si no está disponible el helper
-  const ownImage = plant.image || plant.image_url;
-  if (ownImage) {
-    if (ownImage.startsWith("data:")) return ownImage;
-    if (ownImage.startsWith("http://") || ownImage.startsWith("https://")) return ownImage;
-    return `${API_BASE_URL}${ownImage.startsWith("/") ? ownImage : "/" + ownImage}`;
-  }
-  
-  // Usar imagen local como fallback
-  if (plant.id) {
-    const hash = String(plant.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const imageIndex = (hash % 10) + 1;
+  // Fallback si el helper no está cargado aún (usar recursos locales directamente)
+  if (plant && plant.id) {
+    // Generar hash del ID para seleccionar imagen local
+    const plantIdStr = String(plant.id);
+    let hash = 0;
+    for (let i = 0; i < plantIdStr.length; i++) {
+      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = hash & hash; // Convertir a entero de 32 bits
+    }
+    const imageIndex = (Math.abs(hash) % 10) + 1; // Número entre 1 y 10
     return `../../src/assets/images/plants/plant-${imageIndex}.png`;
   }
   
+  // Si no hay ID, usar imagen por defecto
   return "../../src/assets/images/plant.png";
 }
 
@@ -55,18 +54,45 @@ async function fetchPlantData(plantId) {
     `The ${plant.name} Plant is the ultimate survivor. Strong, stoic, and elegant, with tall leaves shaped like green spears brushed with yellow or silver.`;
 
   const plantImage = document.querySelector("#plant-image");
-  plantImage.src = getPlantImageUrl(plant);
+  const imageUrl = getPlantImageUrl(plant);
+  plantImage.src = imageUrl;
+  
+  // Manejar error de carga de imagen con fallback a recursos locales
   plantImage.onerror = function () {
+    // Si el helper está disponible, usarlo
     if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
       window.PlantImageUtils.handlePlantImageError(this, plant);
-    } else {
-      // Fallback simple
-      const hash = plant.id ? String(plant.id).charCodeAt(0) % 10 : 0;
-      this.src = `../../src/assets/images/plants/plant-${hash + 1}.png`;
-      this.onerror = function() {
+      return;
+    }
+    
+    // Fallback: intentar con imagen local basada en ID
+    if (plant && plant.id) {
+      const plantIdStr = String(plant.id);
+      let hash = 0;
+      for (let i = 0; i < plantIdStr.length; i++) {
+        hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+        hash = hash & hash;
+      }
+      const imageIndex = (Math.abs(hash) % 10) + 1;
+      const localImage = `../../src/assets/images/plants/plant-${imageIndex}.png`;
+      
+      // Solo cambiar si es diferente a la actual
+      if (this.src !== localImage && !this.src.includes('plant-')) {
+        this.src = localImage;
+        // Si la imagen local también falla, usar imagen por defecto
+        this.onerror = function() {
+          this.onerror = null; // Prevenir loops infinitos
+          this.src = "../../src/assets/images/plant.png";
+        };
+      } else {
+        // Si ya intentamos la local, usar imagen por defecto
         this.onerror = null;
         this.src = "../../src/assets/images/plant.png";
-      };
+      }
+    } else {
+      // Sin ID, usar imagen por defecto directamente
+      this.onerror = null;
+      this.src = "../../src/assets/images/plant.png";
     }
   };
 
