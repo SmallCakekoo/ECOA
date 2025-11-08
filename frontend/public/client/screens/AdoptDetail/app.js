@@ -251,10 +251,32 @@ window.goToProfile = function (event) {
 
 // Función para ir a la página de éxito de adopción (expuesta globalmente)
 window.adoptPlant = async function () {
+  // Validar que tenemos los datos necesarios
+  if (!plantId) {
+    console.error("No se encontró el ID de la planta");
+    alert("Error: No se pudo identificar la planta. Por favor, intenta nuevamente.");
+    return;
+  }
+
+  if (!USER_DATA || !USER_DATA.id) {
+    console.error("No se encontraron datos de usuario");
+    alert("Error: No estás autenticado. Por favor, inicia sesión nuevamente.");
+    window.location.href = "/client/screens/LogIn";
+    return;
+  }
+
+  // Deshabilitar botón durante la petición
+  const adoptButton = document.querySelector(".adopt-button");
+  const originalText = adoptButton.innerHTML;
+  adoptButton.disabled = true;
+  adoptButton.style.opacity = "0.7";
+  adoptButton.style.cursor = "not-allowed";
+  adoptButton.innerHTML = '<span class="iconify" data-icon="svg-spinners:ring-resize"></span> Adoptando...';
+
   console.log("Adoptando planta:", plantId);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/plants/` + plantId, {
+    const response = await fetch(`${API_BASE_URL}/plants/${plantId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -311,14 +333,30 @@ window.adoptPlant = async function () {
     console.log("Adopción exitosa:", success, plant);
 
     if (success) {
+      // Restaurar botón antes de redirigir
+      adoptButton.disabled = false;
+      adoptButton.style.opacity = "1";
+      adoptButton.style.cursor = "pointer";
+      adoptButton.innerHTML = originalText;
       window.location.href = "/client/screens/AdoptFeedback/success";
     } else {
       // Si success es false aunque el status sea 200
+      adoptButton.disabled = false;
+      adoptButton.style.opacity = "1";
+      adoptButton.style.cursor = "pointer";
+      adoptButton.innerHTML = originalText;
       sessionStorage.setItem("adoptionError", "La adopción no se pudo completar.");
       window.location.href = "/client/screens/AdoptFeedback/error";
     }
   } catch (error) {
     console.error("Error adoptando planta:", error);
+    // Restaurar botón en caso de error
+    if (adoptButton) {
+      adoptButton.disabled = false;
+      adoptButton.style.opacity = "1";
+      adoptButton.style.cursor = "pointer";
+      adoptButton.innerHTML = originalText;
+    }
     sessionStorage.setItem("adoptionError", "Error de conexión. Por favor verifica tu internet.");
     window.location.href = "/client/screens/AdoptFeedback/error";
   }
