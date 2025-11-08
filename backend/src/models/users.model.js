@@ -22,8 +22,10 @@ export function sanitizeUserUpdate(payload) {
     if (payload[k] !== undefined) update[k] = payload[k];
   });
   
-  // Procesar campo 'image' o 'avatar_url' si existe (mapear a avatar_url para la BD)
-  // NOTA: Si el campo avatar_url no existe en la tabla, este campo se ignorará silenciosamente
+  // TEMPORALMENTE DESHABILITADO: Procesar campo 'image' o 'avatar_url'
+  // El campo avatar_url puede no existir en la tabla, así que lo ignoramos por ahora
+  // TODO: Agregar el campo avatar_url a la tabla users en Supabase antes de habilitar esto
+  /*
   const imageValue = payload.image !== undefined ? payload.image : payload.avatar_url;
   if (imageValue !== undefined && imageValue !== null && imageValue !== '') {
     try {
@@ -32,28 +34,21 @@ export function sanitizeUserUpdate(payload) {
         if (imageValue.length > maxDataUrlLength) {
           console.warn(`⚠️ Imagen de perfil muy grande (${Math.round(imageValue.length / 1024)}KB), ignorando`);
         } else {
-          // Validar formato de data URL
           const parts = imageValue.split(',');
           if (parts.length >= 2 && parts[0].includes('data:') && parts[0].includes('base64')) {
             update.avatar_url = imageValue;
             console.log(`✅ Imagen de perfil validada, tamaño: ${Math.round(imageValue.length / 1024)}KB`);
-          } else {
-            console.warn('⚠️ Data URL mal formada en actualización de usuario, ignorando');
           }
         }
       } else if (typeof imageValue === 'string' && (imageValue.startsWith('http://') || imageValue.startsWith('https://'))) {
-        // Permitir URLs externas
         update.avatar_url = imageValue;
-        console.log(`✅ URL externa de imagen aceptada: ${imageValue.substring(0, 50)}...`);
-      } else {
-        console.warn(`⚠️ Tipo de imagen no válido: ${typeof imageValue}, ignorando`);
       }
     } catch (e) {
       console.error('❌ Error procesando imagen de perfil:', e.message);
-      // No agregar el campo si hay error, pero continuar con otros campos
     }
   }
-  
+  */
   console.log('📝 Campos a actualizar:', Object.keys(update));
+  console.log('⚠️ NOTA: avatar_url está temporalmente deshabilitado hasta que se agregue el campo a la tabla');
   return update;
 }

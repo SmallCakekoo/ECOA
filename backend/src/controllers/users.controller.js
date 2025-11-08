@@ -96,67 +96,23 @@ export const UsersController = {
         });
       }
       
-      // Separar campos seguros (name, email, rol) de campos opcionales (avatar_url)
-      const safeFields = {};
-      const optionalFields = {};
+      // Actualizar directamente - el modelo ya filtra los campos válidos
+      const { data, error } = await updateUser(id, updateData);
       
-      Object.keys(updateData).forEach(key => {
-        if (['name', 'email', 'rol'].includes(key)) {
-          safeFields[key] = updateData[key];
-        } else {
-          optionalFields[key] = updateData[key];
-        }
-      });
-      
-      // Primero intentar actualizar solo con campos seguros
-      let finalData = null;
-      let finalError = null;
-      
-      if (Object.keys(safeFields).length > 0) {
-        const { data: safeData, error: safeError } = await updateUser(id, safeFields);
-        if (!safeError && safeData) {
-          finalData = safeData;
-          console.log("✅ Campos seguros actualizados exitosamente");
-          
-          // Si hay campos opcionales y los campos seguros funcionaron, intentar agregarlos
-          if (Object.keys(optionalFields).length > 0) {
-            const allFields = { ...safeFields, ...optionalFields };
-            const { data: allData, error: allError } = await updateUser(id, allFields);
-            if (!allError && allData) {
-              finalData = allData;
-              console.log("✅ Todos los campos actualizados exitosamente");
-            } else if (allError) {
-              console.warn("⚠️ Campos opcionales no se pudieron actualizar:", allError.message);
-              console.warn("   Pero los campos seguros (name, email, rol) se actualizaron correctamente");
-              // Continuar con los datos de los campos seguros
-            }
-          }
-        } else {
-          finalError = safeError;
-        }
-      } else {
-        // Si solo hay campos opcionales, intentar actualizarlos directamente
-        const { data: optData, error: optError } = await updateUser(id, optionalFields);
-        finalData = optData;
-        finalError = optError;
-      }
-      
-      if (finalError) {
+      if (error) {
         console.error("❌ Error de Supabase al actualizar usuario:");
-        console.error("   Código:", finalError.code);
-        console.error("   Mensaje:", finalError.message);
-        console.error("   Detalles:", finalError.details);
-        console.error("   Hint:", finalError.hint);
-        throw finalError;
+        console.error("   Código:", error.code);
+        console.error("   Mensaje:", error.message);
+        console.error("   Detalles:", error.details);
+        console.error("   Hint:", error.hint);
+        throw error;
       }
       
-      if (!finalData) {
+      if (!data) {
         return res
           .status(404)
           .json({ success: false, message: "Usuario no encontrado" });
       }
-      
-      const data = finalData;
       
       console.log("✅ Usuario actualizado exitosamente:", data.id);
       
