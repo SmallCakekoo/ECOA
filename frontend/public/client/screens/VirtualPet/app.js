@@ -3,12 +3,38 @@ const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 
 // Obtener el ID de la planta desde la URL
 const params = new URLSearchParams(window.location.search);
-const plantId = params.get("id");
+let plantId = params.get("id");
 
-// Si no hay ID, redirigir a Garden
+// Si no hay ID, verificar si el usuario tiene plantas adoptadas
 if (!plantId) {
-  console.error("No plant ID provided");
-  window.location.href = "/client/screens/Garden";
+  console.log("No plant ID provided, checking for adopted plants...");
+  (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${USER_DATA.id}/plants`);
+      const { success, data: plants } = await response.json();
+      
+      // Si no hay plantas adoptadas o no hay éxito, redirigir a Garden
+      if (!success || !plants || plants.length === 0) {
+        console.log("No adopted plants found, redirecting to Garden");
+        window.location.href = "/client/screens/Garden";
+        return;
+      }
+      
+      // Si hay plantas, redirigir a la primera planta
+      if (plants.length > 0) {
+        console.log(`Found ${plants.length} adopted plant(s), redirecting to first plant`);
+        window.location.href = `/client/screens/VirtualPet?id=${plants[0].id}`;
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking for adopted plants:", error);
+      // En caso de error, redirigir a Garden
+      window.location.href = "/client/screens/Garden";
+    }
+  })();
+  // No ejecutar el resto del código si no hay plantId
+  // El código de carga se ejecutará solo si hay plantId
+  plantId = null;
 }
 
 // Función para obtener la URL de la imagen de la planta usando recursos locales
@@ -59,15 +85,29 @@ updateTime();
 // Actualizar la hora cada minuto
 setInterval(updateTime, 60000);
 
-// Cargar datos de la planta
+// Cargar datos de la planta (solo si hay plantId)
 (async function loadPlantData() {
+  // Si no hay plantId, no cargar nada (ya se está redirigiendo)
+  if (!plantId) {
+    return;
+  }
+  
   try {
     // Cargar datos básicos de la planta
     const plantResponse = await fetch(`${API_BASE_URL}/plants/${plantId}`);
     const { success: plantSuccess, data: plant } = await plantResponse.json();
 
     if (!plantSuccess || !plant) {
-      throw new Error("Plant not found");
+      console.log("Plant not found, redirecting to Garden");
+      window.location.href = "/client/screens/Garden";
+      return;
+    }
+    
+    // Verificar que la planta esté adoptada por el usuario actual
+    if (plant.user_id !== USER_DATA.id) {
+      console.log("Plant not adopted by current user, redirecting to Garden");
+      window.location.href = "/client/screens/Garden";
+      return;
     }
 
     // Actualizar título y nombre en el DOM
@@ -245,7 +285,7 @@ setInterval(updateTime, 60000);
     }
   } catch (error) {
     console.error("Error loading plant data:", error);
-    alert("No se pudo cargar la información de la planta");
+    // Redirigir a Garden sin mostrar alert
     window.location.href = "/client/screens/Garden";
   }
 })();
