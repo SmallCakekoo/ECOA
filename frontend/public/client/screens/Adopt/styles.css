@@ -123,30 +123,33 @@ body {
   box-shadow: 0 12px 24px rgba(126, 178, 52, 0.4);
 }
 
-/* Imágenes de plantas - estilo como en la foto */
+/* Imágenes de plantas - sin fondo y centradas en el área izquierda */
 .plant-image {
-  /* Tamaño flexible que se ajusta a la altura de la card */
-  height: 120px;
-  width: auto;
-  /* Mantener relación de aspecto original */
+  /* Tamaño fijo para todas las imágenes */
+  width: 100px;
+  height: 100px;
+  /* Mantener relación de aspecto y centrar */
   object-fit: contain;
-  object-position: bottom left;
+  object-position: center;
   flex-shrink: 0;
   position: absolute;
   z-index: 5;
-  /* Alineado al fondo y extendiéndose más allá del borde izquierdo */
-  bottom: 0;
-  left: -10px;
-  /* Sin border-radius para mantener forma natural de la planta */
+  /* Centrar horizontal y verticalmente en el área izquierda de la card */
+  top: 50%;
+  left: 15%;
+  transform: translate(-50%, -50%);
+  /* Sin border-radius para mantener forma natural */
   border-radius: 0;
-  /* Permitir que la imagen se extienda naturalmente */
-  min-width: auto;
-  min-height: auto;
-  max-width: none;
-  max-height: 120px;
+  /* Asegurar que todas tengan el mismo tamaño */
+  min-width: 100px;
+  min-height: 100px;
+  max-width: 100px;
+  max-height: 100px;
+  /* Fondo transparente - la imagen debe tener fondo transparente */
+  background: transparent;
 }
 
-/* Permitir variación en tamaños pero mantener altura consistente */
+/* Todas las imágenes del mismo tamaño y centradas */
 .plant-image1,
 .plant-image2,
 .plant-image3,
@@ -157,10 +160,13 @@ body {
 .plant-image8,
 .plant-image9,
 .plant-image10 {
-  height: 120px;
-  width: auto;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
-  object-position: bottom left;
+  object-position: center;
+  top: 50%;
+  left: 15%;
+  transform: translate(-50%, -50%);
 }
 
 /* Textos movidos más a la izquierda */
@@ -340,10 +346,15 @@ body {
   }
 
   .plant-image {
-    height: 110px;
-    width: auto;
-    max-height: 110px;
-    left: -8px;
+    width: 100px;
+    height: 100px;
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 100px;
+    max-height: 100px;
+    top: 50%;
+    left: 15%;
+    transform: translate(-50%, -50%);
   }
 
   .plant-name {
