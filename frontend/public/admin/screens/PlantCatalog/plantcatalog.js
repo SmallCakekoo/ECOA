@@ -91,8 +91,8 @@ function updateProfileDisplay(user) {
   if (userNameEl) userNameEl.textContent = user.name || "Administrador";
   if (userEmailEl) userEmailEl.textContent = user.email || "admin@ecoa.org";
   
-  // Actualizar avatares
-  const avatarUrl = user.image || 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
+  // Actualizar avatares (soporta tanto 'image' como 'avatar_url' para compatibilidad)
+  const avatarUrl = user.image || user.avatar_url || 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
   if (avatar) {
     avatar.style.backgroundImage = `url(${avatarUrl})`;
   }
@@ -118,9 +118,9 @@ function openEditProfileModal() {
   }
   
   if (photoPreview) {
-    const avatarUrl = user.image || 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
+    const avatarUrl = user.image || user.avatar_url || 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
     photoPreview.src = avatarUrl;
-    photoPreview.style.display = user.image ? "block" : "none";
+    photoPreview.style.display = (user.image || user.avatar_url) ? "block" : "none";
   }
   
   if (photoInput) {
@@ -266,7 +266,12 @@ function setupEditProfileModal() {
         
         if (response.success) {
           // Actualizar usuario en localStorage
-          const updatedUser = { ...user, ...response.data };
+          // Mapear avatar_url a image para compatibilidad con el frontend
+          const updatedUser = { 
+            ...user, 
+            ...response.data,
+            image: response.data.avatar_url || response.data.image || user.image || user.avatar_url
+          };
           localStorage.setItem("admin_user", JSON.stringify(updatedUser));
           
           // Actualizar visualización
