@@ -2,22 +2,29 @@ const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 
-// Función para obtener la URL de la imagen de la planta
+// Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
+  // Usar la función helper si está disponible, sino usar lógica local
+  if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
+    return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
+  }
+  
+  // Fallback si no está disponible el helper
   const url = plant.image || plant.image_url;
   if (url) {
-    // Si es data URL, devolver directamente
     if (url.startsWith("data:")) return url;
-    // Si es URL absoluta, devolver directamente
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    // Si es relativa, construir URL completa
     return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
   }
-  // Imagen por defecto única basada en el nombre de la planta
-  const hash = plant.name ? plant.name.charCodeAt(0) % 10 : 0;
-  return `https://images.unsplash.com/photo-${
-    1509937528035 + hash * 1000
-  }?w=400&h=400&fit=crop`;
+  
+  // Usar imagen local como fallback
+  if (plant.id) {
+    const hash = String(plant.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const imageIndex = (hash % 10) + 1;
+    return `../../src/assets/images/plants/plant-${imageIndex}.png`;
+  }
+  
+  return "../../src/assets/images/plant.png";
 }
 
 function createPlantCard(plant, index) {
@@ -31,10 +38,19 @@ function createPlantCard(plant, index) {
   img.src = getPlantImageUrl(plant);
   img.alt = `${plant.name} Plant`;
   img.className = `plant-image plant-image${index}`;
-  // Manejar error de carga de imagen
+  // Manejar error de carga de imagen con fallback a recursos locales
   img.onerror = function () {
-    this.src =
-      "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+    if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
+      window.PlantImageUtils.handlePlantImageError(this, plant);
+    } else {
+      // Fallback simple
+      const hash = plant.id ? String(plant.id).charCodeAt(0) % 10 : 0;
+      this.src = `../../src/assets/images/plants/plant-${hash + 1}.png`;
+      this.onerror = function() {
+        this.onerror = null;
+        this.src = "../../src/assets/images/plant.png";
+      };
+    }
   };
 
   // contenedor de información

@@ -11,20 +11,30 @@ if (!plantId) {
   window.location.href = "/client/screens/Garden";
 }
 
-// Función para obtener la URL de la imagen de la planta
+// Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
+  // Usar la función helper si está disponible
+  if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
+    return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
+  }
+  
+  // Fallback si no está disponible el helper
   const url = plant.image || plant.image_url;
   if (url) {
-    if (
-      url.startsWith("http://") ||
-      url.startsWith("https://") ||
-      url.startsWith("data:")
-    ) {
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
       return url;
     }
     return `${API_BASE_URL}${url}`;
   }
-  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+  
+  // Usar imagen local como fallback
+  if (plant.id) {
+    const hash = String(plant.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const imageIndex = (hash % 10) + 1;
+    return `../../src/assets/images/plants/plant-${imageIndex}.png`;
+  }
+  
+  return "../../src/assets/images/plant.png";
 }
 
 // Actualizar la hora actual
@@ -68,8 +78,17 @@ setInterval(updateTime, 60000);
       plantImage.src = getPlantImageUrl(plant);
       plantImage.alt = `${plant.name} Plant`;
       plantImage.onerror = function () {
-        this.src =
-          "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop";
+        if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
+          window.PlantImageUtils.handlePlantImageError(this, plant);
+        } else {
+          // Fallback simple
+          const hash = plant.id ? String(plant.id).charCodeAt(0) % 10 : 0;
+          this.src = `../../src/assets/images/plants/plant-${hash + 1}.png`;
+          this.onerror = function() {
+            this.onerror = null;
+            this.src = "../../src/assets/images/plant.png";
+          };
+        }
       };
     }
 

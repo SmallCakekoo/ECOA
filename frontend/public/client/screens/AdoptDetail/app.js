@@ -5,28 +5,29 @@ const params = new URLSearchParams(window.location.search);
 
 const plantId = params.get("id");
 
-// Función para obtener la URL de la imagen de la planta
-// Usar la misma lógica que en Garden para consistencia
+// Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
-  // 1) Usar la imagen subida si existe (prioridad máxima)
+  // Usar la función helper si está disponible
+  if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
+    return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
+  }
+  
+  // Fallback si no está disponible el helper
   const ownImage = plant.image || plant.image_url;
   if (ownImage) {
-    // Si es data URL (base64), usar directamente - es la imagen subida por el usuario
-    if (ownImage.startsWith("data:")) {
-      return ownImage;
-    }
-    // Si es URL completa, usar directamente
-    if (ownImage.startsWith("http://") || ownImage.startsWith("https://")) {
-      return ownImage;
-    }
-    // Si es ruta relativa, construir URL completa
-    return `${API_BASE_URL}${
-      ownImage.startsWith("/") ? ownImage : "/" + ownImage
-    }`;
+    if (ownImage.startsWith("data:")) return ownImage;
+    if (ownImage.startsWith("http://") || ownImage.startsWith("https://")) return ownImage;
+    return `${API_BASE_URL}${ownImage.startsWith("/") ? ownImage : "/" + ownImage}`;
   }
-
-  // 2) Si no hay imagen, usar placeholder
-  return "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
+  
+  // Usar imagen local como fallback
+  if (plant.id) {
+    const hash = String(plant.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const imageIndex = (hash % 10) + 1;
+    return `../../src/assets/images/plants/plant-${imageIndex}.png`;
+  }
+  
+  return "../../src/assets/images/plant.png";
 }
 
 (async function hydratePlantPage() {
@@ -56,8 +57,17 @@ async function fetchPlantData(plantId) {
   const plantImage = document.querySelector("#plant-image");
   plantImage.src = getPlantImageUrl(plant);
   plantImage.onerror = function () {
-    this.src =
-      "https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=800&h=800&fit=crop";
+    if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
+      window.PlantImageUtils.handlePlantImageError(this, plant);
+    } else {
+      // Fallback simple
+      const hash = plant.id ? String(plant.id).charCodeAt(0) % 10 : 0;
+      this.src = `../../src/assets/images/plants/plant-${hash + 1}.png`;
+      this.onerror = function() {
+        this.onerror = null;
+        this.src = "../../src/assets/images/plant.png";
+      };
+    }
   };
 
   document.querySelector(".about-text").textContent =
