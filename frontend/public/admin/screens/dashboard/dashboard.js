@@ -357,8 +357,8 @@ function setupPlantForm() {
 
       try {
         // Comprimir la imagen antes de convertirla a data URL
-        // Límite: 200KB en data URL para evitar problemas con Supabase
-        const maxDataUrlSize = 200 * 1024; // 200KB
+        // Límite: 150KB en data URL para evitar problemas con Supabase
+        const maxDataUrlSize = 150 * 1024; // 150KB (límite más conservador)
         
         const reader = new FileReader();
         reader.onload = (e) => {

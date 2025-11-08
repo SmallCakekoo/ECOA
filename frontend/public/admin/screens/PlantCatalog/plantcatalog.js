@@ -587,7 +587,7 @@ async function editPlant(plantId) {
 
 // Función helper para comprimir imagen (reutilizable)
 function compressImage(file, callback) {
-  const maxDataUrlSize = 200 * 1024; // 200KB
+  const maxDataUrlSize = 150 * 1024; // 150KB (límite más conservador para Supabase)
   const reader = new FileReader();
   
   reader.onload = (e) => {
@@ -725,7 +725,21 @@ async function updatePlant(plantId) {
 
   // Incluir imagen solo si se subió una nueva
   if (imageUrl) {
-    plantData.image = imageUrl;
+    // Validar tamaño de la data URL antes de enviar
+    // Usar límite más conservador para evitar problemas con Supabase
+    const maxDataUrlSize = 150 * 1024; // 150KB
+    const imageSize = imageUrl.length;
+    
+    console.log(`📊 Tamaño de imagen a enviar: ${Math.round(imageSize / 1024)}KB`);
+    
+    if (imageSize > maxDataUrlSize) {
+      console.warn(`⚠️ Imagen demasiado grande (${Math.round(imageSize / 1024)}KB), no se actualizará la imagen`);
+      showNotification("La imagen es demasiado grande. Se actualizará la planta sin cambiar la imagen.", "warning");
+      // No incluir la imagen si es demasiado grande
+    } else {
+      plantData.image = imageUrl;
+      console.log(`✅ Imagen validada y lista para enviar (${Math.round(imageSize / 1024)}KB)`);
+    }
   }
 
   // health_status se maneja en la tabla plant_status, no directamente en plants
