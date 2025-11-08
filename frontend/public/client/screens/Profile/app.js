@@ -272,14 +272,16 @@ async function updateUserProfile() {
     return;
   }
   
+  // Solo actualizar el nombre por ahora, ya que el campo 'image' puede no existir en la BD
   const updateData = {
     name: newName
   };
   
-  // Agregar imagen si hay una nueva
+  // Guardar la imagen en localStorage si hay una nueva (solo para uso local)
   const newImage = photoImg?.getAttribute("data-new-image");
   if (newImage) {
-    updateData.image = newImage;
+    // Guardar en localStorage para uso local, pero no enviar al backend
+    USER_DATA.image = newImage;
   }
   
   try {
@@ -292,7 +294,15 @@ async function updateUserProfile() {
     });
     
     if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      let errorMessage = `Error ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorMessage;
+      } catch (e) {
+        errorMessage = errorText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
     
     const result = await response.json();
@@ -300,9 +310,7 @@ async function updateUserProfile() {
     if (result.success) {
       // Actualizar USER_DATA en localStorage
       USER_DATA.name = result.data.name || newName;
-      if (result.data.image) {
-        USER_DATA.image = result.data.image;
-      }
+      // La imagen se guarda solo en localStorage (no en BD por ahora)
       localStorage.setItem("USER_DATA", JSON.stringify(USER_DATA));
       
       // Actualizar UI
@@ -313,6 +321,7 @@ async function updateUserProfile() {
         userNameEl.textContent = USER_DATA.name;
       }
       
+      // Actualizar imagen de perfil desde localStorage si existe
       if (profileImageEl && USER_DATA.image) {
         if (USER_DATA.image.startsWith("data:")) {
           profileImageEl.src = USER_DATA.image;

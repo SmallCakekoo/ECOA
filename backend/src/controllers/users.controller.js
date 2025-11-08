@@ -80,23 +80,44 @@ export const UsersController = {
     try {
       const { id } = req.params;
       const updateData = sanitizeUserUpdate(req.body);
+      
+      // Log para debugging
+      console.log("📝 Actualizando usuario:", id, "con datos:", Object.keys(updateData));
+      
+      // Verificar que hay datos para actualizar
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No hay datos válidos para actualizar",
+        });
+      }
+      
       const { data, error } = await updateUser(id, updateData);
-      if (error) throw error;
-      if (!data)
+      
+      if (error) {
+        console.error("❌ Error de Supabase al actualizar usuario:", error);
+        throw error;
+      }
+      
+      if (!data) {
         return res
           .status(404)
           .json({ success: false, message: "Usuario no encontrado" });
+      }
+      
       req.io?.emit("user_updated", {
         type: "user_updated",
         data,
         timestamp: new Date().toISOString(),
       });
+      
       return res.status(200).json({
         success: true,
         message: "Usuario actualizado exitosamente",
         data,
       });
     } catch (error) {
+      console.error("❌ Error en update de usuario:", error);
       return handleError(error, res);
     }
   },

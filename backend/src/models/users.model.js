@@ -15,40 +15,40 @@ export function createUserModel(payload) {
 }
 
 export function sanitizeUserUpdate(payload) {
-  const allowed = ["name", "email", "rol", "image"];
+  // Solo permitir campos que existen en la tabla users
+  // Nota: El campo 'image' puede no existir en la tabla, así que lo excluimos por ahora
+  const allowed = ["name", "email", "rol"];
   const update = {};
   allowed.forEach((k) => {
     if (payload[k] !== undefined) update[k] = payload[k];
   });
   
-  // Validar y limitar tamaño de imagen si se proporciona
-  if (update.image && typeof update.image === 'string') {
-    if (update.image.startsWith('data:')) {
+  // Si se envía 'image', lo ignoramos silenciosamente ya que el campo puede no existir en la BD
+  // En el futuro, si se agrega el campo 'image' a la tabla users, se puede descomentar:
+  /*
+  if (payload.image !== undefined) {
+    if (typeof payload.image === 'string' && payload.image.startsWith('data:')) {
       const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
-      if (update.image.length > maxDataUrlLength) {
-        console.warn(`⚠️ Imagen de perfil muy grande (${Math.round(update.image.length / 1024)}KB), guardando null`);
-        update.image = null;
+      if (payload.image.length > maxDataUrlLength) {
+        console.warn(`⚠️ Imagen de perfil muy grande (${Math.round(payload.image.length / 1024)}KB), ignorando`);
       } else {
         // Validar formato de data URL
         try {
-          const parts = update.image.split(',');
-          if (parts.length < 2 || !parts[0] || !parts[1]) {
-            console.warn('⚠️ Data URL mal formada en actualización de usuario, guardando null');
-            update.image = null;
+          const parts = payload.image.split(',');
+          if (parts.length >= 2 && parts[0].includes('data:') && parts[0].includes('base64')) {
+            update.image = payload.image;
           } else {
-            const header = parts[0];
-            if (!header.includes('data:') || !header.includes('base64')) {
-              console.warn('⚠️ Data URL sin formato correcto en actualización de usuario, guardando null');
-              update.image = null;
-            }
+            console.warn('⚠️ Data URL mal formada en actualización de usuario, ignorando');
           }
         } catch (e) {
-          console.warn('⚠️ Error validando data URL de usuario, guardando null:', e.message);
-          update.image = null;
+          console.warn('⚠️ Error validando data URL de usuario, ignorando:', e.message);
         }
       }
+    } else if (payload.image === null || payload.image === '') {
+      update.image = null;
     }
   }
+  */
   
   return update;
 }
