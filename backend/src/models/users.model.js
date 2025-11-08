@@ -16,21 +16,19 @@ export function createUserModel(payload) {
 
 export function sanitizeUserUpdate(payload) {
   // Solo permitir campos que existen en la tabla users
-  // Nota: El campo 'image' puede no existir en la tabla, así que lo excluimos por ahora
-  const allowed = ["name", "email", "rol"];
+  const allowed = ["name", "email", "rol", "image"];
   const update = {};
   allowed.forEach((k) => {
     if (payload[k] !== undefined) update[k] = payload[k];
   });
   
-  // Si se envía 'image', lo ignoramos silenciosamente ya que el campo puede no existir en la BD
-  // En el futuro, si se agrega el campo 'image' a la tabla users, se puede descomentar:
-  /*
+  // Validar y procesar imagen de perfil
   if (payload.image !== undefined) {
     if (typeof payload.image === 'string' && payload.image.startsWith('data:')) {
       const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
       if (payload.image.length > maxDataUrlLength) {
         console.warn(`⚠️ Imagen de perfil muy grande (${Math.round(payload.image.length / 1024)}KB), ignorando`);
+        delete update.image; // No actualizar si es muy grande
       } else {
         // Validar formato de data URL
         try {
@@ -39,16 +37,20 @@ export function sanitizeUserUpdate(payload) {
             update.image = payload.image;
           } else {
             console.warn('⚠️ Data URL mal formada en actualización de usuario, ignorando');
+            delete update.image;
           }
         } catch (e) {
           console.warn('⚠️ Error validando data URL de usuario, ignorando:', e.message);
+          delete update.image;
         }
       }
     } else if (payload.image === null || payload.image === '') {
       update.image = null;
+    } else if (typeof payload.image === 'string' && (payload.image.startsWith('http://') || payload.image.startsWith('https://'))) {
+      // Permitir URLs externas
+      update.image = payload.image;
     }
   }
-  */
   
   return update;
 }
