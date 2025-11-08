@@ -1,8 +1,11 @@
 import { defineConfig } from "vite";
 import path from "path";
-import { readdirSync, statSync, existsSync } from "fs";
+import { readdirSync, statSync, existsSync, copyFileSync, mkdirSync } from "fs";
+import { fileURLToPath } from "url";
 
 const { resolve } = path;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Función para encontrar todos los index.html recursivamente
 function getAllHtmlFiles(dir, baseDir = "", entries = {}) {
@@ -174,6 +177,45 @@ function fixScriptPaths() {
   };
 }
 
+// Plugin para copiar archivos estáticos necesarios
+function copyStaticAssets() {
+  return {
+    name: "copy-static-assets",
+    writeBundle() {
+      const distDir = resolve(__dirname, "dist");
+      const clientSrcDir = resolve(publicDir, "client/src");
+      const distClientSrcDir = resolve(distDir, "client/src");
+
+      // Función recursiva para copiar directorios
+      function copyRecursive(src, dest) {
+        if (!existsSync(src)) return;
+        
+        mkdirSync(dest, { recursive: true });
+        const entries = readdirSync(src, { withFileTypes: true });
+
+        for (const entry of entries) {
+          const srcPath = resolve(src, entry.name);
+          const destPath = resolve(dest, entry.name);
+
+          if (entry.isDirectory()) {
+            copyRecursive(srcPath, destPath);
+          } else {
+            copyFileSync(srcPath, destPath);
+            console.log(`✓ Copied: ${entry.name}`);
+          }
+        }
+      }
+
+      // Copiar client/src/assets y client/src/utils
+      if (existsSync(clientSrcDir)) {
+        console.log("\n📦 Copying static assets...\n");
+        copyRecursive(clientSrcDir, distClientSrcDir);
+        console.log("\n✅ Static assets copied successfully\n");
+      }
+    },
+  };
+}
+
 export default defineConfig({
   root: publicDir,
 
@@ -182,7 +224,7 @@ export default defineConfig({
     open: "/client/screens/Home/index.html",
   },
 
-  plugins: [fixScriptPaths()],
+  plugins: [fixScriptPaths(), copyStaticAssets()],
 
   build: {
     outDir: resolve(__dirname, "dist"),

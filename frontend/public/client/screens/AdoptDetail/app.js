@@ -48,10 +48,8 @@ async function fetchPlantData(plantId) {
   if (!success) throw new Error("Failed to load plant data");
 
   document.title = `${plant.name} Plant - Adopt`;
-  document.querySelector(".plant-title").textContent = `${plant.name} Plant`;
-  document.querySelector(".plant-description").textContent =
-    plant.description ||
-    `The ${plant.name} Plant is the ultimate survivor. Strong, stoic, and elegant, with tall leaves shaped like green spears brushed with yellow or silver.`;
+  // Mostrar solo el nombre científico arriba
+  document.querySelector(".plant-title").textContent = plant.species || plant.name;
 
   const plantImage = document.querySelector("#plant-image");
   const imageUrl = getPlantImageUrl(plant);

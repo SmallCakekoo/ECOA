@@ -103,17 +103,10 @@ body {
     font-weight: 800;
     color: white;
     line-height: 1.1;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     letter-spacing: -0.5px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.plant-description {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.95);
-    line-height: 1.6;
-    margin-bottom: 24px;
-    font-weight: 400;
+    font-style: italic;
 }
 
 .adopt-button {
@@ -408,15 +401,10 @@ body {
 
     .plant-title {
         font-size: 52px;
-        margin-bottom: 14px;
+        margin-bottom: 24px;
         line-height: 1;
         letter-spacing: -0.5px;
-    }
-
-    .plant-description {
-        font-size: 15px;
-        margin-bottom: 20px;
-        line-height: 1.6;
+        font-style: italic;
     }
 
     .adopt-button {
