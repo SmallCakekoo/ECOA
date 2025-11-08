@@ -520,6 +520,47 @@ async function editPlant(plantId) {
       healthStatusSelect.value = plant.health_status;
     }
 
+    // Mostrar imagen actual de la planta
+    const editPhotoPreview = document.getElementById("editPhotoPreview");
+    const editUpload = document.getElementById("editUpload");
+    const editUploadInner = editUpload?.querySelector(".upload-inner");
+    
+    if (editPhotoPreview && editUpload) {
+      // Obtener la imagen actual de la planta
+      let currentImageUrl = plant.image || plant.image_url;
+      
+      if (currentImageUrl) {
+        let previewSrc = currentImageUrl;
+        
+        // Si es data URL, usar directamente
+        if (currentImageUrl.startsWith("data:")) {
+          previewSrc = currentImageUrl;
+        }
+        // Si es URL completa, usar directamente
+        else if (currentImageUrl.startsWith("http://") || currentImageUrl.startsWith("https://")) {
+          previewSrc = currentImageUrl;
+        }
+        // Si es ruta relativa, construir URL completa
+        else {
+          const API_BASE_URL = window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app";
+          previewSrc = `${API_BASE_URL}${currentImageUrl.startsWith("/") ? currentImageUrl : "/" + currentImageUrl}`;
+        }
+        
+        editPhotoPreview.src = previewSrc;
+        editPhotoPreview.setAttribute('data-original-src', previewSrc);
+        editPhotoPreview.style.display = "block";
+        if (editUploadInner) editUploadInner.style.display = "none";
+      } else {
+        // Si no hay imagen, mostrar el placeholder de subida
+        editPhotoPreview.style.display = "none";
+        editPhotoPreview.removeAttribute('data-original-src');
+        if (editUploadInner) editUploadInner.style.display = "block";
+      }
+    }
+
+    // Configurar subida de nueva imagen
+    setupEditImageUpload();
+
     // Mostrar modal de edición
     const editModal = document.getElementById("editPlantModal");
     if (editModal) {
@@ -541,15 +582,140 @@ async function editPlant(plantId) {
   }
 }
 
+// Función helper para comprimir imagen (reutilizable)
+function compressImage(file, callback) {
+  const maxDataUrlSize = 200 * 1024; // 200KB
+  const reader = new FileReader();
+  
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      let width = img.width;
+      let height = img.height;
+      const maxDimension = 800;
+      
+      if (width > height && width > maxDimension) {
+        height = (height * maxDimension) / width;
+        width = maxDimension;
+      } else if (height > maxDimension) {
+        width = (width * maxDimension) / height;
+        height = maxDimension;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      let quality = 0.9;
+      let dataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
+        quality -= 0.1;
+        dataUrl = canvas.toDataURL('image/jpeg', quality);
+      }
+      
+      if (dataUrl.length > maxDataUrlSize) {
+        dataUrl = canvas.toDataURL('image/png');
+        if (dataUrl.length > maxDataUrlSize) {
+          const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
+          canvas.width = Math.round(width * scale);
+          canvas.height = Math.round(height * scale);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        }
+      }
+      
+      if (dataUrl.length > maxDataUrlSize) {
+        console.warn(`⚠️ Imagen muy grande: ${Math.round(dataUrl.length / 1024)}KB`);
+        callback(null);
+      } else {
+        callback(dataUrl);
+      }
+    };
+    img.onerror = () => callback(null);
+    img.src = e.target.result;
+  };
+  reader.onerror = () => callback(null);
+  reader.readAsDataURL(file);
+}
+
+// Configurar subida de imagen en el formulario de edición
+function setupEditImageUpload() {
+  const editUpload = document.getElementById("editUpload");
+  const editInput = document.getElementById("editPhotoInput");
+  const editPreview = document.getElementById("editPhotoPreview");
+
+  if (editUpload && editInput && editPreview) {
+    // Remover listeners anteriores si existen
+    const newEditInput = editInput.cloneNode(true);
+    editInput.parentNode.replaceChild(newEditInput, editInput);
+    
+    const editUploadInner = editUpload.querySelector(".upload-inner");
+
+    editUpload.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.getElementById("editPhotoInput").click();
+    });
+    
+    document.getElementById("editPhotoInput").addEventListener("change", async () => {
+      const file = document.getElementById("editPhotoInput").files && document.getElementById("editPhotoInput").files[0];
+      if (!file) return;
+
+      compressImage(file, (dataUrl) => {
+        if (dataUrl) {
+          editPreview.src = dataUrl;
+          editPreview.style.display = "block";
+          if (editUploadInner) editUploadInner.style.display = "none";
+          editPreview.setAttribute('data-image-url', dataUrl);
+          console.log(`✅ Plant Catalog - Imagen comprimida para edición, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+        } else {
+          showNotification("La imagen es muy grande. Se guardará sin cambiar la imagen.", "warning");
+        }
+      });
+    });
+  }
+}
+
 async function updatePlant(plantId) {
   const form = document.getElementById("editPlantForm");
   const formData = new FormData(form);
+
+  // Obtener la nueva imagen si se subió una
+  const editPhotoPreview = document.getElementById("editPhotoPreview");
+  let imageUrl = null;
+  
+  if (editPhotoPreview) {
+    // Verificar si hay una nueva imagen subida (data URL en el atributo)
+    const dataImageUrl = editPhotoPreview.getAttribute('data-image-url');
+    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
+      // Verificar si es diferente a la imagen original
+      const originalSrc = editPhotoPreview.getAttribute('data-original-src') || '';
+      if (dataImageUrl !== originalSrc) {
+        imageUrl = dataImageUrl;
+        console.log("✅ Plant Catalog - Nueva imagen obtenida para edición");
+      }
+    } else if (editPhotoPreview.src && editPhotoPreview.src.startsWith("data:")) {
+      // Si no hay atributo pero el src es data URL, verificar si es nueva
+      const originalSrc = editPhotoPreview.getAttribute('data-original-src') || '';
+      if (editPhotoPreview.src !== originalSrc) {
+        imageUrl = editPhotoPreview.src;
+      }
+    }
+  }
 
   const plantData = {
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
   };
+
+  // Incluir imagen solo si se subió una nueva
+  if (imageUrl) {
+    plantData.image = imageUrl;
+  }
 
   // health_status se maneja en la tabla plant_status, no directamente en plants
   // Si se quiere actualizar el health_status, se debe hacer en plant_status
@@ -645,6 +811,29 @@ function closeEditModal() {
   if (editModal) {
     editModal.classList.remove("show");
     document.body.style.overflow = "auto";
+    
+    // Limpiar formulario y preview de imagen
+    const editForm = document.getElementById("editPlantForm");
+    if (editForm) editForm.reset();
+    
+    const editPhotoPreview = document.getElementById("editPhotoPreview");
+    const editPhotoInput = document.getElementById("editPhotoInput");
+    const editUploadInner = document.querySelector("#editUpload .upload-inner");
+    
+    if (editPhotoPreview) {
+      editPhotoPreview.style.display = "none";
+      editPhotoPreview.src = "";
+      editPhotoPreview.removeAttribute('data-image-url');
+      editPhotoPreview.removeAttribute('data-original-src');
+    }
+    
+    if (editPhotoInput) {
+      editPhotoInput.value = "";
+    }
+    
+    if (editUploadInner) {
+      editUploadInner.style.display = "block";
+    }
   }
 }
 

@@ -407,6 +407,27 @@
         </div>
         <form class="plant-form" id="editPlantForm">
           <div class="form-group">
+            <label class="label">Plant Photo</label>
+            <label class="upload" id="editUpload">
+              <input
+                type="file"
+                id="editPhotoInput"
+                accept="image/*"
+                hidden
+              />
+              <div class="upload-inner">
+                <span
+                  class="iconify"
+                  data-icon="typcn:camera"
+                  style="font-size: 24px; color: #1d2607"
+                ></span>
+                <div class="upload-text">Change Photo</div>
+              </div>
+              <img id="editPhotoPreview" alt="preview" />
+            </label>
+          </div>
+
+          <div class="form-group">
             <label class="label" for="editPlantName">Name</label>
             <input
               id="editPlantName"
