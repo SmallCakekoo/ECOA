@@ -22,11 +22,11 @@ function getPlantImageUrl(plant) {
       hash = hash & hash; // Convertir a entero de 32 bits
     }
     const imageIndex = (Math.abs(hash) % 10) + 1; // Número entre 1 y 10
-    return `../../src/assets/images/plants/plant-${imageIndex}.png`;
+    return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
   
   // Si no hay ID, usar imagen por defecto
-  return "../../src/assets/images/plant.png";
+  return "/client/src/assets/images/plant.png";
 }
 
 (async function hydratePlantPage() {
@@ -74,7 +74,7 @@ async function fetchPlantData(plantId) {
         hash = hash & hash;
       }
       const imageIndex = (Math.abs(hash) % 10) + 1;
-      const localImage = `../../src/assets/images/plants/plant-${imageIndex}.png`;
+      const localImage = `/client/src/assets/images/plants/plant-${imageIndex}.png`;
       
       // Solo cambiar si es diferente a la actual
       if (this.src !== localImage && !this.src.includes('plant-')) {
@@ -82,17 +82,17 @@ async function fetchPlantData(plantId) {
         // Si la imagen local también falla, usar imagen por defecto
         this.onerror = function() {
           this.onerror = null; // Prevenir loops infinitos
-          this.src = "../../src/assets/images/plant.png";
+          this.src = "/client/src/assets/images/plant.png";
         };
       } else {
         // Si ya intentamos la local, usar imagen por defecto
         this.onerror = null;
-        this.src = "../../src/assets/images/plant.png";
+        this.src = "/client/src/assets/images/plant.png";
       }
     } else {
       // Sin ID, usar imagen por defecto directamente
       this.onerror = null;
-      this.src = "../../src/assets/images/plant.png";
+      this.src = "/client/src/assets/images/plant.png";
     }
   };
 

@@ -29,12 +29,17 @@ function getPlantImageUrl(plant) {
   
   // Usar imagen local como fallback
   if (plant.id) {
-    const hash = String(plant.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const imageIndex = (hash % 10) + 1;
-    return `../../src/assets/images/plants/plant-${imageIndex}.png`;
+    const plantIdStr = String(plant.id);
+    let hash = 0;
+    for (let i = 0; i < plantIdStr.length; i++) {
+      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = hash & hash;
+    }
+    const imageIndex = (Math.abs(hash) % 10) + 1;
+    return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
   
-  return "../../src/assets/images/plant.png";
+  return "/client/src/assets/images/plant.png";
 }
 
 // Actualizar la hora actual
@@ -82,11 +87,21 @@ setInterval(updateTime, 60000);
           window.PlantImageUtils.handlePlantImageError(this, plant);
         } else {
           // Fallback simple
-          const hash = plant.id ? String(plant.id).charCodeAt(0) % 10 : 0;
-          this.src = `../../src/assets/images/plants/plant-${hash + 1}.png`;
+          if (plant && plant.id) {
+            const plantIdStr = String(plant.id);
+            let hash = 0;
+            for (let i = 0; i < plantIdStr.length; i++) {
+              hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+              hash = hash & hash;
+            }
+            const imageIndex = (Math.abs(hash) % 10) + 1;
+            this.src = `/client/src/assets/images/plants/plant-${imageIndex}.png`;
+          } else {
+            this.src = "/client/src/assets/images/plant.png";
+          }
           this.onerror = function() {
             this.onerror = null;
-            this.src = "../../src/assets/images/plant.png";
+            this.src = "/client/src/assets/images/plant.png";
           };
         }
       };

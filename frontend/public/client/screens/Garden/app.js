@@ -48,11 +48,26 @@ function getPlantImageUrl(plant) {
     // Si es relativa, construir URL completa
     return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
   }
-  // Imagen por defecto única basada en el nombre de la planta
-  const hash = plant.name ? plant.name.charCodeAt(0) % 10 : 0;
-  return `https://images.unsplash.com/photo-${
-    1509937528035 + hash * 1000
-  }?w=400&h=400&fit=crop`;
+  // Usar imagen local como fallback basada en ID o nombre
+  if (plant && plant.id) {
+    const plantIdStr = String(plant.id);
+    let hash = 0;
+    for (let i = 0; i < plantIdStr.length; i++) {
+      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = hash & hash;
+    }
+    const imageIndex = (Math.abs(hash) % 10) + 1;
+    return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
+  }
+  
+  // Si no hay ID, usar nombre
+  if (plant && plant.name) {
+    const hash = plant.name.charCodeAt(0) % 10;
+    const imageIndex = hash + 1;
+    return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
+  }
+  
+  return "/client/src/assets/images/plant.png";
 }
 
 function createPlantCard(plant, i) {
@@ -62,7 +77,7 @@ function createPlantCard(plant, i) {
         <div class="card-background"></div>
         <img class="plant-image" src="${getPlantImageUrl(
           plant
-        )}" alt="Planta ${i}" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'">
+        )}" alt="Planta ${i}" onerror="(function() { const plantIdStr = '${plant.id || ''}'; let hash = 0; for (let i = 0; i < plantIdStr.length; i++) { hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i); hash = hash & hash; } const imageIndex = (Math.abs(hash) % 10) + 1; this.src = '/client/src/assets/images/plants/plant-' + imageIndex + '.png'; this.onerror = function() { this.onerror = null; this.src = '/client/src/assets/images/plant.png'; }; })()">
         <div class="card-overlay">
             <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">

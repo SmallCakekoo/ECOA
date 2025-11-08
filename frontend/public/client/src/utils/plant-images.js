@@ -1,8 +1,9 @@
 // Utilidad para manejar imágenes de plantas desde recursos locales
 // Esta función ayuda a resolver imágenes de plantas usando recursos locales como fallback
 
-const PLANTS_IMAGES_BASE_PATH = '../../src/assets/images/plants/';
-const DEFAULT_PLANT_IMAGE = '../../src/assets/images/plant.png';
+// Usar rutas absolutas desde /client/ para que funcionen correctamente en Vercel
+const PLANTS_IMAGES_BASE_PATH = '/client/src/assets/images/plants/';
+const DEFAULT_PLANT_IMAGE = '/client/src/assets/images/plant.png';
 const UNSPLASH_PLACEHOLDER = 'https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop';
 
 /**
@@ -27,7 +28,16 @@ function getPlantImageUrl(plant, API_BASE_URL = 'https://ecoabackendecoa.vercel.
     if (ownImage.startsWith('http://') || ownImage.startsWith('https://')) {
       return ownImage;
     }
-    // Si es ruta relativa, construir URL completa del backend
+    // Si es ruta relativa que parece ser de assets locales, usar ruta relativa local
+    if (ownImage.includes('/src/assets/images/') || ownImage.includes('src/assets/images/')) {
+      // Extraer el nombre del archivo y construir ruta relativa
+      const fileName = ownImage.split('/').pop();
+      if (ownImage.includes('plants/')) {
+        return `${PLANTS_IMAGES_BASE_PATH}${fileName}`;
+      }
+      return DEFAULT_PLANT_IMAGE;
+    }
+    // Si es ruta relativa del backend (no de assets locales), construir URL completa del backend
     const relativePath = ownImage.startsWith('/') ? ownImage : '/' + ownImage;
     return `${API_BASE_URL}${relativePath}`;
   }
