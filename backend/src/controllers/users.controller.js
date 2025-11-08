@@ -109,8 +109,30 @@ export const UsersController = {
       
       console.log("📝 Llamando a updateUser con:", JSON.stringify(updateData, null, 2));
       
-      // Actualizar directamente
-      const { data, error } = await updateUser(id, updateData);
+      // Separar campos: name es seguro, avatar_url puede no existir
+      const hasAvatarUrl = 'avatar_url' in updateData;
+      const safeUpdate = { ...updateData };
+      
+      // Intentar actualizar con todos los campos primero
+      let { data, error } = await updateUser(id, updateData);
+      
+      // Si falla y tiene avatar_url, intentar solo con name
+      if (error && hasAvatarUrl) {
+        console.warn("⚠️ Error al actualizar con avatar_url, intentando solo con name...");
+        delete safeUpdate.avatar_url;
+        
+        if (Object.keys(safeUpdate).length > 0) {
+          const retryResult = await updateUser(id, safeUpdate);
+          if (!retryResult.error && retryResult.data) {
+            console.log("✅ Nombre actualizado exitosamente (avatar_url no disponible)");
+            data = retryResult.data;
+            error = null;
+          } else {
+            console.error("❌ Error incluso sin avatar_url:", retryResult.error?.message);
+            error = retryResult.error || error;
+          }
+        }
+      }
       
       if (error) {
         console.error("❌ ERROR DE SUPABASE:");
