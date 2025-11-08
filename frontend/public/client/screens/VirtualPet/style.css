@@ -124,37 +124,23 @@ body {
 
 /* Info Card */
 .info-card {
-    background: #ffffff;
+    background: #A8D574; /* Verde claro sólido */
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     display: flex;
     gap: 16px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-left: 4px solid var(--card-color, #7EB234);
+    border: none;
     position: relative;
     overflow: hidden;
-}
-
-.info-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--card-color, #7EB234);
-    transition: width 0.3s ease;
+    cursor: pointer;
 }
 
 .info-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-.info-card:hover::before {
-    width: 100%;
-    opacity: 0.05;
+    background: #9BCF5A; /* Verde un poco más intenso al hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(126, 178, 52, 0.3);
 }
 
 .info-card-icon {
@@ -162,16 +148,16 @@ body {
     width: 56px;
     height: 56px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--card-color, #7EB234) 0%, var(--card-color, #7EB234) 100%);
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .info-card-icon .iconify {
-    font-size: 28px;
+    font-size: 32px;
     color: white;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .info-card-content {
@@ -191,7 +177,7 @@ body {
 .info-card-title {
     font-size: 14px;
     font-weight: 600;
-    color: #62727b;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -200,9 +186,10 @@ body {
 .info-card-value {
     font-size: 24px;
     font-weight: 700;
-    color: var(--card-color, #7EB234);
+    color: white;
     margin: 0;
     white-space: nowrap;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .info-card-body {
@@ -214,15 +201,26 @@ body {
 .info-card-subtitle {
     font-size: 13px;
     font-weight: 600;
-    color: #1d2607;
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
 }
 
 .info-card-description {
     font-size: 12px;
-    color: #62727b;
+    color: rgba(255, 255, 255, 0.75);
     line-height: 1.5;
     margin: 0;
+}
+
+/* Hover effect - estilo del primer icono */
+.info-card:hover .info-card-value {
+    font-size: 28px;
+    transform: scale(1.05);
+}
+
+.info-card:hover .info-card-icon .iconify {
+    font-size: 36px;
+    transform: scale(1.1);
 }
 
 /* Legacy state-button styles (mantener por compatibilidad) */
