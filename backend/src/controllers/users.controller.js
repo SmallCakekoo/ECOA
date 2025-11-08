@@ -96,48 +96,67 @@ export const UsersController = {
         });
       }
       
-      // Intentar actualizar con todos los campos
-      const { data, error } = await updateUser(id, updateData);
+      // Separar campos seguros (name, email, rol) de campos opcionales (avatar_url)
+      const safeFields = {};
+      const optionalFields = {};
       
-      if (error) {
-        console.error("❌ Error de Supabase al actualizar usuario:");
-        console.error("   Código:", error.code);
-        console.error("   Mensaje:", error.message);
-        console.error("   Detalles:", error.details);
-        console.error("   Hint:", error.hint);
-        
-        // Si el error es porque el campo avatar_url no existe, intentar sin él
-        const hasAvatarUrl = 'avatar_url' in updateData;
-        if (hasAvatarUrl && (error.code === '42703' || error.message?.includes('column') || error.message?.includes('does not exist') || error.message?.includes('avatar_url'))) {
-          console.warn("⚠️ Campo avatar_url puede no existir en la tabla, intentando actualizar sin él...");
-          const updateWithoutAvatar = { ...updateData };
-          delete updateWithoutAvatar.avatar_url;
-          
-          if (Object.keys(updateWithoutAvatar).length > 0) {
-            const { data: dataRetry, error: errorRetry } = await updateUser(id, updateWithoutAvatar);
-            if (!errorRetry && dataRetry) {
-              console.log("✅ Usuario actualizado sin avatar_url (campo no existe en tabla)");
-              return res.status(200).json({
-                success: true,
-                message: "Usuario actualizado exitosamente (nota: el campo de imagen no está disponible en la base de datos)",
-                data: dataRetry,
-              });
-            } else if (errorRetry) {
-              console.error("❌ Error incluso sin avatar_url:", errorRetry.message);
-            }
-          } else {
-            console.warn("⚠️ No hay otros campos para actualizar además de avatar_url");
-          }
+      Object.keys(updateData).forEach(key => {
+        if (['name', 'email', 'rol'].includes(key)) {
+          safeFields[key] = updateData[key];
+        } else {
+          optionalFields[key] = updateData[key];
         }
-        
-        throw error;
+      });
+      
+      // Primero intentar actualizar solo con campos seguros
+      let finalData = null;
+      let finalError = null;
+      
+      if (Object.keys(safeFields).length > 0) {
+        const { data: safeData, error: safeError } = await updateUser(id, safeFields);
+        if (!safeError && safeData) {
+          finalData = safeData;
+          console.log("✅ Campos seguros actualizados exitosamente");
+          
+          // Si hay campos opcionales y los campos seguros funcionaron, intentar agregarlos
+          if (Object.keys(optionalFields).length > 0) {
+            const allFields = { ...safeFields, ...optionalFields };
+            const { data: allData, error: allError } = await updateUser(id, allFields);
+            if (!allError && allData) {
+              finalData = allData;
+              console.log("✅ Todos los campos actualizados exitosamente");
+            } else if (allError) {
+              console.warn("⚠️ Campos opcionales no se pudieron actualizar:", allError.message);
+              console.warn("   Pero los campos seguros (name, email, rol) se actualizaron correctamente");
+              // Continuar con los datos de los campos seguros
+            }
+          }
+        } else {
+          finalError = safeError;
+        }
+      } else {
+        // Si solo hay campos opcionales, intentar actualizarlos directamente
+        const { data: optData, error: optError } = await updateUser(id, optionalFields);
+        finalData = optData;
+        finalError = optError;
       }
       
-      if (!data) {
+      if (finalError) {
+        console.error("❌ Error de Supabase al actualizar usuario:");
+        console.error("   Código:", finalError.code);
+        console.error("   Mensaje:", finalError.message);
+        console.error("   Detalles:", finalError.details);
+        console.error("   Hint:", finalError.hint);
+        throw finalError;
+      }
+      
+      if (!finalData) {
         return res
           .status(404)
           .json({ success: false, message: "Usuario no encontrado" });
       }
+      
+      const data = finalData;
       
       console.log("✅ Usuario actualizado exitosamente:", data.id);
       

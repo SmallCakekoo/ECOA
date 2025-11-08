@@ -23,8 +23,9 @@ export function sanitizeUserUpdate(payload) {
   });
   
   // Procesar campo 'image' o 'avatar_url' si existe (mapear a avatar_url para la BD)
+  // NOTA: Si el campo avatar_url no existe en la tabla, este campo se ignorará silenciosamente
   const imageValue = payload.image !== undefined ? payload.image : payload.avatar_url;
-  if (imageValue !== undefined) {
+  if (imageValue !== undefined && imageValue !== null && imageValue !== '') {
     try {
       if (typeof imageValue === 'string' && imageValue.startsWith('data:')) {
         const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
@@ -44,9 +45,6 @@ export function sanitizeUserUpdate(payload) {
         // Permitir URLs externas
         update.avatar_url = imageValue;
         console.log(`✅ URL externa de imagen aceptada: ${imageValue.substring(0, 50)}...`);
-      } else if (imageValue === null || imageValue === '') {
-        update.avatar_url = null;
-        console.log('✅ Imagen de perfil eliminada (null)');
       } else {
         console.warn(`⚠️ Tipo de imagen no válido: ${typeof imageValue}, ignorando`);
       }
