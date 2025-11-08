@@ -11,7 +11,21 @@ import { createUserModel, sanitizeUserUpdate } from "../models/users.model.js";
 
 const handleError = (error, res) => {
   const status = error?.status || 500;
-  const message = error?.message || "Error interno del servidor";
+  let message = error?.message || "Error interno del servidor";
+
+  // Mejorar mensaje de error para errores de Supabase
+  if (error?.code) {
+    // Errores comunes de Supabase
+    if (error.code === '42703') {
+      message = "Campo no existe en la base de datos. Verifica que el campo 'avatar_url' esté en la tabla 'users'.";
+    } else if (error.code === '23505') {
+      message = "Violación de restricción única. El email ya está en uso.";
+    } else if (error.code === '23503') {
+      message = "Violación de clave foránea.";
+    } else if (error.message) {
+      message = error.message;
+    }
+  }
 
   // Forzar headers CORS en errores
   res.header("Access-Control-Allow-Origin", "*");
@@ -21,7 +35,14 @@ const handleError = (error, res) => {
     "Content-Type, Authorization, X-Requested-With, Accept, Origin"
   );
 
-  return res.status(status).json({ success: false, message });
+  console.error("❌ handleError llamado:", { status, message, errorCode: error?.code });
+
+  return res.status(status).json({ 
+    success: false, 
+    message,
+    errorCode: error?.code,
+    details: process.env.NODE_ENV === 'development' ? error?.details : undefined
+  });
 };
 
 export const UsersController = {

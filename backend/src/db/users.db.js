@@ -18,12 +18,31 @@ export async function insertUser(user) {
 }
 
 export async function updateUser(id, updateData) {
-  return await supabase
-    .from("users")
-    .update(updateData)
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+    console.log("📝 updateUser llamado con:");
+    console.log("   ID:", id);
+    console.log("   UpdateData:", JSON.stringify(updateData, null, 2));
+    
+    const result = await supabase
+      .from("users")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+    
+    console.log("📝 Resultado de updateUser:");
+    console.log("   Data:", result.data ? "✅ Existe" : "❌ No existe");
+    console.log("   Error:", result.error ? "❌ " + result.error.message : "✅ Sin error");
+    
+    if (result.error) {
+      console.error("❌ Error detallado de Supabase:", JSON.stringify(result.error, null, 2));
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("❌ Excepción en updateUser:", error);
+    return { data: null, error };
+  }
 }
 
 export async function deleteUser(id) {
