@@ -300,11 +300,28 @@ function setupEditProfileModal() {
           
           alert("Perfil actualizado exitosamente.");
         } else {
-          throw new Error(response.message || "Error al actualizar el perfil");
+          // Usar el mensaje del backend que ahora es más específico
+          const errorMessage = response.message || "Error al actualizar el perfil";
+          console.error("Error del backend:", response);
+          throw new Error(errorMessage);
         }
       } catch (error) {
         console.error("Error al actualizar perfil:", error);
-        alert(`Error al actualizar el perfil: ${error.message}`);
+        console.error("Detalles del error:", {
+          message: error.message,
+          response: error.response,
+          stack: error.stack
+        });
+        
+        // Mostrar mensaje más específico si está disponible
+        let errorMessage = error.message || "Error al actualizar el perfil";
+        
+        // Si el error viene del backend con un mensaje específico, usarlo
+        if (error.response && error.response.message) {
+          errorMessage = error.response.message;
+        }
+        
+        alert(`Error al actualizar el perfil: ${errorMessage}`);
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;

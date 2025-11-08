@@ -37,9 +37,13 @@ class AdminAPI {
       }
 
       if (!response.ok) {
-        throw new Error(
+        // Crear error con más información
+        const error = new Error(
           data.message || `Error ${response.status}: ${response.statusText}`
         );
+        error.response = data; // Incluir la respuesta completa
+        error.status = response.status;
+        throw error;
       }
 
       return data;
