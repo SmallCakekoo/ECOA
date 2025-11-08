@@ -16,6 +16,19 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 60000);
 
+// Mostrar mensaje de error específico si existe
+document.addEventListener("DOMContentLoaded", function () {
+  const errorMessageElement = document.getElementById("errorMessage");
+  if (errorMessageElement) {
+    const storedError = sessionStorage.getItem("adoptionError");
+    if (storedError) {
+      errorMessageElement.textContent = storedError;
+      // Limpiar el mensaje después de mostrarlo
+      sessionStorage.removeItem("adoptionError");
+    }
+  }
+});
+
 // Funciones de navegación (expuestas globalmente)
 window.goToHome = function (event) {
   if (event) event.preventDefault();

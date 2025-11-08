@@ -239,16 +239,61 @@ window.adoptPlant = async function () {
       }),
     });
 
+    // Validar status HTTP con switch case
+    let errorMessage = "";
+    switch (response.status) {
+      case 200:
+        // Éxito - continuar con el procesamiento
+        break;
+      case 400:
+        errorMessage = "Solicitud inválida. Por favor verifica los datos.";
+        break;
+      case 401:
+        errorMessage = "No autorizado. Por favor inicia sesión nuevamente.";
+        break;
+      case 403:
+        errorMessage = "No tienes permiso para realizar esta acción.";
+        break;
+      case 404:
+        errorMessage = "La planta no fue encontrada.";
+        break;
+      case 409:
+        errorMessage = "Esta planta ya ha sido adoptada.";
+        break;
+      case 500:
+        errorMessage = "Error interno del servidor. Por favor intenta más tarde.";
+        break;
+      case 503:
+        errorMessage = "Servicio no disponible. Por favor intenta más tarde.";
+        break;
+      default:
+        errorMessage = `Error al adoptar la planta (Código: ${response.status}).`;
+        break;
+    }
+
+    // Si hay error, redirigir a pantalla de error
+    if (response.status !== 200) {
+      console.error("Error en adopción:", response.status, errorMessage);
+      // Guardar mensaje de error en sessionStorage para mostrarlo en la pantalla de error
+      sessionStorage.setItem("adoptionError", errorMessage);
+      window.location.href = "/client/screens/AdoptFeedback/error";
+      return;
+    }
+
+    // Si el status es 200, procesar la respuesta JSON
     const { success, data: plant } = await response.json();
     console.log("Adopción exitosa:", success, plant);
 
     if (success) {
       window.location.href = "/client/screens/AdoptFeedback/success";
     } else {
+      // Si success es false aunque el status sea 200
+      sessionStorage.setItem("adoptionError", "La adopción no se pudo completar.");
       window.location.href = "/client/screens/AdoptFeedback/error";
     }
   } catch (error) {
     console.error("Error adoptando planta:", error);
+    sessionStorage.setItem("adoptionError", "Error de conexión. Por favor verifica tu internet.");
     window.location.href = "/client/screens/AdoptFeedback/error";
   }
 };

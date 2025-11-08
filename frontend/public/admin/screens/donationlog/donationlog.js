@@ -550,56 +550,69 @@ function loadDonationDistribution() {
       const centerY = 100;
       const radius = 80;
       const innerRadius = 50;
+      const strokeWidth = radius - innerRadius;
       
-      let currentAngle = -90; // Empezar desde arriba
+      // Calcular la circunferencia
+      const circumference = 2 * Math.PI * (radius - strokeWidth / 2);
       
-      // Crear segmentos del donut
+      // Crear círculo de fondo (gris claro) - PRIMERO
+      const backgroundCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      backgroundCircle.setAttribute('cx', centerX);
+      backgroundCircle.setAttribute('cy', centerY);
+      backgroundCircle.setAttribute('r', radius - strokeWidth / 2);
+      backgroundCircle.setAttribute('fill', 'none');
+      backgroundCircle.setAttribute('stroke', '#e6f0e2');
+      backgroundCircle.setAttribute('stroke-width', strokeWidth);
+      donutChart.appendChild(backgroundCircle);
+      
+      let offset = 0; // Offset acumulado para cada segmento
+      
+      // Crear segmentos del donut usando stroke-dasharray
       distributionData.forEach((month, index) => {
         const percentage = totalAmount > 0 ? (month.amount / totalAmount) * 100 : 0;
-        const angle = (percentage / 100) * 360;
+        if (percentage === 0) return; // Saltar si no hay porcentaje
         
-        // Calcular coordenadas del arco
-        const startAngle = (currentAngle * Math.PI) / 180;
-        const endAngle = ((currentAngle + angle) * Math.PI) / 180;
+        const segmentLength = (percentage / 100) * circumference;
+        const gap = index === distributionData.length - 1 ? 0 : 3; // Pequeño gap entre segmentos
         
-        const x1 = centerX + radius * Math.cos(startAngle);
-        const y1 = centerY + radius * Math.sin(startAngle);
-        const x2 = centerX + radius * Math.cos(endAngle);
-        const y2 = centerY + radius * Math.sin(endAngle);
-        
-        const largeArcFlag = angle > 180 ? 1 : 0;
-        
-        // Crear path para el segmento exterior
-        const pathOuter = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        pathOuter.setAttribute('d', `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`);
-        pathOuter.setAttribute('fill', colors[index % colors.length]);
-        pathOuter.setAttribute('opacity', '0.9');
-        pathOuter.setAttribute('class', 'donut-segment');
-        pathOuter.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        pathOuter.style.cursor = 'pointer';
+        // Crear círculo para cada segmento
+        const segment = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        segment.setAttribute('cx', centerX);
+        segment.setAttribute('cy', centerY);
+        segment.setAttribute('r', radius - strokeWidth / 2);
+        segment.setAttribute('fill', 'none');
+        segment.setAttribute('stroke', colors[index % colors.length]);
+        segment.setAttribute('stroke-width', strokeWidth);
+        segment.setAttribute('stroke-dasharray', `${segmentLength} ${circumference}`);
+        segment.setAttribute('stroke-dashoffset', -offset);
+        segment.setAttribute('stroke-linecap', 'round');
+        segment.setAttribute('class', 'donut-segment');
+        segment.setAttribute('data-index', index);
+        segment.style.transition = 'opacity 0.3s ease';
+        segment.style.cursor = 'pointer';
+        segment.setAttribute('opacity', '0.9');
         
         // Agregar hover effect
-        pathOuter.addEventListener('mouseenter', () => {
-          pathOuter.setAttribute('opacity', '1');
+        segment.addEventListener('mouseenter', () => {
+          segment.setAttribute('opacity', '1');
         });
-        pathOuter.addEventListener('mouseleave', () => {
-          pathOuter.setAttribute('opacity', '0.9');
+        segment.addEventListener('mouseleave', () => {
+          segment.setAttribute('opacity', '0.9');
         });
         
-        donutChart.appendChild(pathOuter);
+        donutChart.appendChild(segment);
         
-        // Crear círculo interior (hueco del donut)
-        if (index === 0) {
-          const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          innerCircle.setAttribute('cx', centerX);
-          innerCircle.setAttribute('cy', centerY);
-          innerCircle.setAttribute('r', innerRadius);
-          innerCircle.setAttribute('fill', '#ffffff');
-          donutChart.appendChild(innerCircle);
-        }
-        
-        currentAngle += angle;
+        // Actualizar offset para el siguiente segmento
+        offset += segmentLength + gap;
       });
+      
+      // Crear círculo interior (hueco del donut) AL FINAL para que esté encima
+      const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      innerCircle.setAttribute('cx', centerX);
+      innerCircle.setAttribute('cy', centerY);
+      innerCircle.setAttribute('r', innerRadius);
+      innerCircle.setAttribute('fill', '#ffffff');
+      donutChart.appendChild(innerCircle);
       
       // Actualizar leyenda con colores y datos
       legend.innerHTML = distributionData.map((month, index) => {
