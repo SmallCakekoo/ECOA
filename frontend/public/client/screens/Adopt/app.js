@@ -4,26 +4,25 @@ const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
 
 // Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
-  // Usar la función helper si está disponible, sino usar lógica local
+  // Siempre usar el helper de plant-images.js si está disponible
   if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
     return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
   }
   
-  // Fallback si no está disponible el helper
-  const url = plant.image || plant.image_url;
-  if (url) {
-    if (url.startsWith("data:")) return url;
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return `${API_BASE_URL}${url.startsWith("/") ? url : "/" + url}`;
-  }
-  
-  // Usar imagen local como fallback
-  if (plant.id) {
-    const hash = String(plant.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const imageIndex = (hash % 10) + 1;
+  // Fallback si el helper no está cargado aún (usar recursos locales directamente)
+  if (plant && plant.id) {
+    // Generar hash del ID para seleccionar imagen local
+    const plantIdStr = String(plant.id);
+    let hash = 0;
+    for (let i = 0; i < plantIdStr.length; i++) {
+      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = hash & hash; // Convertir a entero de 32 bits
+    }
+    const imageIndex = (Math.abs(hash) % 10) + 1; // Número entre 1 y 10
     return `../../src/assets/images/plants/plant-${imageIndex}.png`;
   }
   
+  // Si no hay ID, usar imagen por defecto
   return "../../src/assets/images/plant.png";
 }
 
@@ -35,23 +34,71 @@ function createPlantCard(plant, index) {
 
   // imagen
   const img = document.createElement("img");
-  img.src = getPlantImageUrl(plant);
+  const imageUrl = getPlantImageUrl(plant);
+  img.src = imageUrl;
   img.alt = `${plant.name} Plant`;
   img.className = `plant-image plant-image${index}`;
+  
   // Manejar error de carga de imagen con fallback a recursos locales
   img.onerror = function () {
+    // Si el helper está disponible, usarlo
     if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
       window.PlantImageUtils.handlePlantImageError(this, plant);
-    } else {
-      // Fallback simple
-      const hash = plant.id ? String(plant.id).charCodeAt(0) % 10 : 0;
-      this.src = `../../src/assets/images/plants/plant-${hash + 1}.png`;
-      this.onerror = function() {
+      return;
+    }
+    
+    // Fallback: intentar con imagen local basada en ID
+    if (plant && plant.id) {
+      const plantIdStr = String(plant.id);
+      let hash = 0;
+      for (let i = 0; i < plantIdStr.length; i++) {
+        hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+        hash = hash & hash;
+      }
+      const imageIndex = (Math.abs(hash) % 10) + 1;
+      const localImage = `../../src/assets/images/plants/plant-${imageIndex}.png`;
+      
+      // Solo cambiar si es diferente a la actual
+      if (this.src !== localImage && !this.src.includes('plant-')) {
+        this.src = localImage;
+        // Si la imagen local también falla, usar imagen por defecto
+        this.onerror = function() {
+          this.onerror = null; // Prevenir loops infinitos
+          this.src = "../../src/assets/images/plant.png";
+        };
+      } else {
+        // Si ya intentamos la local, usar imagen por defecto
         this.onerror = null;
         this.src = "../../src/assets/images/plant.png";
-      };
+      }
+    } else {
+      // Sin ID, usar imagen por defecto directamente
+      this.onerror = null;
+      this.src = "../../src/assets/images/plant.png";
     }
   };
+  
+  // Si la URL es del backend y no es data URL, verificar primero con recursos locales
+  // Esto previene errores de carga y mejora la experiencia
+  if (imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('../../src/assets/images/')) {
+    // Si es una URL del backend, intentar cargar primero la local como respaldo
+    const localImageUrl = window.PlantImageUtils && window.PlantImageUtils.getLocalPlantImage
+      ? window.PlantImageUtils.getLocalPlantImage(plant)
+      : (plant && plant.id ? (() => {
+          const plantIdStr = String(plant.id);
+          let hash = 0;
+          for (let i = 0; i < plantIdStr.length; i++) {
+            hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+            hash = hash & hash;
+          }
+          const imageIndex = (Math.abs(hash) % 10) + 1;
+          return `../../src/assets/images/plants/plant-${imageIndex}.png`;
+        })() : "../../src/assets/images/plant.png");
+    
+    // Pre-cargar la imagen local para tenerla lista
+    const preloadImg = new Image();
+    preloadImg.src = localImageUrl;
+  }
 
   // contenedor de información
   const info = document.createElement("div");
