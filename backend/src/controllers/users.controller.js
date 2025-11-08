@@ -79,42 +79,60 @@ export const UsersController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
+      
+      console.log("=".repeat(50));
+      console.log("📝 INICIO ACTUALIZACIÓN USUARIO");
+      console.log("📝 ID del usuario:", id);
+      console.log("📝 Body recibido:", JSON.stringify(req.body, null, 2));
+      
       const updateData = sanitizeUserUpdate(req.body);
       
-      // Log para debugging
-      console.log("📝 Actualizando usuario:", id);
-      console.log("📝 Datos recibidos:", Object.keys(req.body));
-      console.log("📝 Datos sanitizados:", Object.keys(updateData));
-      console.log("📝 Contenido de updateData:", JSON.stringify(updateData, null, 2).substring(0, 500));
+      console.log("📝 Datos después de sanitización:", JSON.stringify(updateData, null, 2));
       
       // Verificar que hay datos para actualizar
       if (Object.keys(updateData).length === 0) {
-        console.warn("⚠️ No hay datos válidos para actualizar después de sanitización");
+        console.warn("⚠️ No hay datos válidos para actualizar");
         return res.status(400).json({
           success: false,
-          message: "No hay datos válidos para actualizar",
+          message: "No hay datos válidos para actualizar. Se requiere al menos el campo 'name'.",
         });
       }
       
-      // Actualizar directamente - el modelo ya filtra los campos válidos
+      // Verificar que el ID es válido
+      if (!id || typeof id !== 'string' || id.length === 0) {
+        console.error("❌ ID de usuario inválido:", id);
+        return res.status(400).json({
+          success: false,
+          message: "ID de usuario inválido",
+        });
+      }
+      
+      console.log("📝 Llamando a updateUser con:", JSON.stringify(updateData, null, 2));
+      
+      // Actualizar directamente
       const { data, error } = await updateUser(id, updateData);
       
       if (error) {
-        console.error("❌ Error de Supabase al actualizar usuario:");
+        console.error("❌ ERROR DE SUPABASE:");
         console.error("   Código:", error.code);
         console.error("   Mensaje:", error.message);
         console.error("   Detalles:", error.details);
         console.error("   Hint:", error.hint);
+        console.error("   Error completo:", JSON.stringify(error, null, 2));
+        console.log("=".repeat(50));
         throw error;
       }
       
       if (!data) {
+        console.warn("⚠️ No se encontró usuario con ID:", id);
         return res
           .status(404)
           .json({ success: false, message: "Usuario no encontrado" });
       }
       
-      console.log("✅ Usuario actualizado exitosamente:", data.id);
+      console.log("✅ Usuario actualizado exitosamente");
+      console.log("✅ Datos devueltos:", JSON.stringify(data, null, 2));
+      console.log("=".repeat(50));
       
       req.io?.emit("user_updated", {
         type: "user_updated",
@@ -128,10 +146,12 @@ export const UsersController = {
         data,
       });
     } catch (error) {
-      console.error("❌ Error en update de usuario:");
+      console.error("=".repeat(50));
+      console.error("❌ ERROR GENERAL EN UPDATE:");
       console.error("   Tipo:", error.constructor.name);
       console.error("   Mensaje:", error.message);
-      console.error("   Stack:", error.stack?.substring(0, 500));
+      console.error("   Stack:", error.stack);
+      console.error("=".repeat(50));
       return handleError(error, res);
     }
   },

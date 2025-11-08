@@ -15,40 +15,22 @@ export function createUserModel(payload) {
 }
 
 export function sanitizeUserUpdate(payload) {
-  // Solo permitir campos que existen en la tabla users
-  const allowed = ["name", "email", "rol"];
+  // SOLO permitir 'name' por ahora para asegurar que funcione
+  // Una vez que funcione, podemos agregar otros campos
   const update = {};
-  allowed.forEach((k) => {
-    if (payload[k] !== undefined) update[k] = payload[k];
-  });
   
-  // TEMPORALMENTE DESHABILITADO: Procesar campo 'image' o 'avatar_url'
-  // El campo avatar_url puede no existir en la tabla, así que lo ignoramos por ahora
-  // TODO: Agregar el campo avatar_url a la tabla users en Supabase antes de habilitar esto
-  /*
-  const imageValue = payload.image !== undefined ? payload.image : payload.avatar_url;
-  if (imageValue !== undefined && imageValue !== null && imageValue !== '') {
-    try {
-      if (typeof imageValue === 'string' && imageValue.startsWith('data:')) {
-        const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
-        if (imageValue.length > maxDataUrlLength) {
-          console.warn(`⚠️ Imagen de perfil muy grande (${Math.round(imageValue.length / 1024)}KB), ignorando`);
-        } else {
-          const parts = imageValue.split(',');
-          if (parts.length >= 2 && parts[0].includes('data:') && parts[0].includes('base64')) {
-            update.avatar_url = imageValue;
-            console.log(`✅ Imagen de perfil validada, tamaño: ${Math.round(imageValue.length / 1024)}KB`);
-          }
-        }
-      } else if (typeof imageValue === 'string' && (imageValue.startsWith('http://') || imageValue.startsWith('https://'))) {
-        update.avatar_url = imageValue;
-      }
-    } catch (e) {
-      console.error('❌ Error procesando imagen de perfil:', e.message);
+  // Solo procesar 'name' que es el campo más básico y seguro
+  if (payload.name !== undefined && payload.name !== null) {
+    const nameValue = String(payload.name).trim();
+    if (nameValue.length > 0) {
+      update.name = nameValue;
     }
   }
-  */
-  console.log('📝 Campos a actualizar:', Object.keys(update));
-  console.log('⚠️ NOTA: avatar_url está temporalmente deshabilitado hasta que se agregue el campo a la tabla');
+  
+  // Ignorar todos los demás campos por ahora para evitar errores
+  console.log('📝 Payload recibido:', Object.keys(payload));
+  console.log('📝 Campos a actualizar (solo name):', Object.keys(update));
+  console.log('📝 Valor de name:', update.name);
+  
   return update;
 }
