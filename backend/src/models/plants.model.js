@@ -91,6 +91,43 @@ export function sanitizePlantUpdate(payload) {
     }
   });
 
+  // Validar y limitar tamaño de imagen igual que en createPlantModel
+  if (update.image && typeof update.image === 'string') {
+    // Si es data URL, validar tamaño de forma más estricta
+    if (update.image.startsWith('data:')) {
+      // Limitar el string completo a ~200KB para evitar problemas con Supabase TEXT
+      const maxDataUrlLength = 200 * 1024; // ~200KB de data URL
+      
+      if (update.image.length > maxDataUrlLength) {
+        console.warn(`⚠️ Imagen muy grande en actualización (${Math.round(update.image.length / 1024)}KB), guardando null para evitar error en BD`);
+        update.image = null;
+      } else {
+        // Validar que la data URL esté bien formada
+        try {
+          const parts = update.image.split(',');
+          if (parts.length < 2 || !parts[0] || !parts[1]) {
+            console.warn('⚠️ Data URL mal formada en actualización, guardando null');
+            update.image = null;
+          } else {
+            // Verificar que el header tenga el formato correcto
+            const header = parts[0];
+            if (!header.includes('data:') || !header.includes('base64')) {
+              console.warn('⚠️ Data URL sin formato correcto en actualización, guardando null');
+              update.image = null;
+            }
+          }
+        } catch (e) {
+          console.warn('⚠️ Error validando data URL en actualización, guardando null:', e.message);
+          update.image = null;
+        }
+      }
+    }
+    // Si es URL externa o relativa, validar que no esté vacía
+    else if (typeof update.image === 'string' && update.image.trim() === '') {
+      update.image = null;
+    }
+  }
+
   return update;
 }
 

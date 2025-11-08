@@ -227,13 +227,44 @@ export const PlantsController = {
   update: async (req, res) => {
     try {
       const { id } = req.params;
+      
+      console.log('📝 Actualizando planta:', {
+        id,
+        hasImage: !!req.body.image,
+        imageLength: req.body.image ? req.body.image.length : 0,
+        imagePreview: req.body.image ? `${req.body.image.substring(0, 50)}...` : null,
+        bodyKeys: Object.keys(req.body)
+      });
+      
       const updateData = sanitizePlantUpdate(req.body);
+      
+      console.log('✅ Datos sanitizados:', {
+        keys: Object.keys(updateData),
+        hasImage: !!updateData.image,
+        imageLength: updateData.image ? updateData.image.length : 0,
+        imagePreview: updateData.image ? `${updateData.image.substring(0, 50)}...` : null
+      });
+      
       const { data, error } = await updatePlant(id, updateData);
-      if (error) throw error;
-      if (!data)
+      
+      if (error) {
+        console.error('❌ Error de Supabase al actualizar:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
+      
+      if (!data) {
         return res
           .status(404)
           .json({ success: false, message: "Planta no encontrada" });
+      }
+      
+      console.log('✅ Planta actualizada exitosamente');
+      
       req.io?.emit("plant_updated", {
         type: "plant_updated",
         data,
@@ -245,6 +276,12 @@ export const PlantsController = {
         data,
       });
     } catch (error) {
+      console.error('❌ Error completo al actualizar planta:', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+        details: error.details
+      });
       return handleError(error, res);
     }
   },
