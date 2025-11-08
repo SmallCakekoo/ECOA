@@ -483,19 +483,56 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 20px 0;
+  gap: 40px;
 }
 
-.donut svg {
-  width: 200px;
-  height: 200px;
-}
-
-.donut-img {
+.donut-chart-container {
+  position: relative;
   width: 260px;
-  height: auto;
-  display: block;
-  margin-left: 24px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-chart {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-total {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1d2607;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.donut-label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  color: #62727b;
+  font-weight: 500;
+}
+
+.donut-segment {
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.donut-segment:hover {
+  filter: brightness(1.1);
 }
 
 .ring {
@@ -521,43 +558,37 @@ body {
 .legend {
   list-style: none;
   padding: 0;
-  margin: 0 24px 0 40px;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  flex: 1;
 }
 
 .legend .dot {
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 4px;
-  margin-right: 8px;
-}
-
-.dot-june {
-  background: #7EB234;
-}
-
-.dot-may {
-  background: #2F6F1C;
-}
-
-.dot-april {
-  background: #5F8C3D;
-}
-
-.dot-march {
-  background: #C7D7B0;
+  margin-right: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .legend li {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   color: #1f2937;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.legend li:hover {
+  background-color: #f5fbf4;
 }
 
 .legend .month-name {

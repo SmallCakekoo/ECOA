@@ -525,27 +525,120 @@ function loadDonationDistribution() {
     // Calcular total para porcentajes
     const totalAmount = distributionData.reduce((sum, m) => sum + m.amount, 0);
 
-    // Actualizar la leyenda con los datos
-    const legend = document.querySelector('.legend');
-    if (legend) {
-      const dotClasses = ['dot-june', 'dot-may', 'dot-april', 'dot-march'];
+    // Paleta de colores más atractiva y variada
+    const colors = [
+      '#65b845', // Verde principal
+      '#4a9e2e', // Verde oscuro
+      '#7acb57', // Verde claro
+      '#8fd86b'  // Verde muy claro
+    ];
+
+    // Generar gráfico donut dinámico
+    const donutChart = document.getElementById('donutChart');
+    const legend = document.getElementById('donationLegend');
+    const donutTotal = document.getElementById('donutTotal');
+    
+    if (donutChart && legend && donutTotal) {
+      // Limpiar gráfico anterior
+      donutChart.innerHTML = '';
       
+      // Actualizar total en el centro
+      donutTotal.textContent = `$${totalAmount.toLocaleString()}`;
+      
+      // Configuración del gráfico
+      const centerX = 100;
+      const centerY = 100;
+      const radius = 80;
+      const innerRadius = 50;
+      
+      let currentAngle = -90; // Empezar desde arriba
+      
+      // Crear segmentos del donut
+      distributionData.forEach((month, index) => {
+        const percentage = totalAmount > 0 ? (month.amount / totalAmount) * 100 : 0;
+        const angle = (percentage / 100) * 360;
+        
+        // Calcular coordenadas del arco
+        const startAngle = (currentAngle * Math.PI) / 180;
+        const endAngle = ((currentAngle + angle) * Math.PI) / 180;
+        
+        const x1 = centerX + radius * Math.cos(startAngle);
+        const y1 = centerY + radius * Math.sin(startAngle);
+        const x2 = centerX + radius * Math.cos(endAngle);
+        const y2 = centerY + radius * Math.sin(endAngle);
+        
+        const largeArcFlag = angle > 180 ? 1 : 0;
+        
+        // Crear path para el segmento exterior
+        const pathOuter = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathOuter.setAttribute('d', `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`);
+        pathOuter.setAttribute('fill', colors[index % colors.length]);
+        pathOuter.setAttribute('opacity', '0.9');
+        pathOuter.setAttribute('class', 'donut-segment');
+        pathOuter.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        pathOuter.style.cursor = 'pointer';
+        
+        // Agregar hover effect
+        pathOuter.addEventListener('mouseenter', () => {
+          pathOuter.setAttribute('opacity', '1');
+        });
+        pathOuter.addEventListener('mouseleave', () => {
+          pathOuter.setAttribute('opacity', '0.9');
+        });
+        
+        donutChart.appendChild(pathOuter);
+        
+        // Crear círculo interior (hueco del donut)
+        if (index === 0) {
+          const innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          innerCircle.setAttribute('cx', centerX);
+          innerCircle.setAttribute('cy', centerY);
+          innerCircle.setAttribute('r', innerRadius);
+          innerCircle.setAttribute('fill', '#ffffff');
+          donutChart.appendChild(innerCircle);
+        }
+        
+        currentAngle += angle;
+      });
+      
+      // Actualizar leyenda con colores y datos
       legend.innerHTML = distributionData.map((month, index) => {
         const percentage = totalAmount > 0 ? Math.round((month.amount / totalAmount) * 100) : 0;
         const formattedAmount = `$${month.amount.toLocaleString()}`;
-        const dotClass = dotClasses[index] || dotClasses[dotClasses.length - 1];
+        const color = colors[index % colors.length];
         
         return `
-          <li>
-            <span class="dot ${dotClass}"></span>
+          <li class="legend-item" data-index="${index}">
+            <span class="dot" style="background: ${color}"></span>
             <span class="month-name">${month.name}</span>
             <span class="month-stats">${formattedAmount} (${percentage}%)</span>
           </li>
         `;
       }).join('');
+      
+      // Agregar interactividad a la leyenda
+      legend.querySelectorAll('.legend-item').forEach((item, index) => {
+        item.style.cursor = 'pointer';
+        item.style.transition = 'opacity 0.3s ease';
+        item.addEventListener('mouseenter', () => {
+          const segments = donutChart.querySelectorAll('.donut-segment');
+          segments.forEach((seg, i) => {
+            if (i === index) {
+              seg.setAttribute('opacity', '1');
+            } else {
+              seg.setAttribute('opacity', '0.5');
+            }
+          });
+          item.style.opacity = '1';
+        });
+        item.addEventListener('mouseleave', () => {
+          const segments = donutChart.querySelectorAll('.donut-segment');
+          segments.forEach(seg => seg.setAttribute('opacity', '0.9'));
+          item.style.opacity = '1';
+        });
+      });
     }
   } catch (error) {
     console.error("Error loading donation distribution:", error);
-    // En caso de error, mantener la vista estática original
   }
 }

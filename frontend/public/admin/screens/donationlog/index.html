@@ -197,16 +197,17 @@
             <div class="panel chart">
               <h2 class="panel-title">Donation Distribution</h2>
               <div class="donut">
-                <img
-                  class="donut-img"
-                  src="../../src/grafico circulo.png"
-                  alt="Donation Distribution"
-                />
-                <ul class="legend">
-                  <li><span class="dot dot-june"></span> June</li>
-                  <li><span class="dot dot-may"></span> May</li>
-                  <li><span class="dot dot-april"></span> April</li>
-                  <li><span class="dot dot-march"></span> March</li>
+                <div class="donut-chart-container" id="donutChartContainer">
+                  <svg class="donut-chart" viewBox="0 0 200 200" id="donutChart">
+                    <!-- El gráfico se generará dinámicamente -->
+                  </svg>
+                  <div class="donut-center">
+                    <div class="donut-total" id="donutTotal">$0</div>
+                    <div class="donut-label">Total</div>
+                  </div>
+                </div>
+                <ul class="legend" id="donationLegend">
+                  <!-- La leyenda se generará dinámicamente -->
                 </ul>
               </div>
             </div>

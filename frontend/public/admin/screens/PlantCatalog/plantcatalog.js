@@ -758,21 +758,27 @@ async function updatePlant(plantId) {
         throw new Error(result.message || "Error al actualizar la planta");
       }
     } catch (updateError) {
-      // Si falla y hay imagen, intentar sin la imagen como fallback
-      if (plantData.image && updateError.message && updateError.message.includes("Error interno")) {
-        console.warn("⚠️ Error al actualizar con imagen, intentando sin imagen...");
-        const plantDataWithoutImage = { ...plantData };
-        delete plantDataWithoutImage.image;
-        
-        try {
-          result = await window.AdminAPI.updatePlant(plantId, plantDataWithoutImage);
-          if (result.success) {
-            showNotification("Planta actualizada exitosamente, pero la imagen no pudo ser actualizada. Intenta con una imagen más pequeña.", "warning");
-          } else {
-            throw updateError; // Si también falla sin imagen, lanzar el error original
+      // Si falla y hay imagen, verificar si es un error de tamaño de imagen
+      if (plantData.image && updateError.message) {
+        // Si el error menciona que la imagen es muy grande, intentar sin imagen
+        if (updateError.message.includes("Error interno") || updateError.message.includes("muy grande") || updateError.message.includes("demasiado grande")) {
+          console.warn("⚠️ Error al actualizar con imagen, intentando sin imagen...");
+          const plantDataWithoutImage = { ...plantData };
+          delete plantDataWithoutImage.image;
+          
+          try {
+            result = await window.AdminAPI.updatePlant(plantId, plantDataWithoutImage);
+            if (result.success) {
+              showNotification("Planta actualizada exitosamente, pero la imagen no pudo ser actualizada. La imagen puede ser demasiado grande o tener un formato no soportado.", "warning");
+            } else {
+              throw updateError; // Si también falla sin imagen, lanzar el error original
+            }
+          } catch (retryError) {
+            throw updateError; // Lanzar el error original si el retry también falla
           }
-        } catch (retryError) {
-          throw updateError; // Lanzar el error original si el retry también falla
+        } else {
+          // Si es otro tipo de error, lanzarlo normalmente
+          throw updateError;
         }
       } else {
         throw updateError;
