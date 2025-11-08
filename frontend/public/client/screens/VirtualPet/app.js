@@ -92,78 +92,141 @@ setInterval(updateTime, 60000);
       };
     }
 
-    // Cargar métricas (plant_stats)
+    // Cargar métricas y estado para crear cards informativas
+    let stats = null;
+    let status = null;
+
     try {
-      // Usar query params para buscar por plant_id y obtener el más reciente
+      // Cargar métricas (plant_stats)
       const statsResponse = await fetch(
         `${API_BASE_URL}/plant_stats?plant_id=${plantId}`
       );
 
-      let stats = null;
       if (statsResponse.ok) {
         const result = await statsResponse.json();
         if (result.success && result.data && result.data.length > 0) {
-          // Tomar el más reciente (ya viene ordenado por fecha descendente)
           stats = result.data[0];
-        }
-      }
-
-      if (stats) {
-        const stateButtons = document.querySelectorAll(".state-button");
-        if (stateButtons.length >= 3) {
-          // Botón 1: Sol/Luz
-          const lightText = document.createElement("p");
-          lightText.textContent = (stats.light || 0) + "%";
-          stateButtons[0].appendChild(lightText);
-
-          // Botón 2: Agua/Humedad del suelo
-          const waterText = document.createElement("p");
-          waterText.textContent = (stats.soil_moisture || 0) + "%";
-          stateButtons[1].appendChild(waterText);
-
-          // Botón 3: Temperatura
-          const tempText = document.createElement("p");
-          tempText.textContent = (stats.temperature || 0) + "°C";
-          stateButtons[2].appendChild(tempText);
         }
       }
     } catch (error) {
       console.warn("Could not load plant stats:", error);
     }
 
-    // Cargar estado (plant_status)
     try {
-      // Usar query params para buscar por plant_id y obtener el más reciente
+      // Cargar estado (plant_status)
       const statusResponse = await fetch(
         `${API_BASE_URL}/plant_status?plant_id=${plantId}`
       );
 
-      let status = null;
       if (statusResponse.ok) {
         const result = await statusResponse.json();
         if (result.success && result.data && result.data.length > 0) {
-          // Tomar el más reciente (ya viene ordenado por fecha descendente)
           status = result.data[0];
-        }
-      }
-
-      if (status) {
-        const stateButtons = document.querySelectorAll(".state-button");
-        if (stateButtons.length >= 4) {
-          // Botón 4: Mood/Estado
-          const moodText = document.createElement("p");
-          const moodPercent = Math.round((status.mood_index || 0) * 100);
-          moodText.textContent = moodPercent + "%";
-          stateButtons[3].appendChild(moodText);
-
-          // Opcional: cambiar el ícono según el mood
-          if (status.mood_face) {
-            stateButtons[3].innerHTML = `${status.mood_face}<p>${moodPercent}%</p>`;
-          }
         }
       }
     } catch (error) {
       console.warn("Could not load plant status:", error);
+    }
+
+    // Crear cards informativas
+    const infoCardsContainer = document.getElementById("infoCardsContainer");
+    if (infoCardsContainer) {
+      infoCardsContainer.innerHTML = "";
+
+      // Card 1: Nombre y Tipo
+      const nameCard = createInfoCard(
+        "Plant Name",
+        plant.name || "Unknown",
+        "Species",
+        plant.species || "Not specified",
+        "mdi:leaf",
+        "#7EB234"
+      );
+      infoCardsContainer.appendChild(nameCard);
+
+      // Card 2: Estado de Salud
+      const healthStatus = status?.status || plant.health_status || "Healthy";
+      const healthStatusText = healthStatus.charAt(0).toUpperCase() + healthStatus.slice(1);
+      const healthCard = createInfoCard(
+        "Health Status",
+        healthStatusText,
+        "Current Condition",
+        getHealthDescription(healthStatus),
+        getHealthIcon(healthStatus),
+        getHealthColor(healthStatus)
+      );
+      infoCardsContainer.appendChild(healthCard);
+
+      // Card 3: Luz/Sunlight
+      if (stats) {
+        const lightValue = stats.light || 0;
+        const lightCard = createInfoCard(
+          "Light",
+          `${lightValue}%`,
+          "Sunlight Level",
+          getLightDescription(lightValue),
+          "solar:sun-linear",
+          "#FFA500"
+        );
+        infoCardsContainer.appendChild(lightCard);
+
+        // Card 4: Agua/Soil Moisture
+        const moistureValue = stats.soil_moisture || 0;
+        const waterCard = createInfoCard(
+          "Soil Moisture",
+          `${moistureValue}%`,
+          "Water Level",
+          getMoistureDescription(moistureValue),
+          "lets-icons:water-light",
+          "#4A90E2"
+        );
+        infoCardsContainer.appendChild(waterCard);
+
+        // Card 5: Temperatura
+        const tempValue = stats.temperature || 0;
+        const tempCard = createInfoCard(
+          "Temperature",
+          `${tempValue}°C`,
+          "Current Temp",
+          getTemperatureDescription(tempValue),
+          "material-symbols-light:shower-outline",
+          "#E74C3C"
+        );
+        infoCardsContainer.appendChild(tempCard);
+      }
+
+      // Card 6: Mood/Happiness
+      if (status) {
+        const moodPercent = Math.round((status.mood_index || 0) * 100);
+        const moodCard = createInfoCard(
+          "Mood",
+          `${moodPercent}%`,
+          "Happiness Level",
+          getMoodDescription(moodPercent),
+          "mingcute:happy-line",
+          "#F39C12"
+        );
+        infoCardsContainer.appendChild(moodCard);
+      }
+
+      // Card 7: Fecha de Registro
+      if (plant.registration_date || plant.created_at) {
+        const regDate = new Date(plant.registration_date || plant.created_at);
+        const formattedDate = regDate.toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        });
+        const dateCard = createInfoCard(
+          "Adopted On",
+          formattedDate,
+          "Registration Date",
+          "When this plant joined your garden",
+          "mdi:calendar",
+          "#9B59B6"
+        );
+        infoCardsContainer.appendChild(dateCard);
+      }
     }
   } catch (error) {
     console.error("Error loading plant data:", error);
@@ -171,6 +234,106 @@ setInterval(updateTime, 60000);
     window.location.href = "/client/screens/Garden";
   }
 })();
+
+// Función para crear cards informativas
+function createInfoCard(title, value, subtitle, description, icon, color) {
+  const card = document.createElement("div");
+  card.className = "info-card";
+  card.style.setProperty("--card-color", color);
+  
+  card.innerHTML = `
+    <div class="info-card-icon">
+      <span class="iconify" data-icon="${icon}"></span>
+    </div>
+    <div class="info-card-content">
+      <div class="info-card-header">
+        <h3 class="info-card-title">${title}</h3>
+        <p class="info-card-value">${value}</p>
+      </div>
+      <div class="info-card-body">
+        <p class="info-card-subtitle">${subtitle}</p>
+        <p class="info-card-description">${description}</p>
+      </div>
+    </div>
+  `;
+  
+  return card;
+}
+
+// Funciones helper para descripciones
+function getHealthDescription(status) {
+  const descriptions = {
+    healthy: "Your plant is in excellent condition and thriving!",
+    recovering: "Your plant is recovering and getting better.",
+    bad: "Your plant needs immediate attention and care.",
+    excellent: "Your plant is in perfect condition!",
+    needs_care: "Your plant requires some extra care.",
+    sick: "Your plant is showing signs of illness.",
+    dying: "Your plant needs urgent care.",
+    critical: "Your plant is in critical condition."
+  };
+  return descriptions[status.toLowerCase()] || "Status information not available.";
+}
+
+function getHealthIcon(status) {
+  const icons = {
+    healthy: "mdi:heart",
+    recovering: "mdi:heart-pulse",
+    bad: "mdi:heart-broken",
+    excellent: "mdi:heart",
+    needs_care: "mdi:heart-pulse",
+    sick: "mdi:heart-broken",
+    dying: "mdi:heart-broken",
+    critical: "mdi:heart-broken"
+  };
+  return icons[status.toLowerCase()] || "mdi:heart";
+}
+
+function getHealthColor(status) {
+  const colors = {
+    healthy: "#27AE60",
+    recovering: "#F39C12",
+    bad: "#E74C3C",
+    excellent: "#27AE60",
+    needs_care: "#F39C12",
+    sick: "#E74C3C",
+    dying: "#E74C3C",
+    critical: "#C0392B"
+  };
+  return colors[status.toLowerCase()] || "#7EB234";
+}
+
+function getLightDescription(value) {
+  if (value >= 80) return "Excellent lighting conditions!";
+  if (value >= 60) return "Good amount of sunlight.";
+  if (value >= 40) return "Moderate lighting, could be better.";
+  if (value >= 20) return "Low light conditions.";
+  return "Very low light, consider moving to a brighter spot.";
+}
+
+function getMoistureDescription(value) {
+  if (value >= 80) return "Soil is very moist, might be too wet.";
+  if (value >= 60) return "Perfect moisture level!";
+  if (value >= 40) return "Adequate moisture, keep monitoring.";
+  if (value >= 20) return "Soil is getting dry, water soon.";
+  return "Soil is very dry, needs watering immediately.";
+}
+
+function getTemperatureDescription(value) {
+  if (value >= 30) return "Temperature is quite high.";
+  if (value >= 25) return "Warm and comfortable temperature.";
+  if (value >= 20) return "Ideal temperature range.";
+  if (value >= 15) return "Cool but acceptable temperature.";
+  return "Temperature is quite low, consider warming up.";
+}
+
+function getMoodDescription(value) {
+  if (value >= 80) return "Your plant is extremely happy!";
+  if (value >= 60) return "Your plant is feeling great!";
+  if (value >= 40) return "Your plant is content.";
+  if (value >= 20) return "Your plant could be happier.";
+  return "Your plant needs more attention and care.";
+}
 
 // Función para volver a Garden (expuesta globalmente)
 window.goToGarden = function () {
