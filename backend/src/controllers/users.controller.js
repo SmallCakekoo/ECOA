@@ -132,82 +132,112 @@ export const UsersController = {
       
       // Separar campos: name es seguro, avatar_url puede no existir
       const hasAvatarUrl = 'avatar_url' in updateData;
-      const safeUpdate = { ...updateData };
+      const hasName = 'name' in updateData;
       
-      // Si tiene avatar_url, intentar primero solo con name para asegurar que funcione
       let finalData = null;
-      let finalError = null;
       let imageUpdated = false;
       
-      if (hasAvatarUrl && 'name' in updateData) {
+      // SIEMPRE intentar actualizar primero solo con name (si existe)
+      if (hasName) {
         console.log("📝 Intentando actualizar primero solo con name...");
         const nameOnlyUpdate = { name: updateData.name };
         const nameResult = await updateUser(id, nameOnlyUpdate);
         
-        if (!nameResult.error && nameResult.data) {
+        if (nameResult.error) {
+          console.error("❌ Error al actualizar name:");
+          console.error("   Código:", nameResult.error.code);
+          console.error("   Mensaje:", nameResult.error.message);
+          console.error("   Detalles:", nameResult.error.details);
+          console.error("   Hint:", nameResult.error.hint);
+          console.log("=".repeat(50));
+          
+          // Si falla el name, lanzar el error
+          const error = new Error(nameResult.error.message || "Error al actualizar el nombre");
+          error.code = nameResult.error.code;
+          error.details = nameResult.error.details;
+          error.hint = nameResult.error.hint;
+          throw error;
+        }
+        
+        if (nameResult.data) {
           console.log("✅ Nombre actualizado exitosamente");
           finalData = nameResult.data;
-          
-          // Ahora intentar agregar avatar_url
-          console.log("📝 Intentando agregar avatar_url...");
-          const avatarOnlyUpdate = { avatar_url: updateData.avatar_url };
-          const avatarResult = await updateUser(id, avatarOnlyUpdate);
-          
-          if (!avatarResult.error && avatarResult.data) {
-            console.log("✅ avatar_url actualizado exitosamente");
-            finalData = avatarResult.data;
-            imageUpdated = true;
-          } else {
-            console.warn("⚠️ avatar_url no se pudo actualizar:");
-            console.warn("   Mensaje:", avatarResult.error?.message);
-            console.warn("   Código:", avatarResult.error?.code);
-            console.warn("   Detalles:", avatarResult.error?.details);
-            console.warn("   Hint:", avatarResult.error?.hint);
-            
-            // Si el error es que la columna no existe, dar mensaje específico
-            if (avatarResult.error?.code === '42703' || 
-                avatarResult.error?.message?.includes('column') || 
-                avatarResult.error?.message?.includes('does not exist') ||
-                avatarResult.error?.message?.includes('avatar_url')) {
-              console.error("❌ El campo 'avatar_url' no existe en la tabla 'users'");
-              console.error("   Por favor, ejecuta este SQL en Supabase:");
-              console.error("   ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;");
-            }
-            
-            // El nombre ya se guardó, así que continuamos con éxito pero sin imagen
-            imageUpdated = false;
-          }
         } else {
-          console.error("❌ Error al actualizar name:", nameResult.error?.message);
-          finalError = nameResult.error;
+          console.warn("⚠️ No se encontró usuario con ID:", id);
+          return res.status(404).json({ 
+            success: false, 
+            message: "Usuario no encontrado" 
+          });
         }
-      } else {
-        // Si no tiene avatar_url o no tiene name, intentar directamente
-        const result = await updateUser(id, updateData);
-        finalData = result.data;
-        finalError = result.error;
-        if (!finalError && hasAvatarUrl) {
+      }
+      
+      // Si hay avatar_url, intentar actualizarlo después (pero no fallar si no se puede)
+      if (hasAvatarUrl && finalData) {
+        console.log("📝 Intentando agregar avatar_url...");
+        const avatarOnlyUpdate = { avatar_url: updateData.avatar_url };
+        const avatarResult = await updateUser(id, avatarOnlyUpdate);
+        
+        if (!avatarResult.error && avatarResult.data) {
+          console.log("✅ avatar_url actualizado exitosamente");
+          finalData = avatarResult.data;
           imageUpdated = true;
+        } else {
+          console.warn("⚠️ avatar_url no se pudo actualizar:");
+          console.warn("   Mensaje:", avatarResult.error?.message);
+          console.warn("   Código:", avatarResult.error?.code);
+          console.warn("   Detalles:", avatarResult.error?.details);
+          console.warn("   Hint:", avatarResult.error?.hint);
+          
+          // Si el error es que la columna no existe, dar mensaje específico
+          if (avatarResult.error?.code === '42703' || 
+              avatarResult.error?.message?.includes('column') || 
+              avatarResult.error?.message?.includes('does not exist') ||
+              avatarResult.error?.message?.includes('avatar_url')) {
+            console.error("❌ El campo 'avatar_url' no existe en la tabla 'users'");
+            console.error("   Por favor, ejecuta este SQL en Supabase:");
+            console.error("   ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;");
+          }
+          
+          // El nombre ya se guardó, así que continuamos con éxito pero sin imagen
+          imageUpdated = false;
+        }
+      } else if (hasAvatarUrl && !hasName) {
+        // Si solo hay avatar_url sin name, intentar directamente
+        console.log("📝 Intentando actualizar solo avatar_url...");
+        const avatarOnlyUpdate = { avatar_url: updateData.avatar_url };
+        const avatarResult = await updateUser(id, avatarOnlyUpdate);
+        
+        if (!avatarResult.error && avatarResult.data) {
+          console.log("✅ avatar_url actualizado exitosamente");
+          finalData = avatarResult.data;
+          imageUpdated = true;
+        } else {
+          console.error("❌ Error al actualizar avatar_url:");
+          console.error("   Código:", avatarResult.error?.code);
+          console.error("   Mensaje:", avatarResult.error?.message);
+          console.error("   Detalles:", avatarResult.error?.details);
+          console.error("   Hint:", avatarResult.error?.hint);
+          
+          // Si el error es que la columna no existe, dar mensaje específico
+          if (avatarResult.error?.code === '42703' || 
+              avatarResult.error?.message?.includes('column') || 
+              avatarResult.error?.message?.includes('does not exist') ||
+              avatarResult.error?.message?.includes('avatar_url')) {
+            const error = new Error("El campo 'avatar_url' no existe en la tabla 'users'. Por favor, ejecuta este SQL en Supabase: ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;");
+            error.code = avatarResult.error.code;
+            error.status = 400;
+            throw error;
+          }
+          
+          const error = new Error(avatarResult.error?.message || "Error al actualizar la imagen");
+          error.code = avatarResult.error?.code;
+          error.details = avatarResult.error?.details;
+          error.hint = avatarResult.error?.hint;
+          throw error;
         }
       }
       
-      if (finalError) {
-        console.error("❌ ERROR DE SUPABASE:");
-        console.error("   Código:", finalError.code);
-        console.error("   Mensaje:", finalError.message);
-        console.error("   Detalles:", finalError.details);
-        console.error("   Hint:", finalError.hint);
-        console.error("   Error completo:", JSON.stringify(finalError, null, 2));
-        console.log("=".repeat(50));
-        throw finalError;
-      }
-      
-      if (!finalData) {
-        console.warn("⚠️ No se encontró usuario con ID:", id);
-        return res
-          .status(404)
-          .json({ success: false, message: "Usuario no encontrado" });
-      }
+      // finalData ya se verifica arriba, así que no necesitamos verificar de nuevo
       
       console.log("✅ Usuario actualizado exitosamente");
       console.log("✅ Imagen actualizada:", imageUpdated);
