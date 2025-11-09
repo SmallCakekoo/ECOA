@@ -92,7 +92,24 @@ function updateProfileDisplay(user) {
   if (userEmailEl) userEmailEl.textContent = user.email || "admin@ecoa.org";
   
   // Actualizar avatares (soporta tanto 'image' como 'avatar_url' para compatibilidad)
-  const avatarUrl = user.image || user.avatar_url || 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
+  // También verifica localStorage como respaldo
+  let avatarUrl = user.image || user.avatar_url;
+  
+  // Si no hay imagen en el usuario, buscar en localStorage
+  if (!avatarUrl && user.id) {
+    const userImageKey = `user_${user.id}_avatar`;
+    const storedImage = localStorage.getItem(userImageKey);
+    if (storedImage) {
+      avatarUrl = storedImage;
+      console.log("📸 Imagen recuperada de localStorage");
+    }
+  }
+  
+  // Si aún no hay imagen, usar placeholder
+  if (!avatarUrl) {
+    avatarUrl = 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
+  }
+  
   if (avatar) {
     avatar.style.backgroundImage = `url(${avatarUrl})`;
   }
@@ -119,16 +136,44 @@ function openEditProfileModal() {
   }
   
   if (photoPreview) {
-    const avatarUrl = user.image || user.avatar_url || '';
-    if (avatarUrl) {
+    // Buscar imagen en user, luego en localStorage
+    let avatarUrl = user.image || user.avatar_url || '';
+    
+    // Si no hay imagen en el usuario, buscar en localStorage
+    if (!avatarUrl && user.id) {
+      const userImageKey = `user_${user.id}_avatar`;
+      const storedImage = localStorage.getItem(userImageKey);
+      if (storedImage) {
+        avatarUrl = storedImage;
+        console.log("📸 Imagen recuperada de localStorage para el modal");
+      }
+    }
+    
+    if (avatarUrl && avatarUrl.trim() !== '') {
       photoPreview.src = avatarUrl;
       photoPreview.style.display = "block";
+      photoPreview.style.opacity = "1";
       if (uploadInner) {
         uploadInner.style.display = "none";
       }
       photoPreview.setAttribute('data-original-image', avatarUrl);
+      
+      // Manejar error de carga de imagen
+      photoPreview.onerror = () => {
+        console.warn("⚠️ Error cargando imagen original, usando placeholder");
+        photoPreview.style.display = "none";
+        if (uploadInner) {
+          uploadInner.style.display = "flex";
+        }
+        photoPreview.removeAttribute('data-original-image');
+      };
+      
+      photoPreview.onload = () => {
+        console.log("✅ Imagen original cargada correctamente:", avatarUrl.substring(0, 50));
+      };
     } else {
       photoPreview.style.display = "none";
+      photoPreview.src = "";
       if (uploadInner) {
         uploadInner.style.display = "flex";
       }
@@ -292,14 +337,28 @@ function setupEditProfileModal() {
         
         const response = await window.AdminAPI.updateUser(user.id, updateData);
         
+        // Si hay una imagen y la respuesta fue exitosa o si falló pero la imagen está en updateData
+        if (imageUrl) {
+          // Guardar imagen en localStorage como respaldo
+          const userImageKey = `user_${user.id}_avatar`;
+          localStorage.setItem(userImageKey, imageUrl);
+          console.log("📸 Imagen guardada en localStorage como respaldo");
+        }
+        
         if (response.success) {
           // Actualizar usuario en localStorage
           // Mapear avatar_url a image para compatibilidad con el frontend
           const updatedUser = { 
             ...user, 
             ...response.data,
-            image: response.data.avatar_url || response.data.image || user.image || user.avatar_url
+            image: response.data.avatar_url || response.data.image || user.image || user.avatar_url || imageUrl
           };
+          
+          // Si la imagen no se guardó en la BD pero está en localStorage, usarla
+          if (!updatedUser.image && imageUrl) {
+            updatedUser.image = imageUrl;
+          }
+          
           localStorage.setItem("admin_user", JSON.stringify(updatedUser));
           
           // Actualizar visualización
@@ -308,8 +367,27 @@ function setupEditProfileModal() {
           // Cerrar modal
           closeEditProfileModal();
           
-          alert("Perfil actualizado exitosamente.");
+          // Mensaje según si la imagen se guardó o no
+          if (imageUrl && !response.imageUpdated) {
+            alert("Nombre actualizado exitosamente. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase.");
+          } else {
+            alert("Perfil actualizado exitosamente.");
+          }
         } else {
+          // Si falló pero tenemos imagen, guardarla en localStorage y actualizar visualización
+          if (imageUrl) {
+            const updatedUser = { 
+              ...user, 
+              name: name,
+              image: imageUrl
+            };
+            localStorage.setItem("admin_user", JSON.stringify(updatedUser));
+            updateProfileDisplay(updatedUser);
+            closeEditProfileModal();
+            alert("Nombre actualizado. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase.");
+            return;
+          }
+          
           throw new Error(response.message || "Error al actualizar el perfil");
         }
       } catch (error) {
