@@ -293,10 +293,10 @@ function setupEditProfileModal() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Calcular dimensiones manteniendo aspecto (máximo 800px)
+            // Calcular dimensiones manteniendo aspecto (máximo 400px para perfil)
             let width = img.width;
             let height = img.height;
-            const maxDimension = 800;
+            const maxDimension = 400; // Reducido para perfil de usuario
             
             if (width > height && width > maxDimension) {
               height = (height * maxDimension) / width;
@@ -312,9 +312,28 @@ function setupEditProfileModal() {
             // Dibujar imagen redimensionada
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Convertir a data URL con calidad ajustada
-            let quality = 0.8;
+            // Comprimir con calidad más baja para reducir tamaño
+            let quality = 0.6; // Reducido de 0.8 a 0.6
+            let maxDataUrlSize = 30 * 1024; // Máximo 30KB de data URL
+            
+            // Intentar diferentes calidades hasta que el tamaño sea aceptable
             let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (dataUrl.length > maxDataUrlSize && quality > 0.2) {
+              quality -= 0.1;
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            
+            // Si aún es muy grande, reducir dimensiones más
+            if (dataUrl.length > maxDataUrlSize) {
+              const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
+              canvas.width = Math.round(width * scale);
+              canvas.height = Math.round(height * scale);
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              quality = 0.6;
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            
+            console.log(`📸 Imagen comprimida: ${Math.round(dataUrl.length / 1024)}KB, dimensiones: ${canvas.width}x${canvas.height}, calidad: ${quality.toFixed(1)}`);
             
             // Guardar el archivo comprimido también
             canvas.toBlob((blob) => {
@@ -437,6 +456,57 @@ function setupEditProfileModal() {
               
               if (uploadData.success) {
                 imageUrl = uploadData.data.fullUrl;
+                
+                // Si el backend devuelve un data URL muy grande, comprimirlo más
+                if (imageUrl.startsWith("data:") && imageUrl.length > 30 * 1024) {
+                  console.log(`⚠️ Data URL del backend es muy grande (${Math.round(imageUrl.length / 1024)}KB), comprimiendo más...`);
+                  try {
+                    // Esperar a que la imagen cargue y re-comprimirla
+                    await new Promise((resolve, reject) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        let width = img.width;
+                        let height = img.height;
+                        const maxDim = 300;
+                        
+                        if (width > height && width > maxDim) {
+                          height = (height * maxDim) / width;
+                          width = maxDim;
+                        } else if (height > maxDim) {
+                          width = (width * maxDim) / height;
+                          height = maxDim;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        let quality = 0.5;
+                        let compressed = canvas.toDataURL('image/jpeg', quality);
+                        
+                        while (compressed.length > 25 * 1024 && quality > 0.2) {
+                          quality -= 0.1;
+                          compressed = canvas.toDataURL('image/jpeg', quality);
+                        }
+                        
+                        imageUrl = compressed;
+                        console.log(`✅ Imagen re-comprimida: ${Math.round(imageUrl.length / 1024)}KB`);
+                        resolve();
+                      };
+                      img.onerror = () => {
+                        console.warn("⚠️ No se pudo cargar imagen para re-comprimir");
+                        resolve(); // Continuar con el original
+                      };
+                      img.src = imageUrl;
+                    });
+                  } catch (recompressError) {
+                    console.warn("⚠️ No se pudo re-comprimir, usando el original:", recompressError);
+                  }
+                }
+                
                 console.log("✅ Imagen subida exitosamente:", imageUrl.substring(0, 50) + "...");
               } else {
                 throw new Error(uploadData.message || "Error al subir la imagen");
