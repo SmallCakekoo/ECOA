@@ -25,39 +25,12 @@ export function sanitizeUserUpdate(payload) {
     }
   }
   
-  // Procesar campo 'image' o 'avatar_url' si existe (mapear a avatar_url para la BD)
-  const imageValue = payload.image !== undefined ? payload.image : payload.avatar_url;
-  if (imageValue !== undefined && imageValue !== null && imageValue !== '') {
-    try {
-      if (typeof imageValue === 'string' && imageValue.startsWith('data:')) {
-        const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
-        if (imageValue.length > maxDataUrlLength) {
-          console.warn(`⚠️ Imagen de perfil muy grande (${Math.round(imageValue.length / 1024)}KB), ignorando`);
-        } else {
-          // Validar formato de data URL
-          const parts = imageValue.split(',');
-          if (parts.length >= 2 && parts[0].includes('data:') && parts[0].includes('base64')) {
-            update.avatar_url = imageValue;
-            console.log(`✅ Imagen de perfil validada, tamaño: ${Math.round(imageValue.length / 1024)}KB`);
-          } else {
-            console.warn('⚠️ Data URL mal formada en actualización de usuario, ignorando');
-          }
-        }
-      } else if (typeof imageValue === 'string' && (imageValue.startsWith('http://') || imageValue.startsWith('https://'))) {
-        // Permitir URLs externas
-        update.avatar_url = imageValue;
-        console.log(`✅ URL externa de imagen aceptada: ${imageValue.substring(0, 50)}...`);
-      } else {
-        console.warn(`⚠️ Tipo de imagen no válido: ${typeof imageValue}, ignorando`);
-      }
-    } catch (e) {
-      console.error('❌ Error procesando imagen de perfil:', e.message);
-      // No agregar el campo si hay error, pero continuar con otros campos
-    }
-  }
+  // NO procesar imagen - se maneja completamente en el frontend con localStorage
+  // El campo 'image' o 'avatar_url' se ignora intencionalmente
+  // para evitar errores si el campo no existe en Supabase
   
   console.log('📝 Payload recibido:', Object.keys(payload));
-  console.log('📝 Campos a actualizar:', Object.keys(update));
+  console.log('📝 Campos a actualizar (solo name, imagen se maneja en localStorage):', Object.keys(update));
   
   return update;
 }

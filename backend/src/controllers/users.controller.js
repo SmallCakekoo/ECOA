@@ -144,137 +144,59 @@ export const UsersController = {
       
       console.log("📝 Llamando a updateUser con:", JSON.stringify(updateData, null, 2));
       
-      // Separar campos: name es seguro, avatar_url puede no existir
-      const hasAvatarUrl = 'avatar_url' in updateData;
+      // Solo actualizar el name - la imagen se maneja completamente en localStorage del frontend
       const hasName = 'name' in updateData;
       
-      let finalData = null;
-      let imageUpdated = false;
-      
-      // SIEMPRE intentar actualizar primero solo con name (si existe)
-      if (hasName) {
-        console.log("📝 Intentando actualizar primero solo con name...");
-        const nameOnlyUpdate = { name: updateData.name };
-        const nameResult = await updateUser(id, nameOnlyUpdate);
-        
-        if (nameResult.error) {
-          console.error("❌ Error al actualizar name:");
-          console.error("   Código:", nameResult.error.code);
-          console.error("   Mensaje:", nameResult.error.message);
-          console.error("   Detalles:", nameResult.error.details);
-          console.error("   Hint:", nameResult.error.hint);
-          console.log("=".repeat(50));
-          
-          // Si falla el name, lanzar el error
-          const error = new Error(nameResult.error.message || "Error al actualizar el nombre");
-          error.code = nameResult.error.code;
-          error.details = nameResult.error.details;
-          error.hint = nameResult.error.hint;
-          throw error;
-        }
-        
-        if (nameResult.data) {
-          console.log("✅ Nombre actualizado exitosamente");
-          finalData = nameResult.data;
-        } else {
-          console.warn("⚠️ No se encontró usuario con ID:", id);
-          return res.status(404).json({ 
-            success: false, 
-            message: "Usuario no encontrado" 
-          });
-        }
+      if (!hasName) {
+        console.warn("⚠️ No hay campo 'name' para actualizar");
+        return res.status(400).json({
+          success: false,
+          message: "Se requiere al menos el campo 'name' para actualizar.",
+        });
       }
       
-      // Si hay avatar_url, intentar actualizarlo después (pero no fallar si no se puede)
-      if (hasAvatarUrl && finalData) {
-        console.log("📝 Intentando agregar avatar_url...");
-        const avatarOnlyUpdate = { avatar_url: updateData.avatar_url };
-        const avatarResult = await updateUser(id, avatarOnlyUpdate);
+      console.log("📝 Actualizando solo el campo 'name' (imagen se maneja en localStorage)...");
+      const result = await updateUser(id, updateData);
+      
+      if (result.error) {
+        console.error("❌ Error al actualizar name:");
+        console.error("   Código:", result.error.code);
+        console.error("   Mensaje:", result.error.message);
+        console.error("   Detalles:", result.error.details);
+        console.error("   Hint:", result.error.hint);
+        console.log("=".repeat(50));
         
-        if (!avatarResult.error && avatarResult.data) {
-          console.log("✅ avatar_url actualizado exitosamente");
-          finalData = avatarResult.data;
-          imageUpdated = true;
-        } else {
-          console.warn("⚠️ avatar_url no se pudo actualizar:");
-          console.warn("   Mensaje:", avatarResult.error?.message);
-          console.warn("   Código:", avatarResult.error?.code);
-          console.warn("   Detalles:", avatarResult.error?.details);
-          console.warn("   Hint:", avatarResult.error?.hint);
-          
-          // Si el error es que la columna no existe, dar mensaje específico
-          if (avatarResult.error?.code === '42703' || 
-              avatarResult.error?.message?.includes('column') || 
-              avatarResult.error?.message?.includes('does not exist') ||
-              avatarResult.error?.message?.includes('avatar_url')) {
-            console.error("❌ El campo 'avatar_url' no existe en la tabla 'users'");
-            console.error("   Por favor, ejecuta este SQL en Supabase:");
-            console.error("   ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;");
-          }
-          
-          // El nombre ya se guardó, así que continuamos con éxito pero sin imagen
-          imageUpdated = false;
-        }
-      } else if (hasAvatarUrl && !hasName) {
-        // Si solo hay avatar_url sin name, intentar directamente
-        console.log("📝 Intentando actualizar solo avatar_url...");
-        const avatarOnlyUpdate = { avatar_url: updateData.avatar_url };
-        const avatarResult = await updateUser(id, avatarOnlyUpdate);
-        
-        if (!avatarResult.error && avatarResult.data) {
-          console.log("✅ avatar_url actualizado exitosamente");
-          finalData = avatarResult.data;
-          imageUpdated = true;
-        } else {
-          console.error("❌ Error al actualizar avatar_url:");
-          console.error("   Código:", avatarResult.error?.code);
-          console.error("   Mensaje:", avatarResult.error?.message);
-          console.error("   Detalles:", avatarResult.error?.details);
-          console.error("   Hint:", avatarResult.error?.hint);
-          
-          // Si el error es que la columna no existe, dar mensaje específico
-          if (avatarResult.error?.code === '42703' || 
-              avatarResult.error?.message?.includes('column') || 
-              avatarResult.error?.message?.includes('does not exist') ||
-              avatarResult.error?.message?.includes('avatar_url')) {
-            const error = new Error("El campo 'avatar_url' no existe en la tabla 'users'. Por favor, ejecuta este SQL en Supabase: ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;");
-            error.code = avatarResult.error.code;
-            error.status = 400;
-            throw error;
-          }
-          
-          const error = new Error(avatarResult.error?.message || "Error al actualizar la imagen");
-          error.code = avatarResult.error?.code;
-          error.details = avatarResult.error?.details;
-          error.hint = avatarResult.error?.hint;
-          throw error;
-        }
+        const error = new Error(result.error.message || "Error al actualizar el nombre");
+        error.code = result.error.code;
+        error.details = result.error.details;
+        error.hint = result.error.hint;
+        throw error;
       }
       
-      // finalData ya se verifica arriba, así que no necesitamos verificar de nuevo
+      if (!result.data) {
+        console.warn("⚠️ No se encontró usuario con ID:", id);
+        return res.status(404).json({ 
+          success: false, 
+          message: "Usuario no encontrado" 
+        });
+      }
       
-      console.log("✅ Usuario actualizado exitosamente");
-      console.log("✅ Imagen actualizada:", imageUpdated);
-      console.log("✅ Datos devueltos:", JSON.stringify(finalData, null, 2));
+      console.log("✅ Nombre actualizado exitosamente");
+      console.log("✅ Nota: La imagen se maneja en localStorage del frontend");
+      console.log("✅ Datos devueltos:", JSON.stringify(result.data, null, 2));
       console.log("=".repeat(50));
       
       req.io?.emit("user_updated", {
         type: "user_updated",
-        data: finalData,
+        data: result.data,
         timestamp: new Date().toISOString(),
       });
       
-      // Mensaje según si la imagen se actualizó o no
-      let message = "Usuario actualizado exitosamente";
-      if (hasAvatarUrl && !imageUpdated) {
-        message = "Nombre actualizado exitosamente. ⚠️ La imagen no se pudo guardar porque el campo 'avatar_url' no existe en la tabla 'users'. Por favor, ejecuta este SQL en Supabase: ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;";
-      }
-      
       return res.status(200).json({
         success: true,
-        message: message,
-        data: finalData,
-        imageUpdated: imageUpdated
+        message: "Nombre actualizado exitosamente. La imagen se guarda localmente en tu navegador.",
+        data: result.data,
+        imageUpdated: false // Siempre false porque la imagen se maneja en localStorage
       });
     } catch (error) {
       console.error("=".repeat(50));
