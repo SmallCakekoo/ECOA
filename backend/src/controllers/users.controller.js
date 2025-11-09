@@ -158,8 +158,22 @@ export const UsersController = {
             finalData = avatarResult.data;
             imageUpdated = true;
           } else {
-            console.warn("⚠️ avatar_url no se pudo actualizar:", avatarResult.error?.message);
-            console.warn("   Código de error:", avatarResult.error?.code);
+            console.warn("⚠️ avatar_url no se pudo actualizar:");
+            console.warn("   Mensaje:", avatarResult.error?.message);
+            console.warn("   Código:", avatarResult.error?.code);
+            console.warn("   Detalles:", avatarResult.error?.details);
+            console.warn("   Hint:", avatarResult.error?.hint);
+            
+            // Si el error es que la columna no existe, dar mensaje específico
+            if (avatarResult.error?.code === '42703' || 
+                avatarResult.error?.message?.includes('column') || 
+                avatarResult.error?.message?.includes('does not exist') ||
+                avatarResult.error?.message?.includes('avatar_url')) {
+              console.error("❌ El campo 'avatar_url' no existe en la tabla 'users'");
+              console.error("   Por favor, ejecuta este SQL en Supabase:");
+              console.error("   ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;");
+            }
+            
             // El nombre ya se guardó, así que continuamos con éxito pero sin imagen
             imageUpdated = false;
           }
