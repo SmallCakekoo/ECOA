@@ -28,12 +28,32 @@ class AdminAPI {
       const response = await fetch(url, config);
 
       // Verificar si la respuesta es JSON válido
-      let data;
+      let data = {};
       const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        data = { message: "Respuesta no válida del servidor" };
+      
+      try {
+        if (contentType && contentType.includes("application/json")) {
+          const text = await response.text();
+          if (text) {
+            data = JSON.parse(text);
+          } else {
+            data = { message: "Respuesta vacía del servidor" };
+          }
+        } else {
+          const text = await response.text();
+          data = { 
+            message: text || `Error ${response.status}: ${response.statusText}`,
+            rawResponse: text
+          };
+        }
+      } catch (parseError) {
+        console.error("Error parseando respuesta JSON:", parseError);
+        const text = await response.text().catch(() => "");
+        data = { 
+          message: `Error ${response.status}: ${response.statusText}`,
+          rawResponse: text,
+          parseError: parseError.message
+        };
       }
 
       if (!response.ok) {
@@ -41,14 +61,29 @@ class AdminAPI {
         const error = new Error(
           data.message || `Error ${response.status}: ${response.statusText}`
         );
-        error.response = data; // Incluir la respuesta completa
+        error.response = data; // Incluir la respuesta completa (aunque esté vacía)
         error.status = response.status;
+        error.statusText = response.statusText;
         throw error;
       }
 
       return data;
     } catch (error) {
       console.error("API Error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        status: error.status,
+        response: error.response,
+        stack: error.stack
+      });
+
+      // Si el error no tiene response, crear uno básico
+      if (!error.response) {
+        error.response = {
+          message: error.message || "Error desconocido",
+          success: false
+        };
+      }
 
       // Manejar errores de CORS específicamente
       if (

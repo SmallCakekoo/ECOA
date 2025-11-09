@@ -37,12 +37,26 @@ const handleError = (error, res) => {
 
   console.error("❌ handleError llamado:", { status, message, errorCode: error?.code });
 
-  return res.status(status).json({ 
+  // Asegurar que los headers CORS estén configurados ANTES de enviar la respuesta
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin");
+  res.header("Content-Type", "application/json");
+
+  // Construir respuesta de error
+  const errorResponse = { 
     success: false, 
     message,
-    errorCode: error?.code,
-    details: process.env.NODE_ENV === 'development' ? error?.details : undefined
-  });
+    errorCode: error?.code || undefined,
+  };
+  
+  // Solo agregar details en desarrollo
+  if (process.env.NODE_ENV === 'development') {
+    errorResponse.details = error?.details;
+    errorResponse.stack = error?.stack;
+  }
+
+  return res.status(status).json(errorResponse);
 };
 
 export const UsersController = {
@@ -268,7 +282,19 @@ export const UsersController = {
       console.error("   Tipo:", error.constructor.name);
       console.error("   Mensaje:", error.message);
       console.error("   Stack:", error.stack);
+      console.error("   Error completo:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
       console.error("=".repeat(50));
+      
+      // Asegurar que el error tenga un status
+      if (!error.status) {
+        error.status = 500;
+      }
+      
+      // Asegurar que el error tenga un mensaje
+      if (!error.message) {
+        error.message = "Error interno del servidor";
+      }
+      
       return handleError(error, res);
     }
   },
