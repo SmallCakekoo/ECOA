@@ -209,7 +209,7 @@ export const UsersController = {
       // Mensaje según si la imagen se actualizó o no
       let message = "Usuario actualizado exitosamente";
       if (hasAvatarUrl && !imageUpdated) {
-        message = "Nombre actualizado exitosamente. Nota: El campo de imagen no está disponible en la base de datos. Por favor, agrega la columna 'avatar_url' a la tabla 'users' en Supabase.";
+        message = "Nombre actualizado exitosamente. ⚠️ La imagen no se pudo guardar porque el campo 'avatar_url' no existe en la tabla 'users'. Por favor, ejecuta este SQL en Supabase: ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;";
       }
       
       return res.status(200).json({
