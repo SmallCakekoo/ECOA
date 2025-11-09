@@ -130,15 +130,29 @@ function openEditProfileModal() {
   const nameInput = document.getElementById("profileName");
   const photoPreview = document.getElementById("profilePhotoPreview");
   const photoInput = document.getElementById("profilePhotoInput");
+  const uploadInner = document.querySelector("#profileUploadBox .upload-inner");
   
   if (nameInput) {
     nameInput.value = user.name || "";
   }
   
   if (photoPreview) {
-    const avatarUrl = user.image || user.avatar_url || 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
-    photoPreview.src = avatarUrl;
-    photoPreview.style.display = (user.image || user.avatar_url) ? "block" : "none";
+    const avatarUrl = user.image || user.avatar_url || user.image || '';
+    if (avatarUrl) {
+      photoPreview.src = avatarUrl;
+      photoPreview.style.display = "block";
+      if (uploadInner) {
+        uploadInner.style.display = "none";
+      }
+      // Guardar la imagen original para comparar después
+      photoPreview.setAttribute('data-original-image', avatarUrl);
+    } else {
+      photoPreview.style.display = "none";
+      if (uploadInner) {
+        uploadInner.style.display = "flex";
+      }
+      photoPreview.removeAttribute('data-original-image');
+    }
   }
   
   if (photoInput) {
@@ -222,8 +236,13 @@ function setupEditProfileModal() {
           if (photoPreview) {
             photoPreview.src = event.target.result;
             photoPreview.style.display = "block";
+            // Marcar que la imagen fue cambiada
+            photoPreview.setAttribute('data-image-changed', 'true');
             if (photoPreview.parentElement) {
-              photoPreview.parentElement.querySelector(".upload-inner").style.display = "none";
+              const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
+              if (uploadInner) {
+                uploadInner.style.display = "none";
+              }
             }
           }
         };
@@ -261,14 +280,28 @@ function setupEditProfileModal() {
       }
       
       try {
-        // Obtener imagen (base64 o URL)
+        // Obtener imagen solo si fue cambiada
         let imageUrl = null;
-        if (photoPreview && photoPreview.style.display !== "none") {
+        const imageChanged = photoPreview?.getAttribute('data-image-changed') === 'true';
+        const originalImage = photoPreview?.getAttribute('data-original-image');
+        
+        if (imageChanged && photoPreview && photoPreview.style.display !== "none") {
+          // Solo enviar si la imagen fue cambiada
           if (photoPreview.src.startsWith("data:")) {
+            // Es una nueva imagen en base64
             imageUrl = photoPreview.src;
-          } else if (photoPreview.src && !photoPreview.src.includes("unsplash.com")) {
+            console.log("📸 Enviando nueva imagen (data URL)");
+          } else if (photoPreview.src && photoPreview.src !== originalImage) {
+            // La imagen cambió a una URL diferente
             imageUrl = photoPreview.src;
+            console.log("📸 Enviando nueva imagen (URL)");
           }
+        } else if (!originalImage && photoPreview && photoPreview.style.display !== "none" && photoPreview.src.startsWith("data:")) {
+          // Si no había imagen original pero ahora hay una nueva
+          imageUrl = photoPreview.src;
+          console.log("📸 Enviando primera imagen");
+        } else {
+          console.log("📸 No se enviará imagen (no fue cambiada o no hay imagen nueva)");
         }
         
         // Actualizar usuario
@@ -278,6 +311,9 @@ function setupEditProfileModal() {
         
         if (imageUrl) {
           updateData.image = imageUrl;
+          console.log("📸 Imagen incluida en updateData, tamaño:", Math.round(imageUrl.length / 1024), "KB");
+        } else {
+          console.log("📸 No se incluye imagen en updateData");
         }
         
         const response = await window.AdminAPI.updateUser(user.id, updateData);
