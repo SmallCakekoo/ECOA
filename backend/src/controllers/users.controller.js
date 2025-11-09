@@ -134,25 +134,40 @@ export const UsersController = {
       const hasAvatarUrl = 'avatar_url' in updateData;
       const safeUpdate = { ...updateData };
       
-      // Intentar actualizar con todos los campos primero
-      let { data, error } = await updateUser(id, updateData);
-      
-      // Si falla y tiene avatar_url, intentar solo con name
-      if (error && hasAvatarUrl) {
-        console.warn("⚠️ Error al actualizar con avatar_url, intentando solo con name...");
-        delete safeUpdate.avatar_url;
+      // Si tiene avatar_url, intentar primero solo con name para asegurar que funcione
+      if (hasAvatarUrl && 'name' in updateData) {
+        console.log("📝 Intentando actualizar primero solo con name...");
+        const nameOnlyUpdate = { name: updateData.name };
+        const nameResult = await updateUser(id, nameOnlyUpdate);
         
-        if (Object.keys(safeUpdate).length > 0) {
-          const retryResult = await updateUser(id, safeUpdate);
-          if (!retryResult.error && retryResult.data) {
-            console.log("✅ Nombre actualizado exitosamente (avatar_url no disponible)");
-            data = retryResult.data;
-            error = null;
+        if (!nameResult.error && nameResult.data) {
+          console.log("✅ Nombre actualizado exitosamente");
+          // Ahora intentar agregar avatar_url
+          if (hasAvatarUrl) {
+            console.log("📝 Intentando agregar avatar_url...");
+            const { data: fullData, error: avatarError } = await updateUser(id, updateData);
+            if (!avatarError && fullData) {
+              console.log("✅ Nombre e imagen actualizados exitosamente");
+              var data = fullData;
+              var error = null;
+            } else {
+              console.warn("⚠️ avatar_url no se pudo actualizar, pero el nombre sí:", avatarError?.message);
+              // Usar los datos del nombre que sí funcionó
+              var data = nameResult.data;
+              var error = null;
+            }
           } else {
-            console.error("❌ Error incluso sin avatar_url:", retryResult.error?.message);
-            error = retryResult.error || error;
+            var data = nameResult.data;
+            var error = null;
           }
+        } else {
+          // Si falla incluso el name, usar el error original
+          console.error("❌ Error al actualizar name:", nameResult.error?.message);
+          var { data, error } = await updateUser(id, updateData);
         }
+      } else {
+        // Si no tiene avatar_url o no tiene name, intentar directamente
+        var { data, error } = await updateUser(id, updateData);
       }
       
       if (error) {
