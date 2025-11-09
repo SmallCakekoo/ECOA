@@ -135,6 +135,10 @@ export const UsersController = {
       const safeUpdate = { ...updateData };
       
       // Si tiene avatar_url, intentar primero solo con name para asegurar que funcione
+      let finalData = null;
+      let finalError = null;
+      let imageUpdated = false;
+      
       if (hasAvatarUrl && 'name' in updateData) {
         console.log("📝 Intentando actualizar primero solo con name...");
         const nameOnlyUpdate = { name: updateData.name };
@@ -142,46 +146,49 @@ export const UsersController = {
         
         if (!nameResult.error && nameResult.data) {
           console.log("✅ Nombre actualizado exitosamente");
+          finalData = nameResult.data;
+          
           // Ahora intentar agregar avatar_url
-          if (hasAvatarUrl) {
-            console.log("📝 Intentando agregar avatar_url...");
-            const { data: fullData, error: avatarError } = await updateUser(id, updateData);
-            if (!avatarError && fullData) {
-              console.log("✅ Nombre e imagen actualizados exitosamente");
-              var data = fullData;
-              var error = null;
-            } else {
-              console.warn("⚠️ avatar_url no se pudo actualizar, pero el nombre sí:", avatarError?.message);
-              // Usar los datos del nombre que sí funcionó
-              var data = nameResult.data;
-              var error = null;
-            }
+          console.log("📝 Intentando agregar avatar_url...");
+          const avatarOnlyUpdate = { avatar_url: updateData.avatar_url };
+          const avatarResult = await updateUser(id, avatarOnlyUpdate);
+          
+          if (!avatarResult.error && avatarResult.data) {
+            console.log("✅ avatar_url actualizado exitosamente");
+            finalData = avatarResult.data;
+            imageUpdated = true;
           } else {
-            var data = nameResult.data;
-            var error = null;
+            console.warn("⚠️ avatar_url no se pudo actualizar:", avatarResult.error?.message);
+            console.warn("   Código de error:", avatarResult.error?.code);
+            // El nombre ya se guardó, así que continuamos con éxito pero sin imagen
+            imageUpdated = false;
           }
         } else {
-          // Si falla incluso el name, usar el error original
           console.error("❌ Error al actualizar name:", nameResult.error?.message);
-          var { data, error } = await updateUser(id, updateData);
+          finalError = nameResult.error;
         }
       } else {
         // Si no tiene avatar_url o no tiene name, intentar directamente
-        var { data, error } = await updateUser(id, updateData);
+        const result = await updateUser(id, updateData);
+        finalData = result.data;
+        finalError = result.error;
+        if (!finalError && hasAvatarUrl) {
+          imageUpdated = true;
+        }
       }
       
-      if (error) {
+      if (finalError) {
         console.error("❌ ERROR DE SUPABASE:");
-        console.error("   Código:", error.code);
-        console.error("   Mensaje:", error.message);
-        console.error("   Detalles:", error.details);
-        console.error("   Hint:", error.hint);
-        console.error("   Error completo:", JSON.stringify(error, null, 2));
+        console.error("   Código:", finalError.code);
+        console.error("   Mensaje:", finalError.message);
+        console.error("   Detalles:", finalError.details);
+        console.error("   Hint:", finalError.hint);
+        console.error("   Error completo:", JSON.stringify(finalError, null, 2));
         console.log("=".repeat(50));
-        throw error;
+        throw finalError;
       }
       
-      if (!data) {
+      if (!finalData) {
         console.warn("⚠️ No se encontró usuario con ID:", id);
         return res
           .status(404)
@@ -189,19 +196,27 @@ export const UsersController = {
       }
       
       console.log("✅ Usuario actualizado exitosamente");
-      console.log("✅ Datos devueltos:", JSON.stringify(data, null, 2));
+      console.log("✅ Imagen actualizada:", imageUpdated);
+      console.log("✅ Datos devueltos:", JSON.stringify(finalData, null, 2));
       console.log("=".repeat(50));
       
       req.io?.emit("user_updated", {
         type: "user_updated",
-        data,
+        data: finalData,
         timestamp: new Date().toISOString(),
       });
       
+      // Mensaje según si la imagen se actualizó o no
+      let message = "Usuario actualizado exitosamente";
+      if (hasAvatarUrl && !imageUpdated) {
+        message = "Nombre actualizado exitosamente. Nota: El campo de imagen no está disponible en la base de datos. Por favor, agrega la columna 'avatar_url' a la tabla 'users' en Supabase.";
+      }
+      
       return res.status(200).json({
         success: true,
-        message: "Usuario actualizado exitosamente",
-        data,
+        message: message,
+        data: finalData,
+        imageUpdated: imageUpdated
       });
     } catch (error) {
       console.error("=".repeat(50));
