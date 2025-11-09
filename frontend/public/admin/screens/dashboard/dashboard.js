@@ -527,19 +527,15 @@ function setupEditProfileModal() {
         };
         
         if (imageUrl) {
-          // NUNCA enviar data URL directamente - solo URLs
+          // El backend devuelve data URLs (porque no tiene almacenamiento permanente)
+          // Esto está bien - el backend procesa la imagen y devuelve el data URL
+          // Enviar como avatar_url (preferido) y image para compatibilidad
+          updateData.avatar_url = imageUrl;
+          updateData.image = imageUrl;
+          
           if (imageUrl.startsWith("data:")) {
-            console.error("❌ Error: Se intentó enviar data URL directamente. Esto no debería pasar.");
-            alert("Error: No se pudo procesar la imagen correctamente. Por favor, intenta de nuevo.");
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Guardar Cambios";
-            }
-            return;
+            console.log("📸 Imagen incluida en updateData (data URL del backend), tamaño:", Math.round(imageUrl.length / 1024), "KB");
           } else {
-            // Si es una URL, enviar como avatar_url (preferido) y image para compatibilidad
-            updateData.avatar_url = imageUrl;
-            updateData.image = imageUrl;
             console.log("📸 Imagen incluida en updateData (URL):", imageUrl.substring(0, 50) + "...");
           }
         } else {
