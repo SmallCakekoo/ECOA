@@ -137,17 +137,43 @@ function openEditProfileModal() {
   }
   
   if (photoPreview) {
-    const avatarUrl = user.image || user.avatar_url || user.image || '';
-    if (avatarUrl) {
+    const avatarUrl = user.image || user.avatar_url || '';
+    
+    // Limpiar estado anterior
+    photoPreview.removeAttribute('data-image-changed');
+    
+    if (avatarUrl && avatarUrl.trim() !== '') {
+      // Hay una imagen original - cargarla y mostrarla
       photoPreview.src = avatarUrl;
       photoPreview.style.display = "block";
+      photoPreview.style.opacity = "1";
+      
+      // Ocultar el upload-inner cuando hay imagen
       if (uploadInner) {
         uploadInner.style.display = "none";
       }
+      
       // Guardar la imagen original para comparar después
       photoPreview.setAttribute('data-original-image', avatarUrl);
+      
+      // Manejar error de carga de imagen
+      photoPreview.onerror = () => {
+        console.warn("⚠️ Error cargando imagen original, usando placeholder");
+        photoPreview.style.display = "none";
+        if (uploadInner) {
+          uploadInner.style.display = "flex";
+        }
+        photoPreview.removeAttribute('data-original-image');
+      };
+      
+      // Confirmar que la imagen cargó correctamente
+      photoPreview.onload = () => {
+        console.log("✅ Imagen original cargada correctamente:", avatarUrl.substring(0, 50));
+      };
     } else {
+      // No hay imagen original - mostrar solo el upload box
       photoPreview.style.display = "none";
+      photoPreview.src = "";
       if (uploadInner) {
         uploadInner.style.display = "flex";
       }
