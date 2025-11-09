@@ -342,18 +342,82 @@ function setupEditProfileModal() {
         if (imageChanged && photoPreview && photoPreview.style.display !== "none") {
           // Solo enviar si la imagen fue cambiada
           if (photoPreview.src.startsWith("data:")) {
-            // Es una nueva imagen en base64
-            imageUrl = photoPreview.src;
-            console.log("📸 Enviando nueva imagen (data URL)");
+            // Es una nueva imagen en base64 - convertir a File y subir
+            console.log("📸 Imagen nueva detectada (data URL), convirtiendo y subiendo...");
+            try {
+              // Convertir data URL a Blob directamente
+              const dataUrl = photoPreview.src;
+              const arr = dataUrl.split(',');
+              if (arr.length < 2) {
+                throw new Error("Formato de data URL inválido");
+              }
+              
+              const mimeMatch = arr[0].match(/:(.*?);/);
+              const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+              const bstr = atob(arr[1]);
+              let n = bstr.length;
+              const u8arr = new Uint8Array(n);
+              while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+              }
+              const blob = new Blob([u8arr], { type: mime });
+              
+              // Crear un File desde el Blob
+              const file = new File([blob], `profile-${user.id}-${Date.now()}.jpg`, {
+                type: mime
+              });
+              
+              console.log("📤 Subiendo imagen al servidor...");
+              // Subir la imagen usando el método uploadImage
+              imageUrl = await window.AdminAPI.uploadImage(file);
+              console.log("✅ Imagen subida exitosamente:", imageUrl.substring(0, 50) + "...");
+            } catch (uploadError) {
+              console.error("❌ Error al subir imagen:", uploadError);
+              // Si falla la subida, usar el data URL como fallback
+              imageUrl = photoPreview.src;
+              console.log("⚠️ Usando data URL como fallback");
+            }
           } else if (photoPreview.src && photoPreview.src !== originalImage) {
-            // La imagen cambió a una URL diferente
+            // La imagen cambió a una URL diferente (ya está subida)
             imageUrl = photoPreview.src;
             console.log("📸 Enviando nueva imagen (URL)");
           }
         } else if (!originalImage && photoPreview && photoPreview.style.display !== "none" && photoPreview.src.startsWith("data:")) {
           // Si no había imagen original pero ahora hay una nueva
-          imageUrl = photoPreview.src;
-          console.log("📸 Enviando primera imagen");
+          console.log("📸 Primera imagen detectada (data URL), convirtiendo y subiendo...");
+          try {
+            // Convertir data URL a Blob directamente
+            const dataUrl = photoPreview.src;
+            const arr = dataUrl.split(',');
+            if (arr.length < 2) {
+              throw new Error("Formato de data URL inválido");
+            }
+            
+            const mimeMatch = arr[0].match(/:(.*?);/);
+            const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+              u8arr[n] = bstr.charCodeAt(n);
+            }
+            const blob = new Blob([u8arr], { type: mime });
+            
+            // Crear un File desde el Blob
+            const file = new File([blob], `profile-${user.id}-${Date.now()}.jpg`, {
+              type: mime
+            });
+            
+            console.log("📤 Subiendo imagen al servidor...");
+            // Subir la imagen usando el método uploadImage
+            imageUrl = await window.AdminAPI.uploadImage(file);
+            console.log("✅ Imagen subida exitosamente:", imageUrl.substring(0, 50) + "...");
+          } catch (uploadError) {
+            console.error("❌ Error al subir imagen:", uploadError);
+            // Si falla la subida, usar el data URL como fallback
+            imageUrl = photoPreview.src;
+            console.log("⚠️ Usando data URL como fallback");
+          }
         } else {
           console.log("📸 No se enviará imagen (no fue cambiada o no hay imagen nueva)");
         }
@@ -364,8 +428,16 @@ function setupEditProfileModal() {
         };
         
         if (imageUrl) {
-          updateData.image = imageUrl;
-          console.log("📸 Imagen incluida en updateData, tamaño:", Math.round(imageUrl.length / 1024), "KB");
+          // Enviar como avatar_url si es una URL, o como image si es data URL
+          if (imageUrl.startsWith("data:")) {
+            updateData.image = imageUrl;
+            console.log("📸 Imagen incluida en updateData (data URL), tamaño:", Math.round(imageUrl.length / 1024), "KB");
+          } else {
+            // Si es una URL, enviar como avatar_url (preferido) o image
+            updateData.avatar_url = imageUrl;
+            updateData.image = imageUrl; // También como image para compatibilidad
+            console.log("📸 Imagen incluida en updateData (URL):", imageUrl.substring(0, 50) + "...");
+          }
         } else {
           console.log("📸 No se incluye imagen en updateData");
         }
