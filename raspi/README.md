@@ -18,6 +18,7 @@ Hello, welcome to the documentation for the Raspberry Pi 400 IoT integration par
 ```bash
 git clone https://github.com/SmallCakekoo/ECOA
 cd ECOA
+cd raspi
 ```
 
 #### 2. Install system dependencies
@@ -54,17 +55,8 @@ dtoverlay=w1-gpio
 
 #### 5. Configure environment variables
 
-```bash
-cp .env.example .env
-nano .env
-```
-
-**Edit with your real credentials:**
-
 ```env
 BACKEND_URL=https://your-deployed-backend.vercel.app/api
-SUPABASE_URL=https://abcdefgh.supabase.co
-SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-real-key...
 ```
 
 #### 6. Add user to groups
