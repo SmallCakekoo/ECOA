@@ -1,150 +1,150 @@
 # 🌱 ECOA Backend
 
-API RESTful construida con Node.js, Express.js, Supabase y Socket.IO para el sistema de monitoreo inteligente de plantas ECOA.
+RESTful API built with Node.js, Express.js, Supabase, and Socket.IO for the ECOA smart plant monitoring system.
 
-## Características
+## Features
 
-- **API REST** completa con Express.js 5.1
-- **Base de datos** Supabase PostgreSQL
-- **Tiempo Real** con Socket.IO 4.8
-- **APIs Externas** para datos de plantas (Perenual)
-- **Arquitectura modular** y escalable
+- **Complete REST API** with Express.js 5.1
+- **Supabase PostgreSQL** database
+- **Real-time** with Socket.IO 4.8
+- **External APIs** for plant data (Perenual)
+- **Modular and scalable** architecture
 
-## Inicio Rápido
+## Quick Start
 
-### Prerrequisitos
+### Prerequisites
 
 - Node.js >= 18.0.0
 - npm >= 8.0.0
-- Cuenta activa en Supabase
+- Active Supabase account
 
-### Instalación
+### Installation
 
-1. **Instalar dependencias**
+1. **Install dependencies**
 
 ```bash
 cd backend
 npm install
 ```
 
-2. **Configurar variables de entorno**
+2. **Configure environment variables**
 
 ```bash
 cp .env.example .env
-# Edita .env con tus credenciales
+# Edit .env with your credentials
 ```
 
-3. **Iniciar servidor de desarrollo**
+3. **Start development server**
 
 ```bash
 npm run dev
 ```
 
-4. **Iniciar servidor de producción**
+4. **Start production server**
 
 ```bash
 npm start
 ```
 
-El servidor estará disponible en `http://localhost:3000`
+The server will be available at `http://localhost:3000`
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 backend/
 ├── src/
-│   ├── routes/           # Rutas de la API
-│   │   ├── users.js      # Gestión de usuarios
-│   │   ├── plants.js     # CRUD de plantas
-│   │   ├── alerts.js     # Sistema de alertas
-│   │   ├── donations.js  # Donaciones comunitarias
-│   │   ├── accessories.js # Accesorios para plantas
-│   │   ├── achievements.js # Sistema de logros
-│   │   └── integrations.js # APIs externas
-│   ├── integrations/     # Servicios externos
+│   ├── routes/           # API routes
+│   │   ├── users.js      # User management
+│   │   ├── plants.js     # Plant CRUD
+│   │   ├── alerts.js     # Alert system
+│   │   ├── donations.js  # Community donations
+│   │   ├── accessories.js # Plant accessories
+│   │   ├── achievements.js # Achievement system
+│   │   └── integrations.js # External APIs
+│   ├── integrations/     # External services
 │   │   └── perenual.service.js    # Perenual API
 │   ├── sockets/          # Socket.IO handlers
-│   │   └── index.js      # Configuración WebSockets
-│   ├── db.js            # Conexión Supabase
-│   └── index.js         # Servidor principal
+│   │   └── index.js      # WebSocket configuration
+│   ├── db.js            # Supabase connection
+│   └── index.js         # Main server
 ├── package.json
 └── README.md
 ```
 
-## Scripts Disponibles
+## Available Scripts
 
 ```bash
-# Desarrollo con recarga automática
+# Development with auto-reload
 npm run dev
 
-# Producción
+# Production
 npm start
 
-# Pruebas (pendiente implementar)
+# Tests (pending implementation)
 npm test
 ```
 
-## Endpoints Principales
+## Main Endpoints
 
-### Usuarios (`/users`)
-
-```http
-GET    /users           # Listar usuarios
-GET    /users/:id       # Usuario por ID
-POST   /users           # Crear usuario
-PUT    /users/:id       # Actualizar usuario
-DELETE /users/:id       # Eliminar usuario
-GET    /users/:id/plants # Plantas del usuario
-```
-
-### Plantas (`/plants`)
+### Users (`/users`)
 
 ```http
-GET    /plants          # Listar plantas
-GET    /plants/:id      # Planta por ID
-POST   /plants          # Crear planta
-PUT    /plants/:id      # Actualizar planta
-PUT    /plants/:id/metrics # Actualizar métricas
-DELETE /plants/:id      # Eliminar planta
+GET    /users           # List users
+GET    /users/:id       # User by ID
+POST   /users           # Create user
+PUT    /users/:id       # Update user
+DELETE /users/:id       # Delete user
+GET    /users/:id/plants # User's plants
 ```
 
-### Alertas (`/alerts`)
+### Plants (`/plants`)
 
 ```http
-GET    /alerts          # Listar alertas
-POST   /alerts          # Crear alerta
-PUT    /alerts/:id/status # Cambiar estado
-GET    /alerts/plant/:plant_id # Alertas por planta
+GET    /plants          # List plants
+GET    /plants/:id      # Plant by ID
+POST   /plants          # Create plant
+PUT    /plants/:id      # Update plant
+PUT    /plants/:id/metrics # Update metrics
+DELETE /plants/:id      # Delete plant
 ```
 
-### Integraciones (`/api/integrations`)
+### Alerts (`/alerts`)
 
 ```http
-GET    /api/integrations/perenual/search          # Buscar plantas
-GET    /api/integrations/perenual/details/:plantId # Detalle por ID
-GET    /api/integrations/perenual/species         # Listar especies
-GET    /api/integrations/perenual/families        # Listar familias
-POST   /api/integrations/perenual/identify       # Identificar planta por imagen
-POST   /api/integrations/perenual/identify-health # Identificar con análisis de salud
+GET    /alerts          # List alerts
+POST   /alerts          # Create alert
+PUT    /alerts/:id/status # Change status
+GET    /alerts/plant/:plant_id # Alerts by plant
 ```
 
-## Integración Perenual
+### Integrations (`/api/integrations`)
 
-Variables de entorno requeridas y ejemplo de uso en los endpoints de arriba.
+```http
+GET    /api/integrations/perenual/search          # Search plants
+GET    /api/integrations/perenual/details/:plantId # Detail by ID
+GET    /api/integrations/perenual/species         # List species
+GET    /api/integrations/perenual/families        # List families
+POST   /api/integrations/perenual/identify       # Identify plant by image
+POST   /api/integrations/perenual/identify-health # Identify with health analysis
+```
 
-### Características de la API de Perenual
+## Perenual Integration
 
-- **Más de 10,000 especies de plantas** en la base de datos
-- **Identificación de plantas por imagen** con análisis de salud
-- **Datos detallados** incluyendo cuidado, riego, luz solar, etc.
-- **Guías de cuidado** específicas para cada planta
-- **Análisis de enfermedades** y problemas de salud
+Required environment variables and usage example in the endpoints above.
 
-## Socket.IO - Tiempo Real
+### Perenual API Features
 
-### Eventos Disponibles
+- **Over 10,000 plant species** in the database
+- **Plant identification by image** with health analysis
+- **Detailed data** including care, watering, sunlight, etc.
+- **Specific care guides** for each plant
+- **Disease analysis** and health problems
 
-**Cliente → Servidor:**
+## Socket.IO - Real-time
+
+### Available Events
+
+**Client → Server:**
 
 ```javascript
 socket.emit("join_user_room", userId);
@@ -152,33 +152,33 @@ socket.emit("join_plant_room", plantId);
 socket.emit("plant_metrics_update", { plantId, metrics });
 ```
 
-**Servidor → Cliente:**
+**Server → Client:**
 
 ```javascript
 socket.on("plant_created", (data) => {
-  /* Nueva planta */
+  /* New plant */
 });
 socket.on("plant_metrics_updated", (data) => {
-  /* Métricas actualizadas */
+  /* Updated metrics */
 });
 socket.on("alert_created", (data) => {
-  /* Nueva alerta */
+  /* New alert */
 });
 socket.on("notification_received", (data) => {
-  /* Notificación */
+  /* Notification */
 });
 ```
 
-### Salas (Rooms)
+### Rooms
 
-- `user_${userId}` - Eventos específicos del usuario
-- `plant_${plantId}` - Eventos específicos de la planta
-- `notifications_${userId}` - Notificaciones del usuario
-- `general` - Eventos globales
+- `user_${userId}` - User-specific events
+- `plant_${plantId}` - Plant-specific events
+- `notifications_${userId}` - User notifications
+- `general` - Global events
 
-## Base de Datos (Supabase)
+## Database (Supabase)
 
-### Tablas Principales
+### Main Tables
 
 **users**
 
@@ -212,82 +212,82 @@ socket.on("notification_received", (data) => {
 - priority (text)
 - status (text, default: 'active')
 
-## Configuración
+## Configuration
 
-### Variables de Entorno (.env)
+### Environment Variables (.env)
 
 ```env
 # Supabase Configuration
-SUPABASE_URL=https://tu-proyecto.supabase.co
-SUPABASE_ANON_KEY=tu_anon_key_aqui
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_anon_key_here
 
-# Perenual API (para plantas)
-PERENUAL_API_KEY=tu_perenual_api_key
+# Perenual API (for plants)
+PERENUAL_API_KEY=your_perenual_api_key
 
-# Servidor
+# Server
 PORT=3000
 NODE_ENV=development
 ```
 
 ### Supabase Setup
 
-1. Crea un nuevo proyecto en [supabase.com](https://supabase.com)
-2. Ejecuta las migraciones SQL para crear las tablas
-3. Configura las políticas RLS (Row Level Security)
-4. Obtén tu URL y Anon Key del dashboard
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Run SQL migrations to create tables
+3. Configure RLS (Row Level Security) policies
+4. Get your URL and Anon Key from the dashboard
 
-## Monitoreo y Logging
+## Monitoring and Logging
 
 ```javascript
 // Health Check
 GET /health
 
-// Respuesta
+// Response
 {
   "success": true,
-  "message": "Servidor ECOA funcionando correctamente",
+  "message": "ECOA server running correctly",
   "timestamp": "2024-01-15T10:30:00.000Z",
   "uptime": 3600.5
 }
 ```
 
-## Seguridad
+## Security
 
-- **Validación de UUID** para todos los parámetros de ID
-- **Sanitización** de datos de entrada
-- **Rate limiting** en APIs externas
-- **CORS** configurado para frontend
-- **Error handling** centralizado
+- **UUID validation** for all ID parameters
+- **Input sanitization**
+- **Rate limiting** on external APIs
+- **CORS** configured for frontend
+- **Centralized error handling**
 
 ## Debugging
 
 ```bash
-# Logs detallados
+# Detailed logs
 DEBUG=* npm run dev
 
-# Solo logs de Socket.IO
+# Socket.IO logs only
 DEBUG=socket.io* npm run dev
 
-# Logs de base de datos
+# Database logs
 DEBUG=supabase* npm run dev
 ```
 
 ## Performance
 
-- **Conexiones concurrentes**: 1000+ con Socket.IO
-- **Response time**: < 100ms promedio
-- **Database queries**: Optimizadas con índices
-- **Memory usage**: ~50MB en idle
+- **Concurrent connections**: 1000+ with Socket.IO
+- **Response time**: < 100ms average
+- **Database queries**: Optimized with indexes
+- **Memory usage**: ~50MB at idle
 
 ## Deployment
 
-### Desarrollo Local
+### Local Development
 
 ```bash
 npm run dev
 ```
 
-## Recursos Adicionales
+## Additional Resources
 
 - [Express.js Documentation](https://expressjs.com/)
 - [Socket.IO Documentation](https://socket.io/docs/)

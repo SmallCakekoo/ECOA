@@ -1,0 +1,3 @@
+id,serial_number,model,location,last_connection,foundation_id
+71df7e87-a7e4-48dc-a370-6c5a0b14ce81,ARDUINO-001,Arduino Uno + DHT11,Invernadero Fundación Verde Esperanza,2025-10-07 11:55:37.632198+00,8f8b9c21-02a2-4f9a-9b3c-1d58a7d8ab77
+e62b6a47-83a3-4ce3-a777-34a21f10e42f,SN-12345,ModelX,Greenhouse A,2025-10-07 12:00:55+00,f7ec854a-a338-4c62-b48e-7abe3bbe2331

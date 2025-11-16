@@ -1,126 +1,122 @@
 # 🌱 ECOA Frontend
 
-Aplicación web cliente para el sistema de monitoreo inteligente de plantas ECOA, construida con HTML5, CSS3, JavaScript ES6+ y Vite.
+Web client application for the ECOA smart plant monitoring system, built with HTML5, CSS3, JavaScript ES6+, and Vite.
 
-## Características
+## Features
 
-- **Interfaz de Usuario** moderna y responsive
-- **Panel Cliente** para usuarios finales
-- **Panel Administrador** para gestión del sistema
-- **Tiempo Real** con Socket.IO client
+- **Modern and responsive** User Interface
+- **Client Dashboard** for end users
+- **Admin Panel** for system management
+- **Real-time** with Socket.IO client
 - **PWA Ready** (Progressive Web App)
-- **Optimización** con Vite bundler
+- **Optimization** with Vite bundler
 
-## Inicio Rápido
+## Quick Start
 
-### Prerrequisitos
+### Prerequisites
 
 - Node.js >= 18.0.0
 - npm >= 8.0.0
-- Backend ECOA ejecutándose (puerto 3000)
+- ECOA Backend running (port 3000)
 
-### Instalación
+### Installation
 
-1. **Instalar dependencias**
+1. **Install dependencies**
 ```bash
 cd frontend
 npm install
 ```
 
-2. **Iniciar servidor de desarrollo**
+2. **Start development server**
 ```bash
 npm run dev
 ```
 
-3. **Build para producción**
+3. **Build for production**
 ```bash
 npm run build
 ```
 
-4. **Preview del build**
+4. **Preview the build**
 ```bash
 npm run preview
 ```
 
-La aplicación estará disponible en `http://localhost:5000`
+The application will be available at `http://localhost:5000`
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 frontend/
 ├── public/
-│   ├── client/           # Panel de Usuario
-│   │   ├── index.html    # Página principal cliente
-│   │   ├── app.js        # Lógica JavaScript
-│   │   └── style.css     # Estilos CSS
-│   └── admin/            # Panel de Administración
-│       ├── index.html    # Dashboard administrativo
-│       ├── app.js        # Lógica admin
-│       └── style.css     # Estilos admin
+│   ├── client/           # User Panel
+│   └── admin/            # Admin Panel
 ├── package.json
-├── vite.config.js        # Configuración Vite
+├── package-lock.json
+├── vercel.json
+├── .gitignore
+├── vite.config.js        # Vite configuration
 └── README.md
 ```
 
-## Scripts Disponibles
+## Available Scripts
 
 ```bash
-# Servidor de desarrollo
+# Development server
 npm run dev
 
-# Build para producción
+# Production build
 npm run build
 
-# Preview del build
+# Build preview
 npm run preview
 ```
 
-## Interfaces Disponibles
+## Available Interfaces
 
-### Panel Cliente (`/client`)
-**Funcionalidades:**
-- Dashboard personal de plantas
-- Monitoreo de métricas en tiempo real
-- Chat con plantas usando IA
-- Sistema de alertas y notificaciones
-- Perfil de usuario y logros
-- Donaciones comunitarias
+### Client Panel (`/client`)
+**Features:**
+- Personal plant dashboard
+- Real-time metrics monitoring
+- Chat with plants using AI
+- Alert and notification system
+- User profile and achievements
+- Community donations
 
-**Características técnicas:**
-- Responsive design para mobile y desktop
-- Conexión Socket.IO para actualizaciones live
-- LocalStorage para datos temporales
-- Fetch API para comunicación con backend
+**Technical features:**
+- Responsive design for mobile and desktop
+- Socket.IO connection for live updates
+- LocalStorage for temporary data
+- Fetch API for backend communication
 
-### Panel Admin (`/admin`)
-**Funcionalidades:**
-- Gestión de usuarios del sistema
-- Administración de plantas globales
-- Control de alertas y notificaciones
-- Estadísticas y métricas del sistema
-- Gestión de logros y accesorios
-- Configuración de integraciones
+### Admin Panel (`/admin`)
+**Features:**
+- System user management
+- Global plant administration
+- Alert and notification control
+- System statistics and metrics
+- Achievement and accessory management
+- Integration configuration
 
-## Tecnologías Utilizadas
+## Technologies Used
 
 ### Core
-- **HTML5** - Estructura semántica
-- **CSS3** - Estilos modernos con Flexbox/Grid
-- **JavaScript ES6+** - Lógica de aplicación
-- **Vite 7.1** - Build tool y dev server
+- **HTML5** - Semantic structure
+- **CSS3** - Modern styles with Flexbox/Grid
+- **JavaScript ES6+** - Application logic
+- **Vite 7.1** - Build tool and dev server
 
-### Librerías y APIs
-- **Socket.IO Client** - WebSockets para tiempo real
-- **Fetch API** - Comunicación HTTP
+### Libraries and APIs
+- **Socket.IO Client** - WebSockets for real-time
+- **Fetch API** - HTTP communication
 - **Web APIs** - Geolocation, Notifications, etc.
 
-### Herramientas de Desarrollo
-- **ESLint** - Linter para JavaScript
-- **Vite** - Bundler ultra-rápido
-- **Hot Module Replacement** - Recarga automática
+### Development Tools
+- **ESLint** - JavaScript linter
+- **Vite** - Ultra-fast bundler
+- **Hot Module Replacement** - Automatic reload
 
-
-## Configuración de Vite
+## Vite Configuration (original)
 
 ```javascript
 // vite.config.js

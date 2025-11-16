@@ -1,161 +1,154 @@
 # 🌱 ECOA - Ecosystem Companion Optimization Assistant
 
-Sistema inteligente de monitoreo y cuidado de plantas que permite a los usuarios gestionar su jardín personal mediante tecnología IoT, inteligencia artificial y gamificación.
+Smart plant monitoring and care system that allows users to manage their personal garden through IoT technology, artificial intelligence, and gamification.
 
-## Descripción
+## Description
 
-ECOA es una plataforma completa que combina:
-- **Backend API RESTful** con Node.js, Express y Supabase
-- **Frontend web** con HTML, CSS y JavaScript vanilla
-- **Integración con Raspberry Pi** para sensores IoT
-- **Inteligencia Artificial** con Google Gemini para plantas que "hablan"
-- **APIs externas** para identificación de plantas y datos climáticos
+ECOA is a complete platform that combines:
+- **RESTful API Backend** with Node.js, Express, and Supabase
+- **Web Frontend** with HTML, CSS, and vanilla JavaScript
+- **Raspberry Pi Integration** for IoT sensors
+- **Artificial Intelligence** with Google Gemini for plants that "talk"
+- **External APIs** for plant identification and weather data
 
-## Arquitectura del Sistema
+## System Architecture
 
 ```
 ECOA/
-├── backend/          # API RESTful con Express y Socket.IO
-├── frontend/         # Aplicación web (cliente y admin)
-├── raspi/            # Scripts para Raspberry Pi
-├── integrations/     # APIs externas (OpenAI, Weather, Plant.id)
-└── docs/             # Documentación técnica
+├── backend/          # RESTful API with Express and Socket.IO
+├── frontend/         # Web application (client and admin)
+├── raspi/            # Raspberry Pi scripts
+├── integrations/     # External APIs (OpenAI, Weather, Plant.id)
+└── docs/             # Technical documentation
 ```
 
-## Inicio Rápido
+## Quick Start
 
-### Prerrequisitos
+### Prerequisites
 
 - **Node.js** >= 18.0.0
 - **npm** >= 8.0.0
-- **Python** 3.8+ (para Raspberry Pi)
-- Cuenta en **Supabase**
-- API Keys para servicios externos
+- **Python** 3.8+ (for Raspberry Pi)
+- **Supabase** account
+- API Keys for external services
 
-### Instalación
+### Installation
 
-1. **Clonar el repositorio**
+1. **Clone the repository**
 ```bash
 git clone https://github.com/smallcakekoo/ecoa.git
 cd ecoa
 ```
 
-2. **Configurar Backend**
+2. **Setup Backend**
 ```bash
 cd backend
 npm install
 npm run dev
 ```
 
-3. **Configurar Frontend**
+3. **Setup Frontend**
 ```bash
 cd ../frontend
 npm install
 npm run dev
 ```
 
-4. **Configurar Raspberry Pi** (opcional)
+4. **Setup Raspberry Pi** (optional)
 ```bash
 cd ../raspi
 pip install -r requirements.txt
 python main.py
 ```
 
-## Servicios Principales
+## Main Services
 
-### Backend API (Puerto 3000)
-- **Usuarios**: Gestión de cuentas y perfiles
-- **Plantas**: CRUD de plantas y métricas
-- **Alertas**: Sistema de notificaciones
-- **Logros**: Gamificación y recompensas
-- **Donaciones**: Sistema de apoyo comunitario
-- **Integraciones**: APIs externas
+### Backend API (Port 3000)
+- **Users**: Account and profile management
+- **Plants**: CRUD for plants and metrics
+- **Alerts**: Notification system
+- **Achievements**: Gamification and rewards
+- **Donations**: Community support system
+- **Integrations**: External APIs
 
-### Frontend Web (Puerto 5000)
-- **Panel Cliente**: Interfaz para usuarios finales
-- **Panel Admin**: Administración del sistema
-- **Tiempo Real**: Socket.IO para actualizaciones live
+### Web Frontend (Port 5000)
+- **Client Dashboard**: Interface for end users
+- **Admin Panel**: System administration
+- **Real-time**: Socket.IO for live updates
 
-## APIs Integradas
+## Integrated APIs
 
-- **Google Gemini**: IA para plantas que "hablan"
-- **Open-Meteo**: Datos meteorológicos
-- **Trefle.io**: Base de datos de plantas
-- **Supabase**: Base de datos y autenticación
+- **Perenual**: Plants
+- **Supabase**: Database and authentication
 
-## Características Principales
+## Main Features
 
-### Plantas Inteligentes
-Las plantas pueden "comunicarse" contigo gracias a Google Gemini:
+### Smart Plants
+Plants can "communicate" with you thanks to Google Gemini:
 ```javascript
-// Ejemplo de interacción
+// Interaction example
 POST /api/integrations/gemini/chat
 {
-  "message": "¿Cómo te sientes hoy?",
-  "plantType": "rosa",
-  "plantName": "Rosa del jardín"
+  "message": "How are you feeling today?",
+  "plantType": "rose",
+  "plantName": "Garden Rose"
 }
 ```
 
-### Monitoreo IoT
-Sensores de Raspberry Pi para:
-- Humedad del suelo
-- Temperatura ambiente
-- Nivel de luz
-- Control de riego automático
+### IoT Monitoring
+Raspberry Pi sensors for:
+- Soil moisture
+- Ambient temperature
+- Light level
+- Automatic watering control
 
-### Sistema de Gamificación
-- Logros por cuidar plantas
-- Niveles de experiencia
-- Sistema de donaciones comunitarias
+### Gamification System
+- Achievements for plant care
+- Experience levels
+- Community donation system
 
-### Alertas en Tiempo Real
-Socket.IO para notificaciones instantáneas:
-- Plantas que necesitan agua
-- Cambios en métricas
-- Logros desbloqueados
+### Real-time Alerts
+Socket.IO for instant notifications:
+- Plants that need water
+- Changes in metrics
+- Unlocked achievements
 
-## Tecnologías Utilizadas
+## Technologies Used
 
 ### Backend
 - **Node.js** + **Express.js**
-- **Socket.IO** para tiempo real
-- **Supabase** como base de datos
-- **Google Gemini** para IA
+- **Socket.IO** for real-time
+- **Supabase** as database
 
 ### Frontend
 - **HTML5** + **CSS3** + **JavaScript ES6+**
-- **Vite** como bundler
-- **Socket.IO Client** para tiempo real
+- **Vite** as bundler
+- **Socket.IO Client** for real-time
 
 ### IoT
-- **Raspberry Pi** con Python
-- Sensores de humedad y temperatura
-- Bombas de agua automáticas
+- **Raspberry Pi** with Python
+- Humidity and temperature sensors
+- Automatic water pumps
 
-## Documentación Detallada
+## Detailed Documentation
 
-- [**Backend README**](./backend/README.md) - Configuración de la API
-- [**Frontend README**](./frontend/README.md) - Configuración de la web
-- [**Documentación de API**](./docs/api.md) - Endpoints disponibles
-- [**Arquitectura del Sistema**](./docs/arquitectura.md) - Diseño técnico
-- [**Base de Datos**](./docs/base_datos.md) - Esquema de Supabase
+- [**Backend README**](./backend/README.md) - API setup
+- [**Frontend README**](./frontend/README.md) - Web setup
+- [**API Documentation**](./docs/api.md) - Available endpoints
+- [**System Architecture**](./docs/arquitectura.md) - Technical design
+- [**Database**](./docs/base_datos.md) - Supabase schema
 
-## Variables de Entorno
+## Environment Variables
 
-Crea los archivos `.env` correspondientes:
+Create the corresponding `.env` files:
 
 ### Backend (.env)
 ```env
 # Supabase
-SUPABASE_URL=tu_supabase_url
-SUPABASE_ANON_KEY=tu_supabase_anon_key
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# APIs Externas
-GEMINI_API_KEY=tu_gemini_api_key
-TREFLE_API_KEY=tu_trefle_api_key
-
-# Servidor
+# Server
 PORT=3000
 NODE_ENV=development
 ```
@@ -176,26 +169,18 @@ cd raspi
 python -m pytest
 ```
 
-## Estado del Proyecto
+## Project Status
 
-- **Backend API** - Completamente funcional
-- **Integración con Supabase** - Configurada
-- **Socket.IO** - Tiempo real implementado
-- **Google Gemini** - Plantas que hablan
-- **Frontend** - En desarrollo
-- **Raspberry Pi** - Scripts básicos
-- **Testing** - Pendiente
+- **Backend API** - Fully functional
+- **Supabase Integration** - Configured
+- **Socket.IO** - Real-time implemented
+- **Google Gemini** - Talking plants
+- **Frontend** - In development
+- **Raspberry Pi** - Basic scripts
+- **Testing** - Pending
 
-## Equipo de Desarrollo
+## Development Team
 
 - **Ana Tobón** 
 - **Cristina Jauregui** 
-- **Sary Payán** 
-
-
-
-
-
-
-
-
+- **Sary Payán**
