@@ -1,0 +1,21 @@
+# Comunicación con Supabase y Backend
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Sensores y GPIO
+RPi.GPIO==0.7.1
+adafruit-circuitpython-ads1x15==2.2.21
+w1thermsensor==2.3.0
+smbus2==0.4.3
+
+# LED Matrix
+luma.led-matrix==1.7.1
+luma.core==2.4.2
+
+# Dependencias de Adafruit
+adafruit-blinka==8.40.0
+adafruit-circuitpython-busdevice==5.2.6
+adafruit-platformdetect==3.64.0
+
+# Dependencias de sistema (se instalan automáticamente)
+pillow==10.3.0
