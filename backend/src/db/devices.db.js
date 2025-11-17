@@ -19,6 +19,16 @@ export async function findDeviceById(id) {
   return { data, error };
 }
 
+export async function findDeviceBySerial(serialNumber) {
+  const { data, error } = await supabase
+    .from("devices")
+    .select("*")
+    .eq("serial_number", serialNumber)
+    .limit(1);
+
+  return { data: data && data.length > 0 ? data[0] : null, error };
+}
+
 export async function insertDevice(device) {
   return await supabase.from("devices").insert([device]).select().single();
 }
@@ -56,6 +66,7 @@ export async function updateDeviceConnection(id) {
 export default {
   findAllDevices,
   findDeviceById,
+  findDeviceBySerial,
   insertDevice,
   updateDevice,
   deleteDevice,

@@ -6,10 +6,19 @@ import {
 } from "../db/plant_status.db.js";
 import { findAllPlants } from "../db/plants.db.js";
 import {
+  findDeviceBySerial,
+  insertDevice as insertDeviceRecord,
+  updateDevice as updateDeviceRecord,
+} from "../db/devices.db.js";
+import {
   calculatePlantStatus,
   getEmojiMatrix,
   emojiToMatrix,
 } from "../services/plant-status.service.js";
+import {
+  createDeviceModel,
+  sanitizeDeviceUpdate,
+} from "../models/devices.model.js";
 
 const handleError = (error, res) => {
   const status = error?.status || 500;
@@ -24,7 +33,16 @@ const handleError = (error, res) => {
  */
 export const receiveSensorData = async (req, res) => {
   try {
-    const { temperature, light, soil_moisture, plant_id } = req.body;
+    const {
+      temperature,
+      light,
+      soil_moisture,
+      plant_id,
+      device_serial,
+      device_model,
+      device_location,
+      foundation_id,
+    } = req.body;
 
     // Validar datos requeridos
     if (
@@ -59,6 +77,53 @@ export const receiveSensorData = async (req, res) => {
       console.log(
         `⚠️ No se proporcionó plant_id, usando primera planta adoptada: ${targetPlantId}`
       );
+    }
+
+    let deviceRecord = null;
+
+    if (device_serial) {
+      const { data: existingDevice, error: deviceLookupError } =
+        await findDeviceBySerial(device_serial);
+
+      if (deviceLookupError) {
+        console.error("Error buscando device:", deviceLookupError);
+        throw deviceLookupError;
+      }
+
+      if (existingDevice) {
+        const deviceUpdatePayload = sanitizeDeviceUpdate({
+          model: device_model,
+          location: device_location,
+          foundation_id,
+          last_connection: new Date().toISOString(),
+        });
+        const { data: updatedDevice, error: deviceUpdateError } =
+          await updateDeviceRecord(existingDevice.id, deviceUpdatePayload);
+
+        if (deviceUpdateError) {
+          console.error("Error actualizando device:", deviceUpdateError);
+          throw deviceUpdateError;
+        }
+
+        deviceRecord = updatedDevice;
+      } else {
+        const baseDevicePayload = createDeviceModel({
+          serial_number: device_serial,
+          model: device_model || "Raspberry Pi",
+          location: device_location || "Unknown",
+          foundation_id,
+        });
+
+        const { data: createdDevice, error: deviceCreateError } =
+          await insertDeviceRecord(baseDevicePayload);
+
+        if (deviceCreateError) {
+          console.error("Error creando device:", deviceCreateError);
+          throw deviceCreateError;
+        }
+
+        deviceRecord = createdDevice;
+      }
     }
 
     // Guardar datos en plant_stats
@@ -141,6 +206,7 @@ export const receiveSensorData = async (req, res) => {
       data: {
         stats: savedStats,
         status: savedStatus,
+        device: deviceRecord,
       },
       timestamp: new Date().toISOString(),
     });
@@ -151,6 +217,7 @@ export const receiveSensorData = async (req, res) => {
       data: {
         stats: savedStats,
         status: savedStatus,
+        device: deviceRecord,
       },
     });
   } catch (error) {
@@ -176,11 +243,11 @@ export const getEmoji = async (req, res) => {
 
       if (plantsError || !plants || plants.length === 0) {
         // Si no hay plantas, devolver emoji neutral por defecto
-        const defaultMatrix = getEmojiMatrix("Recovering", 0.5);
+        const defaultMatrix = getEmojiMatrix("recovering", 0.5);
         return res.status(200).json({
           success: true,
           matrix: defaultMatrix,
-          status: "Recovering",
+          status: "recovering",
           mood_face: "😐",
           message: "No hay plantas adoptadas, usando emoji por defecto",
         });
@@ -195,11 +262,11 @@ export const getEmoji = async (req, res) => {
 
     if (statusError || !latestStatus) {
       // Si no hay status, devolver emoji neutral
-      const defaultMatrix = getEmojiMatrix("Recovering", 0.5);
+      const defaultMatrix = getEmojiMatrix("recovering", 0.5);
       return res.status(200).json({
         success: true,
         matrix: defaultMatrix,
-        status: "Recovering",
+        status: "recovering",
         mood_face: "😐",
         message: "No hay estado disponible, usando emoji por defecto",
       });

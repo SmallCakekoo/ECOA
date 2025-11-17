@@ -2,6 +2,31 @@
  * Servicio para calcular el estado de la planta y generar matrices de emoji
  */
 
+const STATUS_CONFIG = {
+  healthy: {
+    label: "Healthy",
+    mood_face: "😊",
+    emojiMatrixKey: "happy",
+  },
+  recovering: {
+    label: "Recovering",
+    mood_face: "😐",
+    emojiMatrixKey: "neutral",
+  },
+  bad: {
+    label: "Bad",
+    mood_face: "😢",
+    emojiMatrixKey: "sad",
+  },
+};
+
+const DEFAULT_STATUS_KEY = "recovering";
+
+function normalizeStatusKey(status) {
+  const key = (status || "").toLowerCase();
+  return STATUS_CONFIG[key] ? key : DEFAULT_STATUS_KEY;
+}
+
 // Matrices de emoji predefinidas (8x8)
 const EMOJI_MATRICES = {
   // Feliz (Healthy)
@@ -88,21 +113,20 @@ export function calculatePlantStatus(temperature, light, soil_moisture) {
   let mood_face;
 
   if (overallScore >= 0.7) {
-    status = "Healthy";
-    mood_index = overallScore;
-    mood_face = "😊";
+    status = "healthy";
   } else if (overallScore >= 0.4) {
-    status = "Recovering";
-    mood_index = overallScore;
-    mood_face = "😐";
+    status = "recovering";
   } else {
-    status = "Bad";
-    mood_index = overallScore;
-    mood_face = "😢";
+    status = "bad";
   }
 
+  const statusKey = normalizeStatusKey(status);
+  const statusConfig = STATUS_CONFIG[statusKey];
+  mood_index = overallScore;
+  mood_face = statusConfig.mood_face;
+
   return {
-    status,
+    status: statusKey,
     mood_index: Math.round(mood_index * 100) / 100, // Redondear a 2 decimales
     mood_face,
   };
@@ -116,23 +140,20 @@ export function calculatePlantStatus(temperature, light, soil_moisture) {
  */
 export function getEmojiMatrix(status, mood_index = null) {
   // Mapear estado a tipo de emoji
-  let emojiType;
-  if (status === "Healthy") {
-    emojiType = "happy";
-  } else if (status === "Recovering") {
-    emojiType = "neutral";
-  } else {
-    emojiType = "sad";
-  }
+  let statusKey = normalizeStatusKey(status);
+  let emojiType = STATUS_CONFIG[statusKey].emojiMatrixKey;
 
   // Si hay mood_index, podemos interpolar entre estados
   if (mood_index !== null && mood_index !== undefined) {
     if (mood_index >= 0.7) {
-      emojiType = "happy";
+      emojiType = STATUS_CONFIG.healthy.emojiMatrixKey;
+      statusKey = "healthy";
     } else if (mood_index >= 0.4) {
-      emojiType = "neutral";
+      emojiType = STATUS_CONFIG.recovering.emojiMatrixKey;
+      statusKey = "recovering";
     } else {
-      emojiType = "sad";
+      emojiType = STATUS_CONFIG.bad.emojiMatrixKey;
+      statusKey = "bad";
     }
   }
 
@@ -160,5 +181,7 @@ export default {
   getEmojiMatrix,
   emojiToMatrix,
   EMOJI_MATRICES,
+  STATUS_CONFIG,
+  normalizeStatusKey,
 };
 

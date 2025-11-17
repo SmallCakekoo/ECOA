@@ -120,6 +120,10 @@ pip install -r requirements.txt
 # Crear archivo .env con:
 # BACKEND_URL=https://ecoabackendecoa.vercel.app/
 # PLANT_ID=tu_plant_id_opcional (si no se proporciona, usa la primera planta adoptada)
+# DEVICE_SERIAL=serial_unico_de_la_raspberry
+# DEVICE_MODEL=Raspberry Pi 4 (opcional)
+# DEVICE_LOCATION=Sala principal (opcional)
+# FOUNDATION_ID=id_de_la_fundacion_asociada (opcional)
 
 # 5. Ejecutar el script principal
 python main.py

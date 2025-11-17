@@ -18,12 +18,13 @@ load_dotenv()
 
 # ==================== CONFIGURACIÓN ====================
 
-# Backend URL (el backend maneja TODO)
-BACKEND_URL = "https://ecoabackendecoa.vercel.app/"
-
-# Plant ID opcional (si no se proporciona, el backend usará la primera planta adoptada)
-# Puedes configurarlo en el archivo .env como PLANT_ID
+# Backend URL
+BACKEND_URL = os.getenv("BACKEND_URL", "https://ecoabackendecoa.vercel.app")
 PLANT_ID = os.getenv("PLANT_ID", None)
+DEVICE_SERIAL = os.getenv("DEVICE_SERIAL", None)
+DEVICE_MODEL = os.getenv("DEVICE_MODEL", "Raspberry Pi")
+DEVICE_LOCATION = os.getenv("DEVICE_LOCATION", "Unknown location")
+FOUNDATION_ID = os.getenv("FOUNDATION_ID", None)
 
 # Validar variable de entorno
 if not BACKEND_URL:
@@ -51,6 +52,48 @@ temp_sensor = W1ThermSensor()
 serial = spi(port=0, device=0)
 device = max7219(serial, cascaded=1, block_orientation=0, rotate=0)
 
+# ==================== LÓGICA DE NEGOCIO ====================
+
+def calculate_plant_status(temperatura, luminosidad, humedad):
+    """
+    Calcula el estado de la planta basado en los valores de los sensores.
+    
+    Retorna: 'healthy', 'bad', o 'recovering'
+    """
+    # Rangos ideales (ajusta según tu tipo de planta)
+    TEMP_MIN, TEMP_MAX = 18, 28  # °C
+    LIGHT_MIN, LIGHT_MAX = 200, 800  # lx
+    HUMIDITY_MIN, HUMIDITY_MAX = 40, 70  # %
+    
+    problems = 0
+    warnings = 0
+    
+    # Evaluar temperatura
+    if temperatura < TEMP_MIN - 5 or temperatura > TEMP_MAX + 5:
+        problems += 1
+    elif temperatura < TEMP_MIN or temperatura > TEMP_MAX:
+        warnings += 1
+    
+    # Evaluar luminosidad
+    if luminosidad < LIGHT_MIN * 0.5 or luminosidad > LIGHT_MAX * 1.5:
+        problems += 1
+    elif luminosidad < LIGHT_MIN or luminosidad > LIGHT_MAX:
+        warnings += 1
+    
+    # Evaluar humedad
+    if humedad < HUMIDITY_MIN - 15 or humedad > HUMIDITY_MAX + 15:
+        problems += 1
+    elif humedad < HUMIDITY_MIN or humedad > HUMIDITY_MAX:
+        warnings += 1
+    
+    # Determinar estado
+    if problems >= 2:
+        return 'bad'
+    elif problems == 1 or warnings >= 2:
+        return 'recovering'
+    else:
+        return 'healthy'
+
 # ==================== FUNCIONES DE LECTURA ====================
 
 def read_soil_moisture():
@@ -68,7 +111,7 @@ def read_soil_moisture():
             "estado_digital": estado_str
         }
     except Exception as e:
-        print(f"Error leyendo humedad: {e}")
+        print(f"❌ Error leyendo humedad: {e}")
         return None
 
 def read_light():
@@ -80,7 +123,7 @@ def read_light():
         light_level = ((data[0] << 8) | data[1]) / 1.2
         return round(light_level, 2)
     except Exception as e:
-        print(f"Error leyendo luminosidad: {e}")
+        print(f"❌ Error leyendo luminosidad: {e}")
         return None
 
 def read_temperature():
@@ -89,84 +132,96 @@ def read_temperature():
         temperature = temp_sensor.get_temperature()
         return round(temperature, 2)
     except Exception as e:
-        print(f"Error leyendo temperatura: {e}")
+        print(f"❌ Error leyendo temperatura: {e}")
         return None
 
-# ==================== FUNCIONES DE COMUNICACIÓN CON BACKEND ====================
+# ==================== COMUNICACIÓN CON BACKEND ====================
 
 def send_sensor_data_to_backend(temperatura, luminosidad, humedad, plant_id=None):
     """
-    Envía datos de sensores al BACKEND.
-    El backend se encarga de:
-    1. Recibir los datos
-    2. Calcular qué emoji mostrar según la lógica
-    3. Guardar en Supabase (plant_stats y plant_status)
-    4. Actualizar el emoji en la base de datos
+    Envía datos de sensores al BACKEND con el campo 'status' calculado.
     """
     try:
+        # Calcular el estado de la planta
+        status = calculate_plant_status(temperatura, luminosidad, humedad)
+        
         data = {
             "temperature": temperatura,
             "light": luminosidad,
-            "soil_moisture": humedad
+            "soil_moisture": humedad,
+            "status": status,  # 🔥 CAMPO REQUERIDO: 'healthy', 'bad', o 'recovering'
+            "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
         
-        # Agregar plant_id si está disponible (global o parámetro)
+        # Agregar plant_id si está disponible
         target_plant_id = plant_id or PLANT_ID
         if target_plant_id:
             data["plant_id"] = target_plant_id
         
+        if DEVICE_SERIAL:
+            data["device_serial"] = DEVICE_SERIAL
+            if DEVICE_MODEL:
+                data["device_model"] = DEVICE_MODEL
+            if DEVICE_LOCATION:
+                data["device_location"] = DEVICE_LOCATION
+        if FOUNDATION_ID:
+            data["foundation_id"] = FOUNDATION_ID
+        
+        print(f"📤 Enviando datos al backend...")
+        print(f"   Status calculado: {status}")
+        
         response = requests.post(
-            f"{BACKEND_URL}/sensor-data",  # Endpoint para recibir datos de sensores
+            f"{BACKEND_URL}/sensor-data",
             json=data,
             headers={"Content-Type": "application/json"},
             timeout=10
         )
         
         if response.status_code in [200, 201]:
-            print("✓ Datos enviados al backend correctamente")
+            print("✅ Datos enviados correctamente")
             result = response.json()
-            print(f"  Backend respondió: {result}")
+            if result.get("success"):
+                print(f"   Respuesta: {result.get('message', 'OK')}")
             return True
         else:
-            print(f"✗ Error del backend: {response.status_code}")
-            print(f"  Respuesta: {response.text}")
+            print(f"❌ Error del backend: {response.status_code}")
+            print(f"   Respuesta: {response.text}")
             return False
             
+    except requests.exceptions.Timeout:
+        print("❌ Timeout: el backend tardó demasiado en responder")
+        return False
+    except requests.exceptions.ConnectionError:
+        print("❌ Error de conexión: no se puede alcanzar el backend")
+        return False
     except Exception as e:
-        print(f"✗ Excepción enviando al backend: {e}")
+        print(f"❌ Excepción enviando al backend: {e}")
         return False
 
 def get_emoji_from_backend(plant_id=None):
     """
     Obtiene el emoji calculado desde el backend.
-    El backend ya hizo el cálculo basado en los últimos datos
-    y devuelve la matriz 8x8 para mostrar.
     """
     try:
-        # Construir URL con plant_id si está disponible
         url = f"{BACKEND_URL}/emoji"
         target_plant_id = plant_id or PLANT_ID
         if target_plant_id:
             url = f"{url}?plant_id={target_plant_id}"
         
-        response = requests.get(
-            url,  # Endpoint que devuelve el emoji actual
-            timeout=5
-        )
+        response = requests.get(url, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
-            # Espera: {"matrix": [[0,1,...], [0,0,...],...]}
             return data.get("matrix")
         else:
-            print(f"Error obteniendo emoji: {response.status_code}")
+            print(f"❌ Error obteniendo emoji: {response.status_code}")
             return None
             
     except Exception as e:
-        print(f"Excepción obteniendo emoji: {e}")
+        print(f"❌ Excepción obteniendo emoji: {e}")
         return None
 
-# ==================== FUNCIÓN PARA MOSTRAR EN LED ====================
+# ==================== DISPLAY LED ====================
 
 def display_matrix(matrix):
     """Muestra una matriz 8x8 en el LED"""
@@ -177,14 +232,12 @@ def display_matrix(matrix):
                     if pixel:
                         draw.point((x, y), fill="white")
     else:
-        print("Matriz inválida recibida")
+        print("⚠️  Matriz inválida recibida")
 
-# ==================== CARITAS POR DEFECTO ====================
+# ==================== EMOJIS POR DEFECTO ====================
 
-# Caritas de respaldo si no hay conexión con el backend
-default_emojis = [
-    # Feliz
-    [
+default_emojis = {
+    'healthy': [
         [0,0,1,1,1,1,0,0],
         [0,1,0,0,0,0,1,0],
         [1,0,1,0,0,1,0,1],
@@ -194,8 +247,7 @@ default_emojis = [
         [0,1,0,0,0,0,1,0],
         [0,0,1,1,1,1,0,0]
     ],
-    # Neutral
-    [
+    'recovering': [
         [0,0,1,1,1,1,0,0],
         [0,1,0,0,0,0,1,0],
         [1,0,1,0,0,1,0,1],
@@ -205,8 +257,7 @@ default_emojis = [
         [0,1,0,0,0,0,1,0],
         [0,0,1,1,1,1,0,0]
     ],
-    # Triste
-    [
+    'bad': [
         [0,0,1,1,1,1,0,0],
         [0,1,0,0,0,0,1,0],
         [1,0,1,0,0,1,0,1],
@@ -216,82 +267,94 @@ default_emojis = [
         [0,1,0,0,0,0,1,0],
         [0,0,1,1,1,1,0,0]
     ]
-]
+}
 
 # ==================== LOOP PRINCIPAL ====================
 
 def main():
-    print("🌱 Sistema de monitoreo iniciado")
+    print("🌱 Sistema de monitoreo de plantas iniciado")
     print(f"🔗 Backend: {BACKEND_URL}")
-    print("-" * 50)
-    print("El flujo es:")
-    print("  1. Raspberry lee sensores")
-    print("  2. Envía datos al backend")
-    print("  3. Backend calcula emoji y guarda en Supabase")
-    print("  4. Raspberry obtiene emoji del backend")
-    print("  5. Muestra emoji en LED\n")
+    if PLANT_ID:
+        print(f"🆔 Plant ID: {PLANT_ID}")
+    print("=" * 60)
+    print("Flujo del sistema:")
+    print("  1. Raspberry lee sensores cada 5 segundos")
+    print("  2. Calcula el estado: healthy/recovering/bad")
+    print("  3. Envía datos al backend (con status)")
+    print("  4. Obtiene emoji del backend")
+    print("  5. Muestra emoji en LED 8x8")
+    print("=" * 60)
     
-    emoji_index = 0
-    last_backend_check = 0
     last_sensor_read = 0
-    SENSOR_READ_INTERVAL = 5  # Leer sensores cada 5 segundos
-    EMOJI_CHECK_INTERVAL = 3  # Actualizar emoji cada 3 segundos
+    last_emoji_check = 0
+    current_status = 'healthy'
+    
+    SENSOR_INTERVAL = 5  # segundos
+    EMOJI_INTERVAL = 3   # segundos
     
     try:
         while True:
             current_time = time.time()
             
-            # ========== LEER Y ENVIAR DATOS DE SENSORES ==========
-            if current_time - last_sensor_read >= SENSOR_READ_INTERVAL:
-                print("\n📊 Leyendo sensores...")
+            # ========== LEER Y ENVIAR SENSORES ==========
+            if current_time - last_sensor_read >= SENSOR_INTERVAL:
+                print("\n" + "─" * 60)
+                print("📊 Leyendo sensores...")
                 
                 temperatura = read_temperature()
                 luminosidad = read_light()
                 humedad_suelo = read_soil_moisture()
                 
-                # Mostrar en consola
-                print(f"  🌡️  Temperatura: {temperatura}°C")
-                print(f"  💡 Luminosidad: {luminosidad} lx")
+                if temperatura is not None:
+                    print(f"  🌡️  Temperatura: {temperatura}°C")
+                if luminosidad is not None:
+                    print(f"  💡 Luminosidad: {luminosidad} lx")
                 if humedad_suelo:
                     print(f"  💧 Humedad: {humedad_suelo['humedad_porcentaje']}% ({humedad_suelo['estado_digital']})")
                 
-                # Enviar al backend (si tenemos todos los datos)
-                if temperatura is not None and luminosidad is not None and humedad_suelo is not None:
-                    print("\n📤 Enviando datos al backend...")
-                    send_sensor_data_to_backend(
+                # Enviar al backend si tenemos todos los datos
+                if all([temperatura is not None, luminosidad is not None, humedad_suelo is not None]):
+                    success = send_sensor_data_to_backend(
                         temperatura=temperatura,
                         luminosidad=luminosidad,
                         humedad=humedad_suelo['humedad_porcentaje']
                     )
+                    
+                    # Guardar el estado actual para usar emoji por defecto
+                    if success:
+                        current_status = calculate_plant_status(
+                            temperatura, luminosidad, humedad_suelo['humedad_porcentaje']
+                        )
+                else:
+                    print("⚠️  Datos incompletos, no se envía al backend")
                 
                 last_sensor_read = current_time
             
-            # ========== OBTENER Y MOSTRAR EMOJI ==========
-            if current_time - last_backend_check >= EMOJI_CHECK_INTERVAL:
-                print("\n😊 Obteniendo emoji del backend...")
+            # ========== ACTUALIZAR EMOJI ==========
+            if current_time - last_emoji_check >= EMOJI_INTERVAL:
                 emoji_matrix = get_emoji_from_backend()
                 
                 if emoji_matrix:
-                    print("  ✓ Emoji recibido, mostrando en LED")
+                    print("😊 Mostrando emoji del backend")
                     display_matrix(emoji_matrix)
                 else:
-                    print("  ✗ Sin conexión, usando emoji por defecto")
-                    display_matrix(default_emojis[emoji_index % len(default_emojis)])
-                    emoji_index += 1
+                    print(f"⚠️  Sin conexión, mostrando emoji por defecto ({current_status})")
+                    display_matrix(default_emojis[current_status])
                 
-                last_backend_check = current_time
+                last_emoji_check = current_time
             
-            # Pequeña pausa para no saturar el CPU
             time.sleep(0.5)
             
     except KeyboardInterrupt:
         print("\n\n🛑 Sistema detenido por el usuario")
     except Exception as e:
         print(f"\n❌ Error crítico: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
         device.clear()
         GPIO.cleanup()
-        print("✓ Limpieza completada")
+        print("✅ Limpieza completada")
 
 if __name__ == "__main__":
     main()
