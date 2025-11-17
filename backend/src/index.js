@@ -15,6 +15,7 @@ import alertHistoryRoutes from "./routes/alert_history.router.js";
 import devicesRoutes from "./routes/devices.router.js";
 import plantStatsRoutes from "./routes/plants_stats.router.js";
 import plantStatusRoutes from "./routes/plants_status.router.js";
+import sensorRoutes from "./routes/sensor.router.js";
 import integrationsRoutes from "./routes/integrations.router.js";
 import uploadRoutes from "./routes/upload.router.js";
 import { setupSocketIO } from "./services/sockets/sockets.service.js";
@@ -122,6 +123,7 @@ app.use("/alert_history", alertHistoryRoutes);
 app.use("/devices", devicesRoutes);
 app.use("/plant_stats", plantStatsRoutes);
 app.use("/plant_status", plantStatusRoutes);
+app.use("/", sensorRoutes); // Rutas de sensores: /sensor-data y /emoji
 app.use("/api/integrations", integrationsRoutes);
 app.use("/api/upload", uploadRoutes);
 
@@ -280,6 +282,8 @@ app.get("/", (req, res) => {
       devices: "/devices",
       plant_stats: "/plant_stats",
       plant_status: "/plant_status",
+      sensor_data: "/sensor-data",
+      emoji: "/emoji",
       integrations: "/api/integrations",
       health: "/health",
     },

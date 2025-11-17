@@ -130,7 +130,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'https://ecoabackendecoa.vercel.app',
         changeOrigin: true
       }
     }

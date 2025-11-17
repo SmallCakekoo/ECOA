@@ -168,15 +168,15 @@ setInterval(updateTime, 60000);
     }
 
     try {
-      // Cargar estado (plant_status)
+      // Cargar estado (plant_status) - usar endpoint de último estado
       const statusResponse = await fetch(
-        `${API_BASE_URL}/plant_status?plant_id=${plantId}`
+        `${API_BASE_URL}/plant_status/plant/${plantId}/latest`
       );
 
       if (statusResponse.ok) {
         const result = await statusResponse.json();
-        if (result.success && result.data && result.data.length > 0) {
-          status = result.data[0];
+        if (result.success && result.data) {
+          status = result.data;
         }
       }
     } catch (error) {
@@ -225,16 +225,31 @@ setInterval(updateTime, 60000);
       infoCardsContainer.appendChild(rainCard);
 
       // Card 4: Mood/Happiness (Cara feliz)
-      const moodPercent = status ? Math.round((status.mood_index || 0) * 100) : 0;
+      // mood_index viene como decimal (0-1) o porcentaje (0-100)
+      let moodPercent = 0;
+      if (status) {
+        const moodIndex = status.mood_index || 0;
+        // Si es menor que 1, asumir que es decimal y convertir a porcentaje
+        moodPercent = moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
+      }
+      
+      // Mostrar emoji si está disponible
+      const moodDisplay = status?.mood_face || `${moodPercent}%`;
       const moodCard = createInfoCard(
         "Mood",
-        `${moodPercent}%`,
+        moodDisplay,
         "Happiness Level",
         getMoodDescription(moodPercent),
         "mdi:emoticon-happy-outline",
         "#7EB234"
       );
       infoCardsContainer.appendChild(moodCard);
+      
+      // Mostrar estado de salud si está disponible
+      if (status?.status) {
+        const statusText = status.status; // Healthy, Recovering, Bad
+        console.log(`Estado de la planta: ${statusText}`);
+      }
     }
   } catch (error) {
     console.error("Error loading plant data:", error);

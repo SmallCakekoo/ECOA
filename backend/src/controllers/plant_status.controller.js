@@ -4,6 +4,7 @@ import {
   insertPlantStatus,
   updatePlantStatus,
   deletePlantStatus,
+  getLatestPlantStatus,
 } from "../db/plant_status.db.js";
 import {
   createPlantStatusModel,
@@ -135,11 +136,14 @@ export const PlantStatusController = {
   getLatestByPlant: async (req, res) => {
     try {
       const { plant_id } = req.params;
-      const { data, error } = await findAllPlantStatus({
-        plant_id,
-        latest: true,
-      });
+      const { data, error } = await getLatestPlantStatus(plant_id);
       if (error) throw error;
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message: "Estado de planta no encontrado",
+        });
+      }
       return res.status(200).json({ success: true, data });
     } catch (error) {
       return handleError(error, res);

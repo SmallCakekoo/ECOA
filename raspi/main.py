@@ -21,6 +21,10 @@ load_dotenv()
 # Backend URL (el backend maneja TODO)
 BACKEND_URL = "https://ecoabackendecoa.vercel.app/"
 
+# Plant ID opcional (si no se proporciona, el backend usará la primera planta adoptada)
+# Puedes configurarlo en el archivo .env como PLANT_ID
+PLANT_ID = os.getenv("PLANT_ID", None)
+
 # Validar variable de entorno
 if not BACKEND_URL:
     raise ValueError("⚠️  Falta BACKEND_URL en el archivo .env")
@@ -90,13 +94,13 @@ def read_temperature():
 
 # ==================== FUNCIONES DE COMUNICACIÓN CON BACKEND ====================
 
-def send_sensor_data_to_backend(temperatura, luminosidad, humedad):
+def send_sensor_data_to_backend(temperatura, luminosidad, humedad, plant_id=None):
     """
     Envía datos de sensores al BACKEND.
     El backend se encarga de:
     1. Recibir los datos
     2. Calcular qué emoji mostrar según la lógica
-    3. Guardar en Supabase (sensor_readings)
+    3. Guardar en Supabase (plant_stats y plant_status)
     4. Actualizar el emoji en la base de datos
     """
     try:
@@ -105,6 +109,11 @@ def send_sensor_data_to_backend(temperatura, luminosidad, humedad):
             "light": luminosidad,
             "soil_moisture": humedad
         }
+        
+        # Agregar plant_id si está disponible (global o parámetro)
+        target_plant_id = plant_id or PLANT_ID
+        if target_plant_id:
+            data["plant_id"] = target_plant_id
         
         response = requests.post(
             f"{BACKEND_URL}/sensor-data",  # Endpoint para recibir datos de sensores
@@ -127,15 +136,21 @@ def send_sensor_data_to_backend(temperatura, luminosidad, humedad):
         print(f"✗ Excepción enviando al backend: {e}")
         return False
 
-def get_emoji_from_backend():
+def get_emoji_from_backend(plant_id=None):
     """
     Obtiene el emoji calculado desde el backend.
     El backend ya hizo el cálculo basado en los últimos datos
     y devuelve la matriz 8x8 para mostrar.
     """
     try:
+        # Construir URL con plant_id si está disponible
+        url = f"{BACKEND_URL}/emoji"
+        target_plant_id = plant_id or PLANT_ID
+        if target_plant_id:
+            url = f"{url}?plant_id={target_plant_id}"
+        
         response = requests.get(
-            f"{BACKEND_URL}/emoji",  # Endpoint que devuelve el emoji actual
+            url,  # Endpoint que devuelve el emoji actual
             timeout=5
         )
         
