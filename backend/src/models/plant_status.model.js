@@ -20,6 +20,6 @@ export function sanitizePlantStatusUpdate(payload) {
   allowed.forEach((k) => {
     if (payload[k] !== undefined && payload[k] !== null) update[k] = payload[k];
   });
-  update.updated_at = new Date().toISOString();
+  update.recorded_at = new Date().toISOString();
   return update;
 }
