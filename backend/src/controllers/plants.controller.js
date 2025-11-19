@@ -108,6 +108,30 @@ export const PlantsController = {
         }
       });
       
+      // Opcional: Enriquecer con datos de Perenual si se solicita
+      if (req.body.enrich_with_perenual === true || req.body.enrich_with_perenual === 'true') {
+        try {
+          const { findPlantInPerenual, enrichPlantWithPerenualData } = await import("../services/integrations/perenual-db.service.js");
+          const searchQuery = req.body.name || req.body.species;
+          
+          if (searchQuery) {
+            console.log('🔍 Buscando información en Perenual para enriquecer planta...');
+            const perenualData = await findPlantInPerenual(searchQuery);
+            
+            if (perenualData) {
+              console.log('✅ Información encontrada en Perenual, enriqueciendo datos...');
+              plantData = enrichPlantWithPerenualData(plantData, perenualData);
+              console.log('✅ Datos enriquecidos con información de Perenual');
+            } else {
+              console.log('⚠️ No se encontró información en Perenual para:', searchQuery);
+            }
+          }
+        } catch (perenualError) {
+          // No fallar la creación si Perenual falla, solo loguear
+          console.warn('⚠️ Error al enriquecer con Perenual (continuando sin enriquecimiento):', perenualError.message);
+        }
+      }
+      
       console.log('📤 Intentando insertar en Supabase...');
       const { data, error } = await insertPlant(plantData);
       

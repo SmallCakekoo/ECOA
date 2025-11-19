@@ -128,17 +128,33 @@ app.use("/api/integrations", integrationsRoutes);
 app.use("/api/upload", uploadRoutes);
 
 // Ruta de salud del servidor
-app.get("/health", (req, res) => {
+app.get("/health", async (req, res) => {
   // Forzar headers CORS
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+  
+  // Verificar conexión de Supabase
+  let dbStatus = { connected: false, message: "No verificado" };
+  try {
+    const { testConnection } = await import("./services/supabase.service.js");
+    dbStatus = await testConnection();
+  } catch (error) {
+    dbStatus = { connected: false, error: error.message };
+  }
   
   res.status(200).json({
     success: true,
     message: "Servidor ECOA funcionando correctamente",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    database: {
+      status: dbStatus.connected ? "conectado" : "desconectado",
+      message: dbStatus.message || dbStatus.error || "No verificado",
+    },
+    integrations: {
+      perenual: process.env.PERENUAL_API_KEY ? "configurado" : "no configurado",
+    },
   });
 });
 

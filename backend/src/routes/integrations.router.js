@@ -11,6 +11,13 @@ import {
   identifyPlantWithHealth,
   identifyMultiplePlants,
 } from "../services/integrations/perenual.service.js";
+import {
+  enrichExistingPlant,
+  createPlantFromPerenual,
+  searchAndFormatForDB,
+} from "../services/integrations/perenual-db.service.js";
+import { insertPlant } from "../db/plants.db.js";
+import { createPlantModel } from "../models/plants.model.js";
 
 const router = express.Router();
 
@@ -261,17 +268,159 @@ router.get("/perenual/species", async (req, res) => {
   }
 });
 
+// ===== RUTAS DE INTEGRACIÓN PERENUAL-DB =====
+
+// POST /api/integrations/perenual/enrich/:plantId - Enriquece una planta existente con datos de Perenual
+router.post("/perenual/enrich/:plantId", async (req, res) => {
+  try {
+    const { plantId } = req.params;
+    const { search_query } = req.body; // Opcional: término de búsqueda personalizado
+
+    if (!plantId) {
+      return res.status(400).json({
+        success: false,
+        message: "El ID de la planta es requerido",
+      });
+    }
+
+    const result = await enrichExistingPlant(plantId, search_query);
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error("Error enriqueciendo planta:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+});
+
+// POST /api/integrations/perenual/create-from-search - Busca en Perenual y crea planta en BD
+router.post("/perenual/create-from-search", async (req, res) => {
+  try {
+    const { query, perenual_id, ...additionalData } = req.body;
+
+    // Si se proporciona perenual_id, usar ese directamente
+    if (perenual_id) {
+      const result = await createPlantFromPerenual(perenual_id, additionalData);
+      
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      // Crear la planta en la BD
+      try {
+        const plantData = createPlantModel(result.plant_data);
+        const { data: createdPlant, error: insertError } = await insertPlant(plantData);
+        
+        if (insertError) {
+          return res.status(500).json({
+            success: false,
+            message: "Error creando planta en la base de datos",
+            error: insertError.message,
+          });
+        }
+
+        return res.status(201).json({
+          success: true,
+          message: "Planta creada exitosamente desde Perenual",
+          plant: createdPlant,
+          perenual_data: result.perenual_data,
+        });
+      } catch (modelError) {
+        return res.status(400).json({
+          success: false,
+          message: "Error validando datos de la planta",
+          error: modelError.message,
+        });
+      }
+    }
+
+    // Si se proporciona query, buscar y devolver resultados formateados
+    if (query) {
+      const result = await searchAndFormatForDB(query, 10);
+      
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Plantas encontradas en Perenual (listas para crear)",
+        plants: result.plants,
+        total: result.total,
+        query: result.query,
+        note: "Usa POST /api/integrations/perenual/create-from-search con perenual_id para crear una planta específica",
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Se requiere 'query' para buscar o 'perenual_id' para crear directamente",
+    });
+  } catch (error) {
+    console.error("Error creando planta desde Perenual:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+});
+
+// GET /api/integrations/perenual/search-for-db - Busca plantas en Perenual formateadas para BD
+router.get("/perenual/search-for-db", async (req, res) => {
+  try {
+    const { q, limit = 10 } = req.query;
+
+    if (!q || typeof q !== "string" || q.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El término de búsqueda 'q' es requerido",
+      });
+    }
+
+    const result = await searchAndFormatForDB(q, parseInt(limit));
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error("Error buscando plantas para BD:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+});
+
 // ===== RUTA DE ESTADO DE INTEGRACIONES =====
 
 // GET /api/integrations/status - Estado de todas las integraciones
-router.get("/status", (req, res) => {
+router.get("/status", async (req, res) => {
+  // Verificar conexión de Supabase
+  const { testConnection } = await import("../services/supabase.service.js");
+  const dbStatus = await testConnection();
+
   res.status(200).json({
     success: true,
     message: "Estado de las integraciones",
+    database: {
+      status: dbStatus.connected ? "conectado" : "desconectado",
+      message: dbStatus.message || dbStatus.error,
+    },
     integrations: {
       perenual: {
         name: "Perenual",
-        status: "disponible",
+        status: process.env.PERENUAL_API_KEY ? "disponible" : "no configurado",
         endpoints: [
           "GET /api/integrations/perenual/search",
           "GET /api/integrations/perenual/details/:plantId",
@@ -279,6 +428,9 @@ router.get("/status", (req, res) => {
           "GET /api/integrations/perenual/families",
           "POST /api/integrations/perenual/identify-health",
           "POST /api/integrations/perenual/identify-multiple",
+          "POST /api/integrations/perenual/enrich/:plantId",
+          "POST /api/integrations/perenual/create-from-search",
+          "GET /api/integrations/perenual/search-for-db",
         ],
       },
     },
