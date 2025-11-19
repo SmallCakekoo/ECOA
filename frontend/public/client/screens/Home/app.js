@@ -16,11 +16,73 @@ function resolvePlantImage(plant) {
 }
 console.log(USER_DATA);
 
+// Función para obtener el saludo según la hora
+function getGreetingByTime() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) {
+    return "Good Morning";
+  } else if (hour >= 12 && hour < 18) {
+    return "Good Afternoon";
+  } else if (hour >= 18 && hour < 22) {
+    return "Good Evening";
+  } else {
+    return "Good Night";
+  }
+}
+
+// Función para cargar clima y saludo
+async function loadWeatherAndGreeting() {
+  try {
+    // Obtener clima y saludo desde la API
+    const response = await fetch(
+      `${API_BASE_URL}/api/integrations/weather/combined?city=Cali&country=CO`
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      // Actualizar temperatura
+      if (data.weather && data.weather.temperature !== undefined) {
+        const temperatureEl = document.querySelector(".temperature");
+        if (temperatureEl) {
+          temperatureEl.textContent = `${data.weather.temperature}°C`;
+        }
+      }
+
+      // Actualizar saludo
+      const greeting = data.greeting || getGreetingByTime();
+      const userName = USER_DATA && USER_DATA.name ? USER_DATA.name : "Guest";
+      const greetingEl = document.querySelector(".greeting");
+      if (greetingEl) {
+        greetingEl.textContent = `${greeting}, ${userName}`;
+      }
+    } else {
+      // Si falla la API, usar valores por defecto
+      const greeting = getGreetingByTime();
+      const userName = USER_DATA && USER_DATA.name ? USER_DATA.name : "Guest";
+      const greetingEl = document.querySelector(".greeting");
+      if (greetingEl) {
+        greetingEl.textContent = `${greeting}, ${userName}`;
+      }
+    }
+  } catch (error) {
+    console.error("Error cargando clima:", error);
+    // En caso de error, usar valores por defecto
+    const greeting = getGreetingByTime();
+    const userName = USER_DATA && USER_DATA.name ? USER_DATA.name : "Guest";
+    const greetingEl = document.querySelector(".greeting");
+    if (greetingEl) {
+      greetingEl.textContent = `${greeting}, ${userName}`;
+    }
+  }
+}
+
+// Cargar clima y saludo al iniciar
+loadWeatherAndGreeting();
+
 // Verificar si hay datos de usuario
 if (USER_DATA && USER_DATA.name) {
-  document.querySelector(
-    ".greeting"
-  ).textContent = `Good Morning, ${USER_DATA.name}`;
+  // El saludo ya se actualiza en loadWeatherAndGreeting
 
   // Cargar plantas del usuario
   (async () => {
@@ -61,8 +123,7 @@ if (USER_DATA && USER_DATA.name) {
     }
   })();
 } else {
-  // Si no hay usuario logueado, mostrar mensaje por defecto
-  document.querySelector(".greeting").textContent = `Good Morning, Guest`;
+  // Si no hay usuario logueado, el saludo ya se actualiza en loadWeatherAndGreeting
   console.warn("No user data found. Please log in.");
 }
 
