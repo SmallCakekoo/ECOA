@@ -270,6 +270,15 @@ class AdminAPI {
     });
   }
 
+  // ===== DISPOSITIVOS =====
+  async getDevices() {
+    return await this.request("/devices");
+  }
+
+  async getDevice(id) {
+    return await this.request(`/devices/${id}`);
+  }
+
   // ===== DONACIONES =====
   async getDonations(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();

@@ -238,6 +238,9 @@ async function initializeApp() {
     // Cargar donaciones recientes
     await loadRecentDonations();
 
+    // Cargar dispositivos para el selector
+    await loadDevices();
+
     // Configurar formulario de nueva planta
     setupPlantForm();
 
@@ -926,6 +929,38 @@ function getStatusText(status) {
   return statusMap[status] || status;
 }
 
+async function loadDevices() {
+  try {
+    const response = await window.AdminAPI.getDevices();
+    const devices = response.data || [];
+    
+    const deviceSelect = document.getElementById("deviceSelect");
+    if (deviceSelect) {
+      // Limpiar opciones existentes excepto la primera
+      deviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
+      
+      // Agregar dispositivos al selector
+      devices.forEach(device => {
+        const option = document.createElement("option");
+        option.value = device.id;
+        // Mostrar información útil del dispositivo (serial, model, location)
+        const deviceLabel = [
+          device.serial || 'Unknown',
+          device.model || '',
+          device.location || ''
+        ].filter(Boolean).join(' - ');
+        option.textContent = deviceLabel || device.id;
+        deviceSelect.appendChild(option);
+      });
+      
+      console.log(`✅ ${devices.length} dispositivos cargados en el selector`);
+    }
+  } catch (error) {
+    console.error("Error loading devices:", error);
+    // No mostrar error al usuario, simplemente dejar el selector vacío
+  }
+}
+
 function setupPlantForm() {
   const uploadBox = document.getElementById("uploadBox");
   const fileInput = document.getElementById("plantPhoto");
@@ -1078,12 +1113,17 @@ async function createPlant() {
     }
   }
 
+  // Obtener device_id del selector (puede ser null o string vacío)
+  const deviceId = formData.get("device_id");
+  const deviceIdValue = deviceId && deviceId.trim() !== "" ? deviceId : null;
+
   const plantData = {
     user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
     image: imageUrl,
+    device_id: deviceIdValue, // Solo incluir si se seleccionó un dispositivo
     // No enviar campos que no existen en la tabla plants
     // status, health_status, water_level, etc. van en otras tablas relacionadas
   };

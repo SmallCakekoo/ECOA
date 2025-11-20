@@ -205,6 +205,9 @@ async function initializeApp() {
     await loadPlants();
     await updateMetricsFromPlants();
 
+    // Cargar dispositivos para los selectores
+    await loadDevices();
+
     // Configurar filtros
     setupFilters();
 
@@ -616,6 +619,52 @@ function closeOverlay() {
   }
 }
 
+async function loadDevices() {
+  try {
+    const response = await window.AdminAPI.getDevices();
+    const devices = response.data || [];
+    
+    // Cargar dispositivos en el selector del formulario de nueva planta
+    const overlayDeviceSelect = document.getElementById("overlayDeviceSelect");
+    if (overlayDeviceSelect) {
+      overlayDeviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
+      devices.forEach(device => {
+        const option = document.createElement("option");
+        option.value = device.id;
+        const deviceLabel = [
+          device.serial || 'Unknown',
+          device.model || '',
+          device.location || ''
+        ].filter(Boolean).join(' - ');
+        option.textContent = deviceLabel || device.id;
+        overlayDeviceSelect.appendChild(option);
+      });
+    }
+    
+    // Cargar dispositivos en el selector del formulario de edición
+    const editDeviceSelect = document.getElementById("editDeviceSelect");
+    if (editDeviceSelect) {
+      editDeviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
+      devices.forEach(device => {
+        const option = document.createElement("option");
+        option.value = device.id;
+        const deviceLabel = [
+          device.serial || 'Unknown',
+          device.model || '',
+          device.location || ''
+        ].filter(Boolean).join(' - ');
+        option.textContent = deviceLabel || device.id;
+        editDeviceSelect.appendChild(option);
+      });
+    }
+    
+    console.log(`✅ ${devices.length} dispositivos cargados en los selectores`);
+  } catch (error) {
+    console.error("Error loading devices:", error);
+    // No mostrar error al usuario, simplemente dejar los selectores vacíos
+  }
+}
+
 function setupPlantForm() {
   const openAddPlant = document.getElementById("openAddPlant");
   const overlay = document.getElementById("addPlantOverlay");
@@ -788,12 +837,17 @@ async function createPlant() {
     }
   }
 
+  // Obtener device_id del selector (puede ser null o string vacío)
+  const deviceId = formData.get("device_id");
+  const deviceIdValue = deviceId && deviceId.trim() !== "" ? deviceId : null;
+
   const plantData = {
     user_id: null, // Plantas nuevas no tienen usuario asignado hasta ser adoptadas
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
     image: imageUrl,
+    device_id: deviceIdValue, // Solo incluir si se seleccionó un dispositivo
     // No enviar campos que no existen en la tabla plants
     // status, health_status, water_level, etc. van en otras tablas relacionadas
   };
@@ -835,6 +889,14 @@ async function editPlant(plantId) {
     const healthStatusSelect = document.getElementById("editHealthStatus");
     if (healthStatusSelect && plant.health_status) {
       healthStatusSelect.value = plant.health_status;
+    }
+    
+    // Establecer el device_id si existe
+    const deviceSelect = document.getElementById("editDeviceSelect");
+    if (deviceSelect && plant.device_id) {
+      deviceSelect.value = plant.device_id;
+    } else if (deviceSelect) {
+      deviceSelect.value = ""; // Asegurar que esté vacío si no hay device_id
     }
 
     // Mostrar imagen actual de la planta
@@ -1034,10 +1096,15 @@ async function updatePlant(plantId) {
     }
   }
 
+  // Obtener device_id del selector (puede ser null o string vacío)
+  const deviceId = formData.get("device_id");
+  const deviceIdValue = deviceId && deviceId.trim() !== "" ? deviceId : null;
+
   const plantData = {
     name: formData.get("plantName"),
     species: formData.get("species"),
     description: formData.get("description"),
+    device_id: deviceIdValue, // Solo incluir si se seleccionó un dispositivo
   };
 
   // Incluir imagen solo si se subió una nueva
