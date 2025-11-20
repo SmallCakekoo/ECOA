@@ -1,5 +1,85 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace("http://", "ws://");
+
+// Inicializar Socket.IO para actualización en tiempo real
+let socket = null;
+if (typeof io !== 'undefined' && window.io) {
+  socket = window.io(SOCKET_URL, {
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionAttempts: 5
+  });
+
+  socket.on('connect', () => {
+    console.log('✅ Conectado a WebSocket en Garden');
+    if (USER_DATA && USER_DATA.id) {
+      socket.emit('join_user_room', USER_DATA.id);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ Desconectado de WebSocket');
+  });
+
+  // Escuchar actualizaciones de datos de sensores
+  socket.on('sensor_data_received', (eventData) => {
+    if (eventData.data && eventData.data.stats) {
+      console.log('📊 Actualización en tiempo real recibida en Garden:', eventData.data.stats);
+      updatePlantCardStats(eventData.data.stats.plant_id, eventData.data.stats);
+    }
+  });
+
+  // Escuchar actualizaciones de estadísticas de plantas
+  socket.on('plant_stats_updated', (eventData) => {
+    if (eventData.data && eventData.data.plant_id) {
+      console.log('📊 Estadísticas actualizadas en Garden:', eventData.data);
+      updatePlantCardStats(eventData.data.plant_id, eventData.data);
+    }
+  });
+}
+
+// Función para actualizar las estadísticas de una tarjeta de planta
+function updatePlantCardStats(plantId, stats) {
+  const plantsGrid = document.getElementById("plantsGrid");
+  if (!plantsGrid) return;
+
+  // Buscar la tarjeta de la planta
+  const cards = plantsGrid.querySelectorAll(".plant-card");
+  cards.forEach(card => {
+    const cardPlantId = card.getAttribute('data-plant-id');
+    if (cardPlantId === plantId) {
+      const statsContainer = card.querySelector(".plant-stats");
+      if (statsContainer) {
+        const statElements = statsContainer.querySelectorAll(".stat");
+        if (statElements.length >= 3) {
+          // Actualizar luz
+          if (stats.light !== undefined && statElements[0]) {
+            statElements[0].innerHTML = `
+              <span class="iconify" data-icon="solar:sun-linear"></span>
+              ${Math.round(stats.light)} lx
+            `;
+          }
+          // Actualizar humedad
+          if (stats.soil_moisture !== undefined && statElements[1]) {
+            statElements[1].innerHTML = `
+              <span class="iconify" data-icon="lets-icons:water-light"></span>
+              ${Math.round(stats.soil_moisture)}%
+            `;
+          }
+          // Actualizar temperatura
+          if (stats.temperature !== undefined && statElements[2]) {
+            statElements[2].innerHTML = `
+              <span class="iconify" data-icon="mdi:thermometer"></span>
+              ${Math.round(stats.temperature)}°C
+            `;
+          }
+        }
+      }
+    }
+  });
+}
 
 // Actualizar la hora actual
 function updateTime() {
@@ -107,11 +187,15 @@ function createPlantCard(plant, i) {
             <div class="plant-stats">
                 <div class="stat">
                     <span class="iconify" data-icon="solar:sun-linear"></span>
-                    ${plant.light}%
+                    ${Math.round(plant.light || 0)} lx
                 </div>
                 <div class="stat">
                     <span class="iconify" data-icon="lets-icons:water-light"></span>
-                    ${plant.soil_moisture}%
+                    ${Math.round(plant.soil_moisture || 0)}%
+                </div>
+                <div class="stat">
+                    <span class="iconify" data-icon="mdi:thermometer"></span>
+                    ${Math.round(plant.temperature || 0)}°C
                 </div>
             </div>
         </div>
@@ -161,10 +245,13 @@ const plantsGrid = document.getElementById("plantsGrid");
           ...plant,
           soil_moisture: plantMetrics.soil_moisture || 0,
           light: plantMetrics.light || 0,
+          temperature: plantMetrics.temperature || 0,
         },
         index
       );
 
+      // Agregar data-plant-id para identificar la tarjeta
+      card.setAttribute('data-plant-id', plant.id);
       plantsGrid.appendChild(card);
     } catch (error) {
       console.error(`Error loading stats for plant ${plant.id}:`, error);
@@ -174,9 +261,12 @@ const plantsGrid = document.getElementById("plantsGrid");
           ...plant,
           soil_moisture: 0,
           light: 0,
+          temperature: 0,
         },
         index
       );
+      // Agregar data-plant-id para identificar la tarjeta
+      card.setAttribute('data-plant-id', plant.id);
       plantsGrid.appendChild(card);
     }
   });

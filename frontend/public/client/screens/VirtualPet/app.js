@@ -1,9 +1,48 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace("http://", "ws://");
 
 // Obtener el ID de la planta desde la URL
 const params = new URLSearchParams(window.location.search);
 let plantId = params.get("id");
+
+// Inicializar Socket.IO para actualización en tiempo real
+let socket = null;
+if (typeof io !== 'undefined' && window.io) {
+  socket = window.io(SOCKET_URL, {
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionAttempts: 5
+  });
+
+  socket.on('connect', () => {
+    console.log('✅ Conectado a WebSocket');
+    if (plantId) {
+      socket.emit('join_plant_room', plantId);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ Desconectado de WebSocket');
+  });
+
+  // Escuchar actualizaciones de datos de sensores
+  socket.on('sensor_data_received', (eventData) => {
+    if (eventData.data && eventData.data.stats && eventData.data.stats.plant_id === plantId) {
+      console.log('📊 Actualización en tiempo real recibida:', eventData.data.stats);
+      updatePlantStats(eventData.data.stats, eventData.data.status);
+    }
+  });
+
+  // Escuchar actualizaciones de estadísticas de plantas
+  socket.on('plant_stats_updated', (eventData) => {
+    if (eventData.data && eventData.data.plant_id === plantId) {
+      console.log('📊 Estadísticas actualizadas:', eventData.data);
+      updatePlantStats(eventData.data);
+    }
+  });
+}
 
 // Si no hay ID, verificar si el usuario tiene plantas adoptadas
 if (!plantId) {
@@ -188,11 +227,11 @@ setInterval(updateTime, 60000);
     if (infoCardsContainer) {
       infoCardsContainer.innerHTML = "";
 
-      // Card 1: Luz/Sunlight (Sol)
+      // Card 1: Luz/Sunlight (Sol) - mostrar en lx
       const lightValue = stats?.light || 0;
       const lightCard = createInfoCard(
         "Light",
-        `${lightValue}%`,
+        `${Math.round(lightValue)} lx`,
         "Sunlight Level",
         getLightDescription(lightValue),
         "wi:day-sunny",
@@ -200,11 +239,11 @@ setInterval(updateTime, 60000);
       );
       infoCardsContainer.appendChild(lightCard);
 
-      // Card 2: Agua/Water (Gota de agua)
+      // Card 2: Agua/Water (Gota de agua) - humedad del suelo en %
       const moistureValue = stats?.soil_moisture || 0;
       const waterCard = createInfoCard(
         "Water",
-        `${moistureValue}%`,
+        `${Math.round(moistureValue)}%`,
         "Water Level",
         getMoistureDescription(moistureValue),
         "mdi:water-outline",
@@ -212,17 +251,17 @@ setInterval(updateTime, 60000);
       );
       infoCardsContainer.appendChild(waterCard);
 
-      // Card 3: Humedad/Rain (Lluvia)
-      const humidityValue = stats?.soil_moisture || 0; // Usar soil_moisture como humedad
-      const rainCard = createInfoCard(
-        "Humidity",
-        `${humidityValue}%`,
-        "Humidity Level",
-        getMoistureDescription(humidityValue),
-        "mdi:weather-rainy",
+      // Card 3: Temperatura/Temperature - mostrar en °C
+      const temperatureValue = stats?.temperature || 0;
+      const tempCard = createInfoCard(
+        "Temperature",
+        `${Math.round(temperatureValue)}°C`,
+        "Temperature Level",
+        getTemperatureDescription(temperatureValue),
+        "mdi:thermometer",
         "#7EB234"
       );
-      infoCardsContainer.appendChild(rainCard);
+      infoCardsContainer.appendChild(tempCard);
 
       // Card 4: Mood/Happiness (Cara feliz)
       // mood_index viene como decimal (0-1) o porcentaje (0-100)
@@ -350,8 +389,59 @@ function getMoodDescription(value) {
   return "Your plant needs more attention and care.";
 }
 
+// Función para actualizar las estadísticas de la planta en tiempo real
+function updatePlantStats(stats, status = null) {
+  const infoCardsContainer = document.getElementById("infoCardsContainer");
+  if (!infoCardsContainer) return;
+
+  // Actualizar Card 1: Luz
+  const lightCard = infoCardsContainer.children[0];
+  if (lightCard && stats.light !== undefined) {
+    const valueElement = lightCard.querySelector(".info-card-value");
+    if (valueElement) {
+      valueElement.textContent = `${Math.round(stats.light)} lx`;
+    }
+  }
+
+  // Actualizar Card 2: Agua
+  const waterCard = infoCardsContainer.children[1];
+  if (waterCard && stats.soil_moisture !== undefined) {
+    const valueElement = waterCard.querySelector(".info-card-value");
+    if (valueElement) {
+      valueElement.textContent = `${Math.round(stats.soil_moisture)}%`;
+    }
+  }
+
+  // Actualizar Card 3: Temperatura
+  const tempCard = infoCardsContainer.children[2];
+  if (tempCard && stats.temperature !== undefined) {
+    const valueElement = tempCard.querySelector(".info-card-value");
+    if (valueElement) {
+      valueElement.textContent = `${Math.round(stats.temperature)}°C`;
+    }
+  }
+
+  // Actualizar Card 4: Mood (si hay status)
+  if (status) {
+    const moodCard = infoCardsContainer.children[3];
+    if (moodCard) {
+      const valueElement = moodCard.querySelector(".info-card-value");
+      if (valueElement) {
+        let moodPercent = 0;
+        const moodIndex = status.mood_index || 0;
+        moodPercent = moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
+        const moodDisplay = status.mood_face || `${moodPercent}%`;
+        valueElement.textContent = moodDisplay;
+      }
+    }
+  }
+}
+
 // Función para volver a Garden (expuesta globalmente)
 window.goToGarden = function () {
+  if (socket) {
+    socket.disconnect();
+  }
   window.location.href = "/client/screens/Garden";
 };
 

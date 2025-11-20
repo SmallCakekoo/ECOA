@@ -114,9 +114,9 @@ async function fetchPlantMetrics(plantId) {
       // Usar valores por defecto si no hay métricas
       const [tempBtn, humBtn, lightBtn] =
         document.querySelectorAll(".state-button");
-      addStateButtonText(50, tempBtn);
-      addStateButtonText(50, humBtn);
-      addStateButtonText(50, lightBtn);
+      addStateButtonText(0, tempBtn, "°C");
+      addStateButtonText(0, humBtn, "%");
+      addStateButtonText(0, lightBtn, " lx");
       return;
     }
 
@@ -124,17 +124,17 @@ async function fetchPlantMetrics(plantId) {
     const plantMetrics = Array.isArray(data) ? data[0] : data;
     const [tempBtn, humBtn, lightBtn] =
       document.querySelectorAll(".state-button");
-    addStateButtonText(plantMetrics.temperature || 50, tempBtn);
-    addStateButtonText(plantMetrics.soil_moisture || 50, humBtn);
-    addStateButtonText(plantMetrics.light || 50, lightBtn);
+    addStateButtonText(plantMetrics.temperature || 0, tempBtn, "°C");
+    addStateButtonText(plantMetrics.soil_moisture || 0, humBtn, "%");
+    addStateButtonText(plantMetrics.light || 0, lightBtn, " lx");
   } catch (error) {
     console.error("Error cargando métricas:", error);
     // Usar valores por defecto en caso de error
     const [tempBtn, humBtn, lightBtn] =
       document.querySelectorAll(".state-button");
-    addStateButtonText(50, tempBtn);
-    addStateButtonText(50, humBtn);
-    addStateButtonText(50, lightBtn);
+    addStateButtonText(0, tempBtn, "°C");
+    addStateButtonText(0, humBtn, "%");
+    addStateButtonText(0, lightBtn, " lx");
   }
 }
 
@@ -208,9 +208,21 @@ async function fetchPlantStatus(plantId) {
 // const { success, data: plant} = await response.json()
 // console.log(success, plant);
 
-function addStateButtonText(value, node) {
+function addStateButtonText(value, node, unit = "%") {
+  // Limpiar cualquier texto anterior
+  const existingText = node.querySelector("p");
+  if (existingText) {
+    existingText.remove();
+  }
+  
   const text = document.createElement("p");
-  text.textContent = value + "%";
+  text.textContent = Math.round(value) + unit;
+  text.style.color = "white";
+  text.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
+  text.style.fontSize = "14px";
+  text.style.fontWeight = "600";
+  text.style.margin = "0";
+  text.style.paddingTop = "4px";
   node.appendChild(text);
 }
 
