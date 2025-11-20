@@ -82,6 +82,34 @@ export const receiveSensorData = async (req, res) => {
     let deviceRecord = null;
 
     if (device_serial) {
+      // Obtener el nombre de la fundación desde la tabla users si foundation_id está disponible
+      let location = device_location || "Unknown";
+      if (foundation_id) {
+        try {
+          const { findUserById } = await import("../db/users.db.js");
+          const { data: foundationUser, error: foundationError } = await findUserById(foundation_id);
+          
+          if (!foundationError && foundationUser && foundationUser.name) {
+            location = foundationUser.name;
+            console.log(`📍 Location obtenida desde fundación: ${location}`);
+          } else {
+            // Si no se encuentra en users, intentar buscar en foundations
+            const FoundationsDB = (await import("../db/foundations.db.js")).default;
+            try {
+              const foundation = await FoundationsDB.getById(foundation_id);
+              if (foundation && foundation.name) {
+                location = foundation.name;
+                console.log(`📍 Location obtenida desde tabla foundations: ${location}`);
+              }
+            } catch (foundationDbError) {
+              console.warn("⚠️ No se pudo obtener nombre de fundación, usando location proporcionado o 'Unknown'");
+            }
+          }
+        } catch (error) {
+          console.warn("⚠️ Error obteniendo location desde fundación:", error.message);
+        }
+      }
+
       const { data: existingDevice, error: deviceLookupError } =
         await findDeviceBySerial(device_serial);
 
@@ -93,7 +121,7 @@ export const receiveSensorData = async (req, res) => {
       if (existingDevice) {
         const deviceUpdatePayload = sanitizeDeviceUpdate({
           model: device_model,
-          location: device_location,
+          location: location,
           foundation_id,
           last_connection: new Date().toISOString(),
         });
@@ -110,7 +138,7 @@ export const receiveSensorData = async (req, res) => {
         const baseDevicePayload = createDeviceModel({
           serial_number: device_serial,
           model: device_model || "Raspberry Pi",
-          location: device_location || "Unknown",
+          location: location,
           foundation_id,
         });
 
@@ -126,7 +154,7 @@ export const receiveSensorData = async (req, res) => {
       }
     }
 
-    // Guardar datos en plant_stats
+    // Guardar datos en plant_stats - Actualizar si existe, crear si no
     const statsData = {
       plant_id: targetPlantId,
       soil_moisture: parseFloat(soil_moisture) || 0,
@@ -135,13 +163,45 @@ export const receiveSensorData = async (req, res) => {
       recorded_at: new Date().toISOString(),
     };
 
-    const { data: savedStats, error: statsError } = await insertPlantStats(
-      statsData
-    );
+    // Buscar si ya existe una estadística para esta planta
+    const { getLatestPlantStats } = await import("../db/plant_stats.db.js");
+    const { updatePlantStats } = await import("../db/plant_stats.db.js");
+    const { data: existingStats, error: statsCheckError } = await getLatestPlantStats(targetPlantId);
 
-    if (statsError) {
-      console.error("Error guardando plant_stats:", statsError);
-      throw statsError;
+    let savedStats;
+
+    if (!statsCheckError && existingStats && existingStats.plant_id === targetPlantId) {
+      // Actualizar estadística existente
+      const updateData = {
+        soil_moisture: statsData.soil_moisture,
+        temperature: statsData.temperature,
+        light: statsData.light,
+        recorded_at: statsData.recorded_at,
+      };
+
+      const { data: updatedStats, error: updateError } = await updatePlantStats(
+        existingStats.id,
+        updateData
+      );
+
+      if (updateError) {
+        console.error("Error actualizando plant_stats:", updateError);
+        throw updateError;
+      }
+
+      savedStats = updatedStats;
+    } else {
+      // Crear nueva estadística
+      const { data: createdStats, error: statsError } = await insertPlantStats(
+        statsData
+      );
+
+      if (statsError) {
+        console.error("Error guardando plant_stats:", statsError);
+        throw statsError;
+      }
+
+      savedStats = createdStats;
     }
 
     // Calcular estado de la planta

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECOA - Redirigiendo...</title>
+    <script>
+      // Verificar si hay datos de usuario en localStorage
+      (function() {
+        try {
+          const userData = localStorage.getItem("USER_DATA");
+          
+          if (userData) {
+            // Usuario logueado, redirigir a Home
+            window.location.href = "/client/screens/Home";
+          } else {
+            // Usuario no logueado, redirigir a Login
+            window.location.href = "/client/screens/LogIn";
+          }
+        } catch (error) {
+          // En caso de error, redirigir a Login
+          console.error("Error verificando usuario:", error);
+          window.location.href = "/client/screens/LogIn";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+      <p>Redirigiendo...</p>
+    </div>
+  </body>
+</html>
+

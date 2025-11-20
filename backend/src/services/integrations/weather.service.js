@@ -17,10 +17,12 @@ export async function getCurrentWeather(city = "Cali", countryCode = "CO") {
     // Intentar usar OpenWeatherMap si hay API key
     if (OPENWEATHER_API_KEY) {
       const query = countryCode ? `${city},${countryCode}` : city;
-      const url = `${OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(query)}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=es`;
-      
+      const url = `${OPENWEATHER_BASE_URL}/weather?q=${encodeURIComponent(
+        query
+      )}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=es`;
+
       const response = await fetch(url);
-      
+
       if (response.ok) {
         const data = await response.json();
         return {
@@ -35,18 +37,20 @@ export async function getCurrentWeather(city = "Cali", countryCode = "CO") {
         };
       }
     }
-    
+
     // Si OpenWeatherMap falla o no hay API key, usar Open-Meteo (no requiere API key)
     // Primero obtener coordenadas de la ciudad usando geocoding
-    const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=es&format=json`;
+    const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+      city
+    )}&count=1&language=es&format=json`;
     const geoResponse = await fetch(geocodeUrl);
-    
+
     if (!geoResponse.ok) {
       throw new Error("Error obteniendo coordenadas de la ciudad");
     }
-    
+
     const geoData = await geoResponse.json();
-    
+
     if (!geoData.results || geoData.results.length === 0) {
       return {
         success: false,
@@ -54,21 +58,21 @@ export async function getCurrentWeather(city = "Cali", countryCode = "CO") {
         message: `No se encontró la ciudad: ${city}`,
       };
     }
-    
+
     const location = geoData.results[0];
     const { latitude, longitude } = location;
-    
+
     // Obtener clima actual
     const weatherUrl = `${OPEN_METEO_BASE_URL}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto&forecast_days=1`;
     const weatherResponse = await fetch(weatherUrl);
-    
+
     if (!weatherResponse.ok) {
       throw new Error("Error obteniendo datos del clima");
     }
-    
+
     const weatherData = await weatherResponse.json();
     const current = weatherData.current;
-    
+
     // Convertir código de clima a descripción
     const weatherDescriptions = {
       0: "Despejado",
@@ -100,7 +104,7 @@ export async function getCurrentWeather(city = "Cali", countryCode = "CO") {
       96: "Tormenta con granizo ligero",
       99: "Tormenta con granizo intenso",
     };
-    
+
     return {
       success: true,
       temperature: Math.round(current.temperature_2m),
@@ -131,7 +135,7 @@ export function getGreetingByTime(hour = null) {
   if (hour === null) {
     hour = new Date().getHours();
   }
-  
+
   if (hour >= 5 && hour < 12) {
     return "Good Morning";
   } else if (hour >= 12 && hour < 18) {
@@ -159,4 +163,3 @@ function getWeatherIcon(weatherCode) {
   if (weatherCode >= 95 && weatherCode <= 99) return "11d"; // Tormenta
   return "01d"; // Por defecto
 }
-
