@@ -5,6 +5,7 @@ import smbus2
 import RPi.GPIO as GPIO
 import requests
 import os
+import uuid
 from adafruit_ads1x15.ads1115 import ADS1115
 from adafruit_ads1x15.analog_in import AnalogIn
 from w1thermsensor import W1ThermSensor
@@ -16,12 +17,67 @@ from dotenv import load_dotenv
 # Cargar variables de entorno
 load_dotenv()
 
+# ==================== FUNCIÓN PARA OBTENER/GENERAR SERIAL ÚNICO ====================
+
+def get_or_create_device_serial():
+    """
+    Obtiene o genera un serial único para el dispositivo.
+    Prioridad:
+    1. DEVICE_SERIAL del .env
+    2. Serial de CPU de Raspberry Pi
+    3. UUID guardado en archivo (persistente)
+    4. Nuevo UUID generado
+    """
+    # 1. Intentar desde variable de entorno
+    env_serial = os.getenv("DEVICE_SERIAL")
+    if env_serial and env_serial.strip():
+        print(f"✅ Usando DEVICE_SERIAL del .env: {env_serial}")
+        return env_serial.strip()
+    
+    # 2. Intentar leer serial de CPU de Raspberry Pi
+    try:
+        with open('/proc/cpuinfo', 'r') as f:
+            for line in f:
+                if line.startswith('Serial'):
+                    cpu_serial = line.split(':')[1].strip()
+                    if cpu_serial and len(cpu_serial) > 0:
+                        # Formatear como "RPI-XXXXXXXX"
+                        formatted_serial = f"RPI-{cpu_serial[-8:].upper()}"
+                        print(f"✅ Usando serial de CPU: {formatted_serial}")
+                        return formatted_serial
+    except Exception as e:
+        print(f"⚠️  No se pudo leer serial de CPU: {e}")
+    
+    # 3. Intentar leer UUID guardado en archivo (persistente)
+    serial_file = os.path.join(os.path.dirname(__file__), '.device_serial')
+    try:
+        if os.path.exists(serial_file):
+            with open(serial_file, 'r') as f:
+                saved_serial = f.read().strip()
+                if saved_serial:
+                    print(f"✅ Usando serial guardado: {saved_serial}")
+                    return saved_serial
+    except Exception as e:
+        print(f"⚠️  No se pudo leer archivo de serial: {e}")
+    
+    # 4. Generar nuevo UUID y guardarlo
+    new_serial = f"RPI-{str(uuid.uuid4()).replace('-', '').upper()[:12]}"
+    try:
+        with open(serial_file, 'w') as f:
+            f.write(new_serial)
+        print(f"✅ Nuevo serial generado y guardado: {new_serial}")
+    except Exception as e:
+        print(f"⚠️  No se pudo guardar serial en archivo: {e}")
+        print(f"   Usando serial temporal: {new_serial}")
+    
+    return new_serial
+
 # ==================== CONFIGURACIÓN ====================
 
 # Backend URL
 BACKEND_URL = os.getenv("BACKEND_URL", "https://ecoabackendecoa.vercel.app")
 PLANT_ID = os.getenv("PLANT_ID", None)
-DEVICE_SERIAL = os.getenv("DEVICE_SERIAL", None)
+DEVICE_SERIAL = get_or_create_device_serial()  # Siempre tendrá un valor
 DEVICE_MODEL = os.getenv("DEVICE_MODEL", "Raspberry Pi")
 DEVICE_LOCATION = os.getenv("DEVICE_LOCATION", "Unknown location")
 FOUNDATION_ID = os.getenv("FOUNDATION_ID", None)
@@ -29,6 +85,11 @@ FOUNDATION_ID = os.getenv("FOUNDATION_ID", None)
 # Validar variable de entorno
 if not BACKEND_URL:
     raise ValueError("⚠️  Falta BACKEND_URL en el archivo .env")
+
+# Mostrar información del dispositivo
+print(f"🆔 Device Serial: {DEVICE_SERIAL}")
+print(f"📱 Device Model: {DEVICE_MODEL}")
+print(f"📍 Device Location: {DEVICE_LOCATION}")
 
 # GPIO para sensor de humedad digital
 DIGITAL_PIN = 17
@@ -158,12 +219,12 @@ def send_sensor_data_to_backend(temperatura, luminosidad, humedad, plant_id=None
         if target_plant_id:
             data["plant_id"] = target_plant_id
         
-        if DEVICE_SERIAL:
-            data["device_serial"] = DEVICE_SERIAL
-            if DEVICE_MODEL:
-                data["device_model"] = DEVICE_MODEL
-            if DEVICE_LOCATION:
-                data["device_location"] = DEVICE_LOCATION
+        # Siempre incluir device_serial (ahora siempre tiene valor)
+        data["device_serial"] = DEVICE_SERIAL
+        if DEVICE_MODEL:
+            data["device_model"] = DEVICE_MODEL
+        if DEVICE_LOCATION:
+            data["device_location"] = DEVICE_LOCATION
         if FOUNDATION_ID:
             data["foundation_id"] = FOUNDATION_ID
         
@@ -274,8 +335,9 @@ default_emojis = {
 def main():
     print("🌱 Sistema de monitoreo de plantas iniciado")
     print(f"🔗 Backend: {BACKEND_URL}")
+    print(f"🆔 Device Serial: {DEVICE_SERIAL}")
     if PLANT_ID:
-        print(f"🆔 Plant ID: {PLANT_ID}")
+        print(f"🌿 Plant ID: {PLANT_ID}")
     print("=" * 60)
     print("Flujo del sistema:")
     print("  1. Raspberry lee sensores cada 5 segundos")

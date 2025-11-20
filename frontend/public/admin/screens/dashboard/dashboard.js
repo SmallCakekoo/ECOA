@@ -939,88 +939,18 @@ async function loadDevices() {
       // Limpiar opciones existentes excepto la primera
       deviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
       
-      // Ordenar dispositivos: Raspberry Pi primero, luego por última conexión
-      const sortedDevices = [...devices].sort((a, b) => {
-        const aIsRaspberry = (a.model || '').toLowerCase().includes('raspberry');
-        const bIsRaspberry = (b.model || '').toLowerCase().includes('raspberry');
-        
-        if (aIsRaspberry && !bIsRaspberry) return -1;
-        if (!aIsRaspberry && bIsRaspberry) return 1;
-        
-        // Si ambos son o no son Raspberry, ordenar por última conexión (más reciente primero)
-        const aLastConn = a.last_connection ? new Date(a.last_connection) : new Date(0);
-        const bLastConn = b.last_connection ? new Date(b.last_connection) : new Date(0);
-        return bLastConn - aLastConn;
-      });
-      
       // Agregar dispositivos al selector
-      sortedDevices.forEach(device => {
+      devices.forEach(device => {
         const option = document.createElement("option");
         option.value = device.id;
-        
-        // Identificar si es Raspberry Pi (múltiples formas de detectar)
-        const modelLower = (device.model || '').toLowerCase();
-        const serialLower = (device.serial_number || '').toLowerCase();
-        const isRaspberry = 
-          modelLower.includes('raspberry') || 
-          modelLower.includes('rpi') ||
-          serialLower.includes('raspberry') ||
-          serialLower.includes('rpi');
-        
-        const raspberryBadge = isRaspberry ? '🍓 ' : '';
-        
-        // Formatear última conexión
-        let lastConnText = '';
-        let isActive = false;
-        if (device.last_connection) {
-          const lastConn = new Date(device.last_connection);
-          const now = new Date();
-          const diffMs = now - lastConn;
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
-          
-          if (diffMins < 5) {
-            lastConnText = ' ⚡ ACTIVO AHORA';
-            isActive = true;
-          } else if (diffMins < 60) {
-            lastConnText = ` (hace ${diffMins} min)`;
-          } else if (diffHours < 24) {
-            lastConnText = ` (hace ${diffHours}h)`;
-          } else {
-            lastConnText = ` (hace ${diffDays} días)`;
-          }
-        } else {
-          lastConnText = ' (nunca conectado)';
-        }
-        
-        // Construir label descriptivo
-        const parts = [];
-        if (isRaspberry) {
-          parts.push('Raspberry Pi');
-        } else if (device.model) {
-          parts.push(device.model);
-        }
-        if (device.serial_number) {
-          parts.push(`Serial: ${device.serial_number}`);
-        }
-        if (device.location && device.location !== 'Unknown' && device.location !== 'Unknown location') {
-          parts.push(`📍 ${device.location}`);
-        }
-        
-        // Si no hay información útil, mostrar el ID
-        if (parts.length === 0) {
-          parts.push(`ID: ${device.id.substring(0, 8)}...`);
-        }
-        
-        const deviceLabel = raspberryBadge + (parts.length > 0 ? parts.join(' | ') : device.id) + lastConnText;
-        option.textContent = deviceLabel;
-        
-        // Resaltar visualmente los dispositivos activos o Raspberry Pi
-        if (isRaspberry || isActive) {
-          option.style.fontWeight = 'bold';
-        }
-        
+        // Mostrar información útil del dispositivo (serial_number o serial, model, location)
+        const serial = device.serial_number || device.serial || 'Unknown';
+        const deviceLabel = [
+          serial,
+          device.model || '',
+          device.location || ''
+        ].filter(Boolean).join(' - ');
+        option.textContent = deviceLabel || device.id;
         deviceSelect.appendChild(option);
       });
       
