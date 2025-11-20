@@ -92,7 +92,10 @@ const adminSrcDir = resolve(publicDir, "admin/src");
 
 console.log("\n🔍 Scanning for HTML and JS files...\n");
 
+// Incluir index.html de la raíz de public
+const rootIndexPath = resolve(publicDir, "index.html");
 const htmlEntries = {
+  ...(existsSync(rootIndexPath) ? { root: rootIndexPath } : {}),
   ...getAllHtmlFiles(clientDir, "client-"),
   ...getAllHtmlFiles(adminDir, "admin-"),
 };
@@ -135,6 +138,11 @@ const allEntries = {
 console.log(`\n✅ Found ${Object.keys(htmlEntries).length} HTML files`);
 console.log(`✅ Found ${Object.keys(jsEntries).length} JS files`);
 console.log(`✅ Total entry points: ${Object.keys(allEntries).length}\n`);
+
+// Verificar si el index.html raíz está incluido
+if (htmlEntries.root) {
+  console.log(`✓ Root index.html included: ${htmlEntries.root}\n`);
+}
 
 // Plugin para convertir rutas relativas de scripts a absolutas
 function fixScriptPaths() {
@@ -185,6 +193,8 @@ function copyStaticAssets() {
       const distDir = resolve(__dirname, "dist");
       const clientSrcDir = resolve(publicDir, "client/src");
       const distClientSrcDir = resolve(distDir, "client/src");
+      const rootIndexPath = resolve(publicDir, "index.html");
+      const distIndexPath = resolve(distDir, "index.html");
 
       // Función recursiva para copiar directorios
       function copyRecursive(src, dest) {
@@ -206,11 +216,21 @@ function copyStaticAssets() {
         }
       }
 
+      // Copiar index.html raíz si existe y no fue procesado por Vite
+      if (existsSync(rootIndexPath) && !existsSync(distIndexPath)) {
+        console.log("\n📦 Copying root index.html...\n");
+        mkdirSync(distDir, { recursive: true });
+        copyFileSync(rootIndexPath, distIndexPath);
+        console.log(`✓ Copied: index.html to dist/\n`);
+      } else if (existsSync(distIndexPath)) {
+        console.log("\n✓ Root index.html already processed by Vite\n");
+      }
+
       // Copiar client/src/assets y client/src/utils
       if (existsSync(clientSrcDir)) {
-        console.log("\n📦 Copying static assets...\n");
+        console.log("📦 Copying static assets...\n");
         copyRecursive(clientSrcDir, distClientSrcDir);
-        console.log("\n✅ Static assets copied successfully\n");
+        console.log("✅ Static assets copied successfully\n");
       }
     },
   };
