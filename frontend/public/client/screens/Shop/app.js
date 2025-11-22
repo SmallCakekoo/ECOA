@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = "https://ecoa-ruddy.vercel.app";
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 // Obtener el ID de la planta desde la URL

@@ -2,7 +2,7 @@
 class AdminAPI {
   constructor() {
     const baseURL =
-      window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app";
+      window.AdminConfig?.API_BASE_URL || "https://ecoa-ruddy.vercel.app";
     // Asegurar que baseURL no termine con /
     this.baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
     this.token = localStorage.getItem(
@@ -30,7 +30,7 @@ class AdminAPI {
       // Verificar si la respuesta es JSON válido
       let data = {};
       const contentType = response.headers.get("content-type");
-      
+
       try {
         if (contentType && contentType.includes("application/json")) {
           const text = await response.text();
@@ -41,18 +41,18 @@ class AdminAPI {
           }
         } else {
           const text = await response.text();
-          data = { 
+          data = {
             message: text || `Error ${response.status}: ${response.statusText}`,
-            rawResponse: text
+            rawResponse: text,
           };
         }
       } catch (parseError) {
         console.error("Error parseando respuesta JSON:", parseError);
         const text = await response.text().catch(() => "");
-        data = { 
+        data = {
           message: `Error ${response.status}: ${response.statusText}`,
           rawResponse: text,
-          parseError: parseError.message
+          parseError: parseError.message,
         };
       }
 
@@ -74,14 +74,14 @@ class AdminAPI {
         message: error.message,
         status: error.status,
         response: error.response,
-        stack: error.stack
+        stack: error.stack,
       });
 
       // Si el error no tiene response, crear uno básico
       if (!error.response) {
         error.response = {
           message: error.message || "Error desconocido",
-          success: false
+          success: false,
         };
       }
 

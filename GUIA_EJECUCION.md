@@ -40,16 +40,16 @@ npm run dev
 npm start
 ```
 
-El backend está desplegado en: `https://ecoabackendecoa.vercel.app`
+El backend está desplegado en: `https://ecoa-ruddy.vercel.app`
 
 ### Verificar que funciona
 
 ```bash
 # Probar el endpoint de salud
-curl https://ecoabackendecoa.vercel.app/health
+curl https://ecoa-ruddy.vercel.app/health
 
 # O abrir en el navegador
-# https://ecoabackendecoa.vercel.app/health
+# https://ecoa-ruddy.vercel.app/health
 ```
 
 **Nota**: El backend ya está desplegado en Vercel. Si quieres ejecutarlo localmente para desarrollo, sigue los pasos anteriores, pero recuerda que el frontend y la Raspberry Pi están configurados para usar el backend en producción.
@@ -88,7 +88,7 @@ El frontend local estará disponible en: `http://localhost:5173` (puerto por def
 
 ### Nota importante
 
-El frontend está configurado para usar el backend en producción (`https://ecoabackendecoa.vercel.app`). Todas las peticiones se realizan directamente al backend desplegado.
+El frontend está configurado para usar el backend en producción (`https://ecoa-ruddy.vercel.app`). Todas las peticiones se realizan directamente al backend desplegado.
 
 ---
 
@@ -118,7 +118,7 @@ pip install -r requirements.txt
 
 # 4. Configurar variables de entorno
 # Crear archivo .env con:
-# BACKEND_URL=https://ecoabackendecoa.vercel.app/
+# BACKEND_URL=https://ecoa-ruddy.vercel.app/
 # PLANT_ID=tu_plant_id_opcional (si no se proporciona, usa la primera planta adoptada)
 # DEVICE_SERIAL=serial_unico_de_la_raspberry
 # DEVICE_MODEL=Raspberry Pi 4 (opcional)
@@ -157,11 +157,11 @@ python main.py
 
 ### Orden recomendado:
 
-1. **Verificar Backend**: El backend ya está desplegado en `https://ecoabackendecoa.vercel.app`
+1. **Verificar Backend**: El backend ya está desplegado en `https://ecoa-ruddy.vercel.app`
 
    ```bash
    # Verificar que está funcionando
-   curl https://ecoabackendecoa.vercel.app/health
+   curl https://ecoa-ruddy.vercel.app/health
    ```
 
 2. **Acceder al Frontend**: El frontend ya está desplegado en `https://ecoafrontendecoa.vercel.app/`
@@ -201,7 +201,7 @@ La Raspberry Pi enviará datos cada 5 segundos al endpoint `/sensor-data`. Puede
 
 ### 2. Obtener el emoji desde la Raspberry
 
-La Raspberry Pi obtendrá el emoji cada 3 segundos del endpoint `https://ecoabackendecoa.vercel.app/emoji` y lo mostrará en el LED Matrix.
+La Raspberry Pi obtendrá el emoji cada 3 segundos del endpoint `https://ecoa-ruddy.vercel.app/emoji` y lo mostrará en el LED Matrix.
 
 ### 3. Ver datos en el frontend
 
@@ -218,13 +218,13 @@ Puedes probar los endpoints directamente:
 
 ```bash
 # Health check
-curl https://ecoabackendecoa.vercel.app/health
+curl https://ecoa-ruddy.vercel.app/health
 
 # Obtener emoji (requiere plant_id o usa primera planta adoptada)
-curl https://ecoabackendecoa.vercel.app/emoji
+curl https://ecoa-ruddy.vercel.app/emoji
 
 # Ver todos los endpoints disponibles
-curl https://ecoabackendecoa.vercel.app/
+curl https://ecoa-ruddy.vercel.app/
 ```
 
 ---
@@ -233,7 +233,7 @@ curl https://ecoabackendecoa.vercel.app/
 
 ### Backend no responde
 
-- Verifica que el backend esté desplegado en Vercel: `https://ecoabackendecoa.vercel.app/health`
+- Verifica que el backend esté desplegado en Vercel: `https://ecoa-ruddy.vercel.app/health`
 - Si ejecutas localmente, verifica que el puerto 3000 no esté en uso
 - Revisa las variables de entorno en `.env`
 - Verifica la conexión a Supabase
@@ -241,7 +241,7 @@ curl https://ecoabackendecoa.vercel.app/
 ### Frontend no se conecta al backend
 
 - Accede al frontend desplegado: `https://ecoafrontendecoa.vercel.app/`
-- Verifica que el backend esté disponible en `https://ecoabackendecoa.vercel.app/health`
+- Verifica que el backend esté disponible en `https://ecoa-ruddy.vercel.app/health`
 - Revisa la conexión a internet
 - Verifica CORS en el backend (ya está configurado para permitir todas las solicitudes)
 - Si usas frontend local, verifica que esté corriendo en `http://localhost:5173`
@@ -257,8 +257,8 @@ curl https://ecoabackendecoa.vercel.app/
 
 - Verifica que el LED Matrix esté conectado correctamente
 - Revisa la conexión SPI
-- Verifica que el backend esté respondiendo en `https://ecoabackendecoa.vercel.app/emoji`
-- Prueba manualmente: `curl https://ecoabackendecoa.vercel.app/emoji`
+- Verifica que el backend esté respondiendo en `https://ecoa-ruddy.vercel.app/emoji`
+- Prueba manualmente: `curl https://ecoa-ruddy.vercel.app/emoji`
 
 ---
 
@@ -275,7 +275,7 @@ PORT=3000
 ### Raspberry Pi (.env)
 
 ```
-BACKEND_URL=https://ecoabackendecoa.vercel.app/
+BACKEND_URL=https://ecoa-ruddy.vercel.app/
 PLANT_ID=opcional_uuid_de_planta
 ```
 
@@ -283,7 +283,7 @@ PLANT_ID=opcional_uuid_de_planta
 
 ## ✅ Checklist de Verificación
 
-- [ ] Backend disponible en `https://ecoabackendecoa.vercel.app` (verificar con `/health`)
+- [ ] Backend disponible en `https://ecoa-ruddy.vercel.app` (verificar con `/health`)
 - [ ] Frontend disponible en `https://ecoafrontendecoa.vercel.app/` (producción) o corriendo localmente en `http://localhost:5173` (desarrollo)
 - [ ] Raspberry Pi ejecutando `main.py`
 - [ ] Sensores conectados y funcionando
@@ -306,8 +306,8 @@ Una vez que todo esté funcionando:
 
 ## 🌐 URLs del Sistema
 
-- **Backend API**: `https://ecoabackendecoa.vercel.app`
+- **Backend API**: `https://ecoa-ruddy.vercel.app`
 - **Frontend Web**: `https://ecoafrontendecoa.vercel.app/`
-- **Health Check**: `https://ecoabackendecoa.vercel.app/health`
+- **Health Check**: `https://ecoa-ruddy.vercel.app/health`
 
 ¡Listo! 🎉

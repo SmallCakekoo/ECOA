@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = "https://ecoa-ruddy.vercel.app";
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 const params = new URLSearchParams(window.location.search);
@@ -11,20 +11,20 @@ function getPlantImageUrl(plant) {
   if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
     return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
   }
-  
+
   // Fallback si el helper no está cargado aún (usar recursos locales directamente)
   if (plant && plant.id) {
     // Generar hash del ID para seleccionar imagen local
     const plantIdStr = String(plant.id);
     let hash = 0;
     for (let i = 0; i < plantIdStr.length; i++) {
-      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
       hash = hash & hash; // Convertir a entero de 32 bits
     }
     const imageIndex = (Math.abs(hash) % 10) + 1; // Número entre 1 y 10
     return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
-  
+
   // Si no hay ID, usar imagen por defecto
   return "/client/src/assets/images/plant.png";
 }
@@ -49,36 +49,40 @@ async function fetchPlantData(plantId) {
 
   document.title = `${plant.name} Plant - Adopt`;
   // Mostrar solo el nombre científico arriba
-  document.querySelector(".plant-title").textContent = plant.species || plant.name;
+  document.querySelector(".plant-title").textContent =
+    plant.species || plant.name;
 
   const plantImage = document.querySelector("#plant-image");
   const imageUrl = getPlantImageUrl(plant);
   plantImage.src = imageUrl;
-  
+
   // Manejar error de carga de imagen con fallback a recursos locales
   plantImage.onerror = function () {
     // Si el helper está disponible, usarlo
-    if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
+    if (
+      window.PlantImageUtils &&
+      window.PlantImageUtils.handlePlantImageError
+    ) {
       window.PlantImageUtils.handlePlantImageError(this, plant);
       return;
     }
-    
+
     // Fallback: intentar con imagen local basada en ID
     if (plant && plant.id) {
       const plantIdStr = String(plant.id);
       let hash = 0;
       for (let i = 0; i < plantIdStr.length; i++) {
-        hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+        hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
         hash = hash & hash;
       }
       const imageIndex = (Math.abs(hash) % 10) + 1;
       const localImage = `/client/src/assets/images/plants/plant-${imageIndex}.png`;
-      
+
       // Solo cambiar si es diferente a la actual
-      if (this.src !== localImage && !this.src.includes('plant-')) {
+      if (this.src !== localImage && !this.src.includes("plant-")) {
         this.src = localImage;
         // Si la imagen local también falla, usar imagen por defecto
-        this.onerror = function() {
+        this.onerror = function () {
           this.onerror = null; // Prevenir loops infinitos
           this.src = "/client/src/assets/images/plant.png";
         };
@@ -214,7 +218,7 @@ function addStateButtonText(value, node, unit = "%") {
   if (existingText) {
     existingText.remove();
   }
-  
+
   const text = document.createElement("p");
   text.textContent = Math.round(value) + unit;
   text.style.color = "white";
@@ -264,7 +268,9 @@ window.adoptPlant = async function () {
   // Validar que tenemos los datos necesarios
   if (!plantId) {
     console.error("No se encontró el ID de la planta");
-    alert("Error: No se pudo identificar la planta. Por favor, intenta nuevamente.");
+    alert(
+      "Error: No se pudo identificar la planta. Por favor, intenta nuevamente."
+    );
     return;
   }
 
@@ -281,7 +287,8 @@ window.adoptPlant = async function () {
   adoptButton.disabled = true;
   adoptButton.style.opacity = "0.7";
   adoptButton.style.cursor = "not-allowed";
-  adoptButton.innerHTML = '<span class="iconify" data-icon="svg-spinners:ring-resize"></span> Adoptando...';
+  adoptButton.innerHTML =
+    '<span class="iconify" data-icon="svg-spinners:ring-resize"></span> Adoptando...';
 
   console.log("Adoptando planta:", plantId);
 
@@ -319,7 +326,8 @@ window.adoptPlant = async function () {
         errorMessage = "Esta planta ya ha sido adoptada.";
         break;
       case 500:
-        errorMessage = "Error interno del servidor. Por favor intenta más tarde.";
+        errorMessage =
+          "Error interno del servidor. Por favor intenta más tarde.";
         break;
       case 503:
         errorMessage = "Servicio no disponible. Por favor intenta más tarde.";
@@ -360,7 +368,10 @@ window.adoptPlant = async function () {
       adoptButton.style.opacity = "1";
       adoptButton.style.cursor = "pointer";
       adoptButton.innerHTML = originalText;
-      sessionStorage.setItem("adoptionError", "La adopción no se pudo completar.");
+      sessionStorage.setItem(
+        "adoptionError",
+        "La adopción no se pudo completar."
+      );
       window.location.href = "/client/screens/AdoptFeedback/error";
     }
   } catch (error) {
@@ -372,7 +383,10 @@ window.adoptPlant = async function () {
       adoptButton.style.cursor = "pointer";
       adoptButton.innerHTML = originalText;
     }
-    sessionStorage.setItem("adoptionError", "Error de conexión. Por favor verifica tu internet.");
+    sessionStorage.setItem(
+      "adoptionError",
+      "Error de conexión. Por favor verifica tu internet."
+    );
     window.location.href = "/client/screens/AdoptFeedback/error";
   }
 };

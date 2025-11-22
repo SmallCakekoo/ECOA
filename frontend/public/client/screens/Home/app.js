@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = "https://ecoa-ruddy.vercel.app";
 
 function resolvePlantImage(plant) {
   const url = plant.image || plant.image_url;

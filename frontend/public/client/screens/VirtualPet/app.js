@@ -1,6 +1,9 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
-const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace("http://", "ws://");
+const API_BASE_URL = "https://ecoa-ruddy.vercel.app";
+const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace(
+  "http://",
+  "ws://"
+);
 
 // Obtener el ID de la planta desde la URL
 const params = new URLSearchParams(window.location.search);
@@ -8,37 +11,44 @@ let plantId = params.get("id");
 
 // Inicializar Socket.IO para actualización en tiempo real
 let socket = null;
-if (typeof io !== 'undefined' && window.io) {
+if (typeof io !== "undefined" && window.io) {
   socket = window.io(SOCKET_URL, {
-    transports: ['websocket', 'polling'],
+    transports: ["websocket", "polling"],
     reconnection: true,
     reconnectionDelay: 1000,
-    reconnectionAttempts: 5
+    reconnectionAttempts: 5,
   });
 
-  socket.on('connect', () => {
-    console.log('✅ Conectado a WebSocket');
+  socket.on("connect", () => {
+    console.log("✅ Conectado a WebSocket");
     if (plantId) {
-      socket.emit('join_plant_room', plantId);
+      socket.emit("join_plant_room", plantId);
     }
   });
 
-  socket.on('disconnect', () => {
-    console.log('❌ Desconectado de WebSocket');
+  socket.on("disconnect", () => {
+    console.log("❌ Desconectado de WebSocket");
   });
 
   // Escuchar actualizaciones de datos de sensores
-  socket.on('sensor_data_received', (eventData) => {
-    if (eventData.data && eventData.data.stats && eventData.data.stats.plant_id === plantId) {
-      console.log('📊 Actualización en tiempo real recibida:', eventData.data.stats);
+  socket.on("sensor_data_received", (eventData) => {
+    if (
+      eventData.data &&
+      eventData.data.stats &&
+      eventData.data.stats.plant_id === plantId
+    ) {
+      console.log(
+        "📊 Actualización en tiempo real recibida:",
+        eventData.data.stats
+      );
       updatePlantStats(eventData.data.stats, eventData.data.status);
     }
   });
 
   // Escuchar actualizaciones de estadísticas de plantas
-  socket.on('plant_stats_updated', (eventData) => {
+  socket.on("plant_stats_updated", (eventData) => {
     if (eventData.data && eventData.data.plant_id === plantId) {
-      console.log('📊 Estadísticas actualizadas:', eventData.data);
+      console.log("📊 Estadísticas actualizadas:", eventData.data);
       updatePlantStats(eventData.data);
     }
   });
@@ -49,19 +59,23 @@ if (!plantId) {
   console.log("No plant ID provided, checking for adopted plants...");
   (async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${USER_DATA.id}/plants`);
+      const response = await fetch(
+        `${API_BASE_URL}/users/${USER_DATA.id}/plants`
+      );
       const { success, data: plants } = await response.json();
-      
+
       // Si no hay plantas adoptadas o no hay éxito, redirigir a Garden
       if (!success || !plants || plants.length === 0) {
         console.log("No adopted plants found, redirecting to Garden");
         window.location.href = "/client/screens/Garden";
         return;
       }
-      
+
       // Si hay plantas, redirigir a la primera planta
       if (plants.length > 0) {
-        console.log(`Found ${plants.length} adopted plant(s), redirecting to first plant`);
+        console.log(
+          `Found ${plants.length} adopted plant(s), redirecting to first plant`
+        );
         window.location.href = `/client/screens/VirtualPet?id=${plants[0].id}`;
         return;
       }
@@ -82,28 +96,32 @@ function getPlantImageUrl(plant) {
   if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
     return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
   }
-  
+
   // Fallback si no está disponible el helper
   const url = plant.image || plant.image_url;
   if (url) {
-    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+    if (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("data:")
+    ) {
       return url;
     }
     return `${API_BASE_URL}${url}`;
   }
-  
+
   // Usar imagen local como fallback
   if (plant.id) {
     const plantIdStr = String(plant.id);
     let hash = 0;
     for (let i = 0; i < plantIdStr.length; i++) {
-      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
       hash = hash & hash;
     }
     const imageIndex = (Math.abs(hash) % 10) + 1;
     return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
-  
+
   return "/client/src/assets/images/plant.png";
 }
 
@@ -130,7 +148,7 @@ setInterval(updateTime, 60000);
   if (!plantId) {
     return;
   }
-  
+
   try {
     // Cargar datos básicos de la planta
     const plantResponse = await fetch(`${API_BASE_URL}/plants/${plantId}`);
@@ -141,7 +159,7 @@ setInterval(updateTime, 60000);
       window.location.href = "/client/screens/Garden";
       return;
     }
-    
+
     // Verificar que la planta esté adoptada por el usuario actual
     if (plant.user_id !== USER_DATA.id) {
       console.log("Plant not adopted by current user, redirecting to Garden");
@@ -162,7 +180,10 @@ setInterval(updateTime, 60000);
       plantImage.src = getPlantImageUrl(plant);
       plantImage.alt = `${plant.name} Plant`;
       plantImage.onerror = function () {
-        if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
+        if (
+          window.PlantImageUtils &&
+          window.PlantImageUtils.handlePlantImageError
+        ) {
           window.PlantImageUtils.handlePlantImageError(this, plant);
         } else {
           // Fallback simple
@@ -170,7 +191,7 @@ setInterval(updateTime, 60000);
             const plantIdStr = String(plant.id);
             let hash = 0;
             for (let i = 0; i < plantIdStr.length; i++) {
-              hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+              hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
               hash = hash & hash;
             }
             const imageIndex = (Math.abs(hash) % 10) + 1;
@@ -178,7 +199,7 @@ setInterval(updateTime, 60000);
           } else {
             this.src = "/client/src/assets/images/plant.png";
           }
-          this.onerror = function() {
+          this.onerror = function () {
             this.onerror = null;
             this.src = "/client/src/assets/images/plant.png";
           };
@@ -269,9 +290,10 @@ setInterval(updateTime, 60000);
       if (status) {
         const moodIndex = status.mood_index || 0;
         // Si es menor que 1, asumir que es decimal y convertir a porcentaje
-        moodPercent = moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
+        moodPercent =
+          moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
       }
-      
+
       // Mostrar emoji si está disponible
       const moodDisplay = status?.mood_face || `${moodPercent}%`;
       const moodCard = createInfoCard(
@@ -283,7 +305,7 @@ setInterval(updateTime, 60000);
         "#7EB234"
       );
       infoCardsContainer.appendChild(moodCard);
-      
+
       // Mostrar estado de salud si está disponible
       if (status?.status) {
         const statusText = status.status; // Healthy, Recovering, Bad
@@ -301,7 +323,7 @@ setInterval(updateTime, 60000);
 function createInfoCard(title, value, subtitle, description, icon, color) {
   const card = document.createElement("div");
   card.className = "info-card";
-  
+
   card.innerHTML = `
     <div class="info-card-icon">
       <span class="iconify" data-icon="${icon}"></span>
@@ -310,7 +332,7 @@ function createInfoCard(title, value, subtitle, description, icon, color) {
       <p class="info-card-value">${value}</p>
     </div>
   `;
-  
+
   return card;
 }
 
@@ -324,9 +346,11 @@ function getHealthDescription(status) {
     needs_care: "Your plant requires some extra care.",
     sick: "Your plant is showing signs of illness.",
     dying: "Your plant needs urgent care.",
-    critical: "Your plant is in critical condition."
+    critical: "Your plant is in critical condition.",
   };
-  return descriptions[status.toLowerCase()] || "Status information not available.";
+  return (
+    descriptions[status.toLowerCase()] || "Status information not available."
+  );
 }
 
 function getHealthIcon(status) {
@@ -338,7 +362,7 @@ function getHealthIcon(status) {
     needs_care: "mdi:heart-pulse",
     sick: "mdi:heart-broken",
     dying: "mdi:heart-broken",
-    critical: "mdi:heart-broken"
+    critical: "mdi:heart-broken",
   };
   return icons[status.toLowerCase()] || "mdi:heart";
 }
@@ -352,7 +376,7 @@ function getHealthColor(status) {
     needs_care: "#F39C12",
     sick: "#E74C3C",
     dying: "#E74C3C",
-    critical: "#C0392B"
+    critical: "#C0392B",
   };
   return colors[status.toLowerCase()] || "#7EB234";
 }
@@ -429,7 +453,8 @@ function updatePlantStats(stats, status = null) {
       if (valueElement) {
         let moodPercent = 0;
         const moodIndex = status.mood_index || 0;
-        moodPercent = moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
+        moodPercent =
+          moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
         const moodDisplay = status.mood_face || `${moodPercent}%`;
         valueElement.textContent = moodDisplay;
       }

@@ -75,7 +75,7 @@ def get_or_create_device_serial():
 # ==================== CONFIGURACIÓN ====================
 
 # Backend URL
-BACKEND_URL = os.getenv("BACKEND_URL", "https://ecoabackendecoa.vercel.app")
+BACKEND_URL = os.getenv("BACKEND_URL", "https://ecoa-ruddy.vercel.app")
 PLANT_ID = os.getenv("PLANT_ID", None)
 DEVICE_SERIAL = get_or_create_device_serial()  # Siempre tendrá un valor
 DEVICE_MODEL = os.getenv("DEVICE_MODEL", "Raspberry Pi")

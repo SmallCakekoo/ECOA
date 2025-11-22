@@ -1,6 +1,6 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = "https://ecoa-ruddy.vercel.app";
 
 // Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
@@ -8,20 +8,20 @@ function getPlantImageUrl(plant) {
   if (window.PlantImageUtils && window.PlantImageUtils.getPlantImageUrl) {
     return window.PlantImageUtils.getPlantImageUrl(plant, API_BASE_URL);
   }
-  
+
   // Fallback si el helper no está cargado aún (usar recursos locales directamente)
   if (plant && plant.id) {
     // Generar hash del ID para seleccionar imagen local
     const plantIdStr = String(plant.id);
     let hash = 0;
     for (let i = 0; i < plantIdStr.length; i++) {
-      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
       hash = hash & hash; // Convertir a entero de 32 bits
     }
     const imageIndex = (Math.abs(hash) % 10) + 1; // Número entre 1 y 10
     return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
-  
+
   // Si no hay ID, usar imagen por defecto
   return "/client/src/assets/images/plant.png";
 }
@@ -38,31 +38,34 @@ function createPlantCard(plant, index) {
   img.src = imageUrl;
   img.alt = `${plant.name} Plant`;
   img.className = `plant-image plant-image${index}`;
-  
+
   // Manejar error de carga de imagen con fallback a recursos locales
   img.onerror = function () {
     // Si el helper está disponible, usarlo
-    if (window.PlantImageUtils && window.PlantImageUtils.handlePlantImageError) {
+    if (
+      window.PlantImageUtils &&
+      window.PlantImageUtils.handlePlantImageError
+    ) {
       window.PlantImageUtils.handlePlantImageError(this, plant);
       return;
     }
-    
+
     // Fallback: intentar con imagen local basada en ID
     if (plant && plant.id) {
       const plantIdStr = String(plant.id);
       let hash = 0;
       for (let i = 0; i < plantIdStr.length; i++) {
-        hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+        hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
         hash = hash & hash;
       }
       const imageIndex = (Math.abs(hash) % 10) + 1;
       const localImage = `/client/src/assets/images/plants/plant-${imageIndex}.png`;
-      
+
       // Solo cambiar si es diferente a la actual
-      if (this.src !== localImage && !this.src.includes('plant-')) {
+      if (this.src !== localImage && !this.src.includes("plant-")) {
         this.src = localImage;
         // Si la imagen local también falla, usar imagen por defecto
-        this.onerror = function() {
+        this.onerror = function () {
           this.onerror = null; // Prevenir loops infinitos
           this.src = "/client/src/assets/images/plant.png";
         };
@@ -77,24 +80,31 @@ function createPlantCard(plant, index) {
       this.src = "/client/src/assets/images/plant.png";
     }
   };
-  
+
   // Si la URL es del backend y no es data URL, verificar primero con recursos locales
   // Esto previene errores de carga y mejora la experiencia
-  if (imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('/client/src/assets/images/')) {
+  if (
+    imageUrl &&
+    !imageUrl.startsWith("data:") &&
+    !imageUrl.startsWith("/client/src/assets/images/")
+  ) {
     // Si es una URL del backend, intentar cargar primero la local como respaldo
-    const localImageUrl = window.PlantImageUtils && window.PlantImageUtils.getLocalPlantImage
-      ? window.PlantImageUtils.getLocalPlantImage(plant)
-      : (plant && plant.id ? (() => {
-          const plantIdStr = String(plant.id);
-          let hash = 0;
-          for (let i = 0; i < plantIdStr.length; i++) {
-            hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
-            hash = hash & hash;
-          }
-          const imageIndex = (Math.abs(hash) % 10) + 1;
-          return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
-        })() : "/client/src/assets/images/plant.png");
-    
+    const localImageUrl =
+      window.PlantImageUtils && window.PlantImageUtils.getLocalPlantImage
+        ? window.PlantImageUtils.getLocalPlantImage(plant)
+        : plant && plant.id
+        ? (() => {
+            const plantIdStr = String(plant.id);
+            let hash = 0;
+            for (let i = 0; i < plantIdStr.length; i++) {
+              hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
+              hash = hash & hash;
+            }
+            const imageIndex = (Math.abs(hash) % 10) + 1;
+            return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
+          })()
+        : "/client/src/assets/images/plant.png";
+
     // Pre-cargar la imagen local para tenerla lista
     const preloadImg = new Image();
     preloadImg.src = localImageUrl;
@@ -251,7 +261,8 @@ window.adoptPlant = async function (id) {
         errorMessage = "Esta planta ya ha sido adoptada.";
         break;
       case 500:
-        errorMessage = "Error interno del servidor. Por favor intenta más tarde.";
+        errorMessage =
+          "Error interno del servidor. Por favor intenta más tarde.";
         break;
       case 503:
         errorMessage = "Servicio no disponible. Por favor intenta más tarde.";
@@ -278,12 +289,18 @@ window.adoptPlant = async function (id) {
       window.location.href = "/client/screens/AdoptFeedback/success";
     } else {
       // Si success es false aunque el status sea 200
-      sessionStorage.setItem("adoptionError", "La adopción no se pudo completar.");
+      sessionStorage.setItem(
+        "adoptionError",
+        "La adopción no se pudo completar."
+      );
       window.location.href = "/client/screens/AdoptFeedback/error";
     }
   } catch (error) {
     console.error("Error adoptando planta:", error);
-    sessionStorage.setItem("adoptionError", "Error de conexión. Por favor verifica tu internet.");
+    sessionStorage.setItem(
+      "adoptionError",
+      "Error de conexión. Por favor verifica tu internet."
+    );
     window.location.href = "/client/screens/AdoptFeedback/error";
   }
 };

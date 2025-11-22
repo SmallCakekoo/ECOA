@@ -26,25 +26,32 @@ async function loadUserData() {
   }
 
   document.getElementById("userName").textContent = USER_DATA.name;
-  
+
   // Cargar imagen de perfil si existe
   const profileImageEl = document.getElementById("profileImage");
   if (profileImageEl && USER_DATA.image) {
     if (USER_DATA.image.startsWith("data:")) {
       profileImageEl.src = USER_DATA.image;
-    } else if (USER_DATA.image.startsWith("http://") || USER_DATA.image.startsWith("https://")) {
+    } else if (
+      USER_DATA.image.startsWith("http://") ||
+      USER_DATA.image.startsWith("https://")
+    ) {
       profileImageEl.src = USER_DATA.image;
     } else {
-      profileImageEl.src = `https://ecoabackendecoa.vercel.app${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
+      profileImageEl.src = `https://ecoa-ruddy.vercel.app${
+        USER_DATA.image.startsWith("/")
+          ? USER_DATA.image
+          : "/" + USER_DATA.image
+      }`;
     }
-    profileImageEl.onerror = function() {
+    profileImageEl.onerror = function () {
       this.src = "../../src/assets/images/Profile.png";
     };
   }
 
   try {
     const response = await fetch(
-      `https://ecoabackendecoa.vercel.app/users/${USER_DATA.id}/plants`
+      `https://ecoa-ruddy.vercel.app/users/${USER_DATA.id}/plants`
     );
     const { success, count } = await response.json();
     console.log(success, count);
@@ -92,27 +99,34 @@ window.openEditProfileModal = function () {
   const modal = document.getElementById("editProfileModal");
   const nameInput = document.getElementById("profileNameInput");
   const photoImg = document.getElementById("profilePhotoImg");
-  
+
   if (modal && USER_DATA) {
     // Cargar datos actuales
     if (nameInput) {
       nameInput.value = USER_DATA.name || "";
     }
-    
+
     // Cargar imagen actual si existe
     if (photoImg && USER_DATA.image) {
       if (USER_DATA.image.startsWith("data:")) {
         photoImg.src = USER_DATA.image;
-      } else if (USER_DATA.image.startsWith("http://") || USER_DATA.image.startsWith("https://")) {
+      } else if (
+        USER_DATA.image.startsWith("http://") ||
+        USER_DATA.image.startsWith("https://")
+      ) {
         photoImg.src = USER_DATA.image;
       } else {
-        photoImg.src = `https://ecoabackendecoa.vercel.app${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
+        photoImg.src = `https://ecoa-ruddy.vercel.app${
+          USER_DATA.image.startsWith("/")
+            ? USER_DATA.image
+            : "/" + USER_DATA.image
+        }`;
       }
     }
-    
+
     modal.classList.add("show");
     document.body.style.overflow = "hidden";
-    
+
     // Configurar subida de imagen
     setupProfilePhotoUpload();
   }
@@ -142,17 +156,17 @@ window.closeEditProfileModal = function () {
 function compressProfileImage(file, callback) {
   const maxDataUrlSize = 150 * 1024; // 150KB
   const reader = new FileReader();
-  
+
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
       let width = img.width;
       let height = img.height;
       const maxDimension = 400; // Máximo 400px para foto de perfil
-      
+
       if (width > height && width > maxDimension) {
         height = (height * maxDimension) / width;
         width = maxDimension;
@@ -160,19 +174,19 @@ function compressProfileImage(file, callback) {
         width = (width * maxDimension) / height;
         height = maxDimension;
       }
-      
+
       canvas.width = width;
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
-      
+
       let quality = 0.9;
-      let dataUrl = canvas.toDataURL('image/jpeg', quality);
-      
+      let dataUrl = canvas.toDataURL("image/jpeg", quality);
+
       while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
         quality -= 0.1;
-        dataUrl = canvas.toDataURL('image/jpeg', quality);
+        dataUrl = canvas.toDataURL("image/jpeg", quality);
       }
-      
+
       if (dataUrl.length > maxDataUrlSize) {
         console.warn("Imagen muy grande después de comprimir");
         callback(null);
@@ -192,39 +206,45 @@ function setupProfilePhotoUpload() {
   const photoInput = document.getElementById("profilePhotoInput");
   const photoPreview = document.getElementById("profilePhotoPreview");
   const photoImg = document.getElementById("profilePhotoImg");
-  
+
   if (!photoInput || !photoPreview || !photoImg) return;
-  
+
   // Remover listeners anteriores
   const newInput = photoInput.cloneNode(true);
   photoInput.parentNode.replaceChild(newInput, photoInput);
-  
+
   const currentInput = document.getElementById("profilePhotoInput");
-  
+
   // Click en el preview para abrir selector
   photoPreview.addEventListener("click", () => {
     currentInput.click();
   });
-  
+
   // Cambio de archivo
   currentInput.addEventListener("change", async () => {
     const file = currentInput.files && currentInput.files[0];
     if (!file) return;
-    
+
     compressProfileImage(file, (dataUrl) => {
       if (dataUrl) {
         photoImg.src = dataUrl;
         photoImg.setAttribute("data-new-image", dataUrl);
-        console.log("✅ Foto de perfil comprimida:", Math.round(dataUrl.length / 1024), "KB");
+        console.log(
+          "✅ Foto de perfil comprimida:",
+          Math.round(dataUrl.length / 1024),
+          "KB"
+        );
       } else {
-        alert("La imagen es demasiado grande. Por favor selecciona una imagen más pequeña.");
+        alert(
+          "La imagen es demasiado grande. Por favor selecciona una imagen más pequeña."
+        );
       }
     });
   });
 }
 
 // Configurar formulario de edición
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const editForm = document.getElementById("editProfileForm");
   if (editForm) {
     editForm.addEventListener("submit", async (e) => {
@@ -232,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function() {
       await updateUserProfile();
     });
   }
-  
+
   // Cerrar modal al hacer click fuera
   const modal = document.getElementById("editProfileModal");
   if (modal) {
@@ -242,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     });
   }
-  
+
   // Cerrar modal con ESC
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -274,39 +294,42 @@ async function updateUserProfile() {
     alert("Error: No se encontraron datos de usuario");
     return;
   }
-  
+
   const nameInput = document.getElementById("profileNameInput");
   const photoImg = document.getElementById("profilePhotoImg");
-  
+
   if (!nameInput) return;
-  
+
   const newName = nameInput.value.trim();
   if (!newName) {
     alert("El nombre es requerido");
     return;
   }
-  
+
   // Solo actualizar el nombre por ahora, ya que el campo 'image' puede no existir en la BD
   const updateData = {
-    name: newName
+    name: newName,
   };
-  
+
   // Guardar la imagen en localStorage si hay una nueva (solo para uso local)
   const newImage = photoImg?.getAttribute("data-new-image");
   if (newImage) {
     // Guardar en localStorage para uso local, pero no enviar al backend
     USER_DATA.image = newImage;
   }
-  
+
   try {
-    const response = await fetch(`https://ecoabackendecoa.vercel.app/users/${USER_DATA.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updateData),
-    });
-    
+    const response = await fetch(
+      `https://ecoa-ruddy.vercel.app/users/${USER_DATA.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      }
+    );
+
     if (!response.ok) {
       const errorText = await response.text();
       let errorMessage = `Error ${response.status}`;
@@ -318,34 +341,41 @@ async function updateUserProfile() {
       }
       throw new Error(errorMessage);
     }
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
       // Actualizar USER_DATA en localStorage
       USER_DATA.name = result.data.name || newName;
       // La imagen se guarda solo en localStorage (no en BD por ahora)
       localStorage.setItem("USER_DATA", JSON.stringify(USER_DATA));
-      
+
       // Actualizar UI
       const userNameEl = document.getElementById("userName");
       const profileImageEl = document.getElementById("profileImage");
-      
+
       if (userNameEl) {
         userNameEl.textContent = USER_DATA.name;
       }
-      
+
       // Actualizar imagen de perfil desde localStorage si existe
       if (profileImageEl && USER_DATA.image) {
         if (USER_DATA.image.startsWith("data:")) {
           profileImageEl.src = USER_DATA.image;
-        } else if (USER_DATA.image.startsWith("http://") || USER_DATA.image.startsWith("https://")) {
+        } else if (
+          USER_DATA.image.startsWith("http://") ||
+          USER_DATA.image.startsWith("https://")
+        ) {
           profileImageEl.src = USER_DATA.image;
         } else {
-          profileImageEl.src = `https://ecoabackendecoa.vercel.app${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
+          profileImageEl.src = `https://ecoa-ruddy.vercel.app${
+            USER_DATA.image.startsWith("/")
+              ? USER_DATA.image
+              : "/" + USER_DATA.image
+          }`;
         }
       }
-      
+
       alert("Perfil actualizado exitosamente!");
       closeEditProfileModal();
     } else {

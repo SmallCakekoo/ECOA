@@ -105,14 +105,14 @@ function updateProfileDisplay(user) {
   const userEmailEl = document.getElementById("userEmail");
   const avatar = document.getElementById("profileAvatar");
   const dropdownAvatar = document.querySelector(".dropdown-avatar");
-  
+
   if (userNameEl) userNameEl.textContent = user.name || "Administrador";
   if (userEmailEl) userEmailEl.textContent = user.email || "admin@ecoa.org";
-  
+
   // Actualizar avatares (soporta tanto 'image' como 'avatar_url' para compatibilidad)
   // También verifica localStorage como respaldo
   let avatarUrl = user.image || user.avatar_url;
-  
+
   // Si no hay imagen en el usuario, buscar en localStorage
   if (!avatarUrl && user.id) {
     const userImageKey = `user_${user.id}_avatar`;
@@ -122,12 +122,13 @@ function updateProfileDisplay(user) {
       console.log("📸 Imagen recuperada de localStorage");
     }
   }
-  
+
   // Si aún no hay imagen, usar placeholder
   if (!avatarUrl) {
-    avatarUrl = 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
+    avatarUrl =
+      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop";
   }
-  
+
   if (avatar) {
     avatar.style.backgroundImage = `url(${avatarUrl})`;
   }
@@ -140,23 +141,23 @@ function updateProfileDisplay(user) {
 function openEditProfileModal() {
   const modal = document.getElementById("editProfileModal");
   const user = window.AdminAPI.getCurrentUser();
-  
+
   if (!modal || !user) return;
-  
+
   // Cargar datos actuales
   const nameInput = document.getElementById("profileName");
   const photoPreview = document.getElementById("profilePhotoPreview");
   const photoInput = document.getElementById("profilePhotoInput");
   const uploadInner = document.querySelector("#profileUploadBox .upload-inner");
-  
+
   if (nameInput) {
     nameInput.value = user.name || "";
   }
-  
+
   if (photoPreview) {
     // Buscar imagen en user, luego en localStorage
-    let avatarUrl = user.image || user.avatar_url || '';
-    
+    let avatarUrl = user.image || user.avatar_url || "";
+
     // Si no hay imagen en el usuario, buscar en localStorage
     if (!avatarUrl && user.id) {
       const userImageKey = `user_${user.id}_avatar`;
@@ -166,24 +167,24 @@ function openEditProfileModal() {
         console.log("📸 Imagen recuperada de localStorage para el modal");
       }
     }
-    
+
     // Limpiar estado anterior
-    photoPreview.removeAttribute('data-image-changed');
-    
-    if (avatarUrl && avatarUrl.trim() !== '') {
+    photoPreview.removeAttribute("data-image-changed");
+
+    if (avatarUrl && avatarUrl.trim() !== "") {
       // Hay una imagen original - cargarla y mostrarla
       photoPreview.src = avatarUrl;
       photoPreview.style.display = "block";
       photoPreview.style.opacity = "1";
-      
+
       // Ocultar el upload-inner cuando hay imagen
       if (uploadInner) {
         uploadInner.style.display = "none";
       }
-      
+
       // Guardar la imagen original para comparar después
-      photoPreview.setAttribute('data-original-image', avatarUrl);
-      
+      photoPreview.setAttribute("data-original-image", avatarUrl);
+
       // Manejar error de carga de imagen
       photoPreview.onerror = () => {
         console.warn("⚠️ Error cargando imagen original, usando placeholder");
@@ -191,12 +192,15 @@ function openEditProfileModal() {
         if (uploadInner) {
           uploadInner.style.display = "flex";
         }
-        photoPreview.removeAttribute('data-original-image');
+        photoPreview.removeAttribute("data-original-image");
       };
-      
+
       // Confirmar que la imagen cargó correctamente
       photoPreview.onload = () => {
-        console.log("✅ Imagen original cargada correctamente:", avatarUrl.substring(0, 50));
+        console.log(
+          "✅ Imagen original cargada correctamente:",
+          avatarUrl.substring(0, 50)
+        );
       };
     } else {
       // No hay imagen original - mostrar solo el upload box
@@ -205,14 +209,14 @@ function openEditProfileModal() {
       if (uploadInner) {
         uploadInner.style.display = "flex";
       }
-      photoPreview.removeAttribute('data-original-image');
+      photoPreview.removeAttribute("data-original-image");
     }
   }
-  
+
   if (photoInput) {
     photoInput.value = "";
   }
-  
+
   modal.style.display = "flex";
 }
 
@@ -228,7 +232,7 @@ async function initializeApp() {
   try {
     // Configurar modal de edición de perfil
     setupEditProfileModal();
-    
+
     // Cargar estadísticas
     await loadStats();
 
@@ -261,16 +265,16 @@ function setupEditProfileModal() {
   const form = document.getElementById("editProfileForm");
   const photoInput = document.getElementById("profilePhotoInput");
   const photoPreview = document.getElementById("profilePhotoPreview");
-  
+
   // Cerrar modal
   if (closeBtn) {
     closeBtn.addEventListener("click", closeEditProfileModal);
   }
-  
+
   if (cancelBtn) {
     cancelBtn.addEventListener("click", closeEditProfileModal);
   }
-  
+
   // Cerrar al hacer clic fuera del modal
   if (modal) {
     modal.addEventListener("click", (e) => {
@@ -279,13 +283,13 @@ function setupEditProfileModal() {
       }
     });
   }
-  
+
   // Manejar subida de foto
   if (photoInput) {
     photoInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      
+
       try {
         // Comprimir la imagen antes de mostrarla
         const reader = new FileReader();
@@ -293,14 +297,14 @@ function setupEditProfileModal() {
           const img = new Image();
           img.onload = () => {
             // Crear canvas para comprimir
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             // Calcular dimensiones manteniendo aspecto (máximo 400px para perfil)
             let width = img.width;
             let height = img.height;
             const maxDimension = 400; // Reducido para perfil de usuario
-            
+
             if (width > height && width > maxDimension) {
               height = (height * maxDimension) / width;
               width = maxDimension;
@@ -308,24 +312,24 @@ function setupEditProfileModal() {
               width = (width * maxDimension) / height;
               height = maxDimension;
             }
-            
+
             canvas.width = width;
             canvas.height = height;
-            
+
             // Dibujar imagen redimensionada
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // Comprimir con calidad más baja para reducir tamaño
             let quality = 0.6; // Reducido de 0.8 a 0.6
             let maxDataUrlSize = 30 * 1024; // Máximo 30KB de data URL
-            
+
             // Intentar diferentes calidades hasta que el tamaño sea aceptable
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            let dataUrl = canvas.toDataURL("image/jpeg", quality);
             while (dataUrl.length > maxDataUrlSize && quality > 0.2) {
               quality -= 0.1;
-              dataUrl = canvas.toDataURL('image/jpeg', quality);
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
             }
-            
+
             // Si aún es muy grande, reducir dimensiones más
             if (dataUrl.length > maxDataUrlSize) {
               const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
@@ -333,31 +337,45 @@ function setupEditProfileModal() {
               canvas.height = Math.round(height * scale);
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
               quality = 0.6;
-              dataUrl = canvas.toDataURL('image/jpeg', quality);
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
             }
-            
-            console.log(`📸 Imagen comprimida: ${Math.round(dataUrl.length / 1024)}KB, dimensiones: ${canvas.width}x${canvas.height}, calidad: ${quality.toFixed(1)}`);
-            
+
+            console.log(
+              `📸 Imagen comprimida: ${Math.round(
+                dataUrl.length / 1024
+              )}KB, dimensiones: ${canvas.width}x${
+                canvas.height
+              }, calidad: ${quality.toFixed(1)}`
+            );
+
             // Guardar el archivo comprimido también
-            canvas.toBlob((blob) => {
-              if (photoPreview) {
-                photoPreview.src = dataUrl;
-                photoPreview.style.display = "block";
-                // Guardar el blob comprimido para subirlo después
-                photoPreview.setAttribute('data-compressed-blob', JSON.stringify({
-                  size: blob.size,
-                  type: blob.type
-                }));
-                // Guardar el blob en un atributo data (usaremos el data URL para crear el File después)
-                photoPreview.setAttribute('data-image-changed', 'true');
-                if (photoPreview.parentElement) {
-                  const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
-                  if (uploadInner) {
-                    uploadInner.style.display = "none";
+            canvas.toBlob(
+              (blob) => {
+                if (photoPreview) {
+                  photoPreview.src = dataUrl;
+                  photoPreview.style.display = "block";
+                  // Guardar el blob comprimido para subirlo después
+                  photoPreview.setAttribute(
+                    "data-compressed-blob",
+                    JSON.stringify({
+                      size: blob.size,
+                      type: blob.type,
+                    })
+                  );
+                  // Guardar el blob en un atributo data (usaremos el data URL para crear el File después)
+                  photoPreview.setAttribute("data-image-changed", "true");
+                  if (photoPreview.parentElement) {
+                    const uploadInner =
+                      photoPreview.parentElement.querySelector(".upload-inner");
+                    if (uploadInner) {
+                      uploadInner.style.display = "none";
+                    }
                   }
                 }
-              }
-            }, 'image/jpeg', quality);
+              },
+              "image/jpeg",
+              quality
+            );
           };
           img.onerror = () => {
             console.error("Error cargando imagen para compresión");
@@ -376,53 +394,60 @@ function setupEditProfileModal() {
       }
     });
   }
-  
+
   // Manejar envío del formulario
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
+
       const user = window.AdminAPI.getCurrentUser();
       if (!user || !user.id) {
         alert("Error: No se pudo identificar al usuario.");
         return;
       }
-      
+
       const nameInput = document.getElementById("profileName");
       const name = nameInput ? nameInput.value.trim() : "";
-      
+
       if (!name) {
         alert("El nombre es requerido.");
         return;
       }
-      
+
       const submitBtn = form.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = "Guardando...";
       }
-      
+
       try {
         // Obtener imagen solo si fue cambiada
         let imageUrl = null;
-        const imageChanged = photoPreview?.getAttribute('data-image-changed') === 'true';
-        const originalImage = photoPreview?.getAttribute('data-original-image');
-        
-        if (imageChanged && photoPreview && photoPreview.style.display !== "none") {
+        const imageChanged =
+          photoPreview?.getAttribute("data-image-changed") === "true";
+        const originalImage = photoPreview?.getAttribute("data-original-image");
+
+        if (
+          imageChanged &&
+          photoPreview &&
+          photoPreview.style.display !== "none"
+        ) {
           // Solo enviar si la imagen fue cambiada
           if (photoPreview.src.startsWith("data:")) {
             // Es una nueva imagen en base64 - convertir a File y subir
-            console.log("📸 Imagen nueva detectada (data URL), convirtiendo y subiendo...");
+            console.log(
+              "📸 Imagen nueva detectada (data URL), convirtiendo y subiendo..."
+            );
             try {
               // Convertir data URL a Blob directamente
               const dataUrl = photoPreview.src;
-              const arr = dataUrl.split(',');
+              const arr = dataUrl.split(",");
               if (arr.length < 2) {
                 throw new Error("Formato de data URL inválido");
               }
-              
+
               const mimeMatch = arr[0].match(/:(.*?);/);
-              const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+              const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
               const bstr = atob(arr[1]);
               let n = bstr.length;
               const u8arr = new Uint8Array(n);
@@ -430,51 +455,71 @@ function setupEditProfileModal() {
                 u8arr[n] = bstr.charCodeAt(n);
               }
               const blob = new Blob([u8arr], { type: mime });
-              
+
               // Crear un File desde el Blob
-              const file = new File([blob], `profile-${user.id}-${Date.now()}.jpg`, {
-                type: mime
-              });
-              
+              const file = new File(
+                [blob],
+                `profile-${user.id}-${Date.now()}.jpg`,
+                {
+                  type: mime,
+                }
+              );
+
               console.log("📤 Subiendo imagen al servidor...");
               // Subir la imagen usando el método uploadImage (sin fallback a base64)
               // Crear FormData y subir directamente
               const formData = new FormData();
               formData.append("image", file);
-              
-              const token = window.AdminAPI.token || localStorage.getItem("admin_token");
-              const uploadResponse = await fetch(`${window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app"}/api/upload/image`, {
-                method: "POST",
-                body: formData,
-                headers: {
-                  ...(token && { Authorization: `Bearer ${token}` }),
-                },
-              });
-              
+
+              const token =
+                window.AdminAPI.token || localStorage.getItem("admin_token");
+              const uploadResponse = await fetch(
+                `${
+                  window.AdminConfig?.API_BASE_URL ||
+                  "https://ecoa-ruddy.vercel.app"
+                }/api/upload/image`,
+                {
+                  method: "POST",
+                  body: formData,
+                  headers: {
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                  },
+                }
+              );
+
               if (!uploadResponse.ok) {
-                throw new Error(`Error ${uploadResponse.status}: ${uploadResponse.statusText}`);
+                throw new Error(
+                  `Error ${uploadResponse.status}: ${uploadResponse.statusText}`
+                );
               }
-              
+
               const uploadData = await uploadResponse.json();
-              
+
               if (uploadData.success) {
                 imageUrl = uploadData.data.fullUrl;
-                
+
                 // Si el backend devuelve un data URL muy grande, comprimirlo más
-                if (imageUrl.startsWith("data:") && imageUrl.length > 30 * 1024) {
-                  console.log(`⚠️ Data URL del backend es muy grande (${Math.round(imageUrl.length / 1024)}KB), comprimiendo más...`);
+                if (
+                  imageUrl.startsWith("data:") &&
+                  imageUrl.length > 30 * 1024
+                ) {
+                  console.log(
+                    `⚠️ Data URL del backend es muy grande (${Math.round(
+                      imageUrl.length / 1024
+                    )}KB), comprimiendo más...`
+                  );
                   try {
                     // Esperar a que la imagen cargue y re-comprimirla
                     await new Promise((resolve, reject) => {
                       const img = new Image();
                       img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
+                        const canvas = document.createElement("canvas");
+                        const ctx = canvas.getContext("2d");
+
                         let width = img.width;
                         let height = img.height;
                         const maxDim = 300;
-                        
+
                         if (width > height && width > maxDim) {
                           height = (height * maxDim) / width;
                           width = maxDim;
@@ -482,42 +527,61 @@ function setupEditProfileModal() {
                           width = (width * maxDim) / height;
                           height = maxDim;
                         }
-                        
+
                         canvas.width = width;
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
-                        
+
                         let quality = 0.5;
-                        let compressed = canvas.toDataURL('image/jpeg', quality);
-                        
+                        let compressed = canvas.toDataURL(
+                          "image/jpeg",
+                          quality
+                        );
+
                         while (compressed.length > 25 * 1024 && quality > 0.2) {
                           quality -= 0.1;
-                          compressed = canvas.toDataURL('image/jpeg', quality);
+                          compressed = canvas.toDataURL("image/jpeg", quality);
                         }
-                        
+
                         imageUrl = compressed;
-                        console.log(`✅ Imagen re-comprimida: ${Math.round(imageUrl.length / 1024)}KB`);
+                        console.log(
+                          `✅ Imagen re-comprimida: ${Math.round(
+                            imageUrl.length / 1024
+                          )}KB`
+                        );
                         resolve();
                       };
                       img.onerror = () => {
-                        console.warn("⚠️ No se pudo cargar imagen para re-comprimir");
+                        console.warn(
+                          "⚠️ No se pudo cargar imagen para re-comprimir"
+                        );
                         resolve(); // Continuar con el original
                       };
                       img.src = imageUrl;
                     });
                   } catch (recompressError) {
-                    console.warn("⚠️ No se pudo re-comprimir, usando el original:", recompressError);
+                    console.warn(
+                      "⚠️ No se pudo re-comprimir, usando el original:",
+                      recompressError
+                    );
                   }
                 }
-                
-                console.log("✅ Imagen subida exitosamente:", imageUrl.substring(0, 50) + "...");
+
+                console.log(
+                  "✅ Imagen subida exitosamente:",
+                  imageUrl.substring(0, 50) + "..."
+                );
               } else {
-                throw new Error(uploadData.message || "Error al subir la imagen");
+                throw new Error(
+                  uploadData.message || "Error al subir la imagen"
+                );
               }
             } catch (uploadError) {
               console.error("❌ Error al subir imagen:", uploadError);
               // NO usar fallback - mostrar error y no enviar imagen
-              alert(`Error al subir la imagen: ${uploadError.message}. Por favor, intenta con una imagen más pequeña o inténtalo de nuevo.`);
+              alert(
+                `Error al subir la imagen: ${uploadError.message}. Por favor, intenta con una imagen más pequeña o inténtalo de nuevo.`
+              );
               if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Guardar Cambios";
@@ -529,19 +593,26 @@ function setupEditProfileModal() {
             imageUrl = photoPreview.src;
             console.log("📸 Enviando nueva imagen (URL)");
           }
-        } else if (!originalImage && photoPreview && photoPreview.style.display !== "none" && photoPreview.src.startsWith("data:")) {
+        } else if (
+          !originalImage &&
+          photoPreview &&
+          photoPreview.style.display !== "none" &&
+          photoPreview.src.startsWith("data:")
+        ) {
           // Si no había imagen original pero ahora hay una nueva
-          console.log("📸 Primera imagen detectada (data URL), convirtiendo y subiendo...");
+          console.log(
+            "📸 Primera imagen detectada (data URL), convirtiendo y subiendo..."
+          );
           try {
             // Convertir data URL a Blob directamente
             const dataUrl = photoPreview.src;
-            const arr = dataUrl.split(',');
+            const arr = dataUrl.split(",");
             if (arr.length < 2) {
               throw new Error("Formato de data URL inválido");
             }
-            
+
             const mimeMatch = arr[0].match(/:(.*?);/);
-            const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+            const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
             const bstr = atob(arr[1]);
             let n = bstr.length;
             const u8arr = new Uint8Array(n);
@@ -549,41 +620,60 @@ function setupEditProfileModal() {
               u8arr[n] = bstr.charCodeAt(n);
             }
             const blob = new Blob([u8arr], { type: mime });
-            
+
             // Crear un File desde el Blob
-            const file = new File([blob], `profile-${user.id}-${Date.now()}.jpg`, {
-              type: mime
-            });
-            
+            const file = new File(
+              [blob],
+              `profile-${user.id}-${Date.now()}.jpg`,
+              {
+                type: mime,
+              }
+            );
+
             console.log("📤 Subiendo imagen al servidor...");
             // Subir la imagen directamente sin usar el método con fallback
             const formData = new FormData();
             formData.append("image", file);
-            
-            const uploadResponse = await fetch(`${window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app"}/api/upload/image`, {
-              method: "POST",
-              body: formData,
-              headers: {
-                ...(window.AdminAPI.token && { Authorization: `Bearer ${window.AdminAPI.token}` }),
-              },
-            });
-            
+
+            const uploadResponse = await fetch(
+              `${
+                window.AdminConfig?.API_BASE_URL ||
+                "https://ecoa-ruddy.vercel.app"
+              }/api/upload/image`,
+              {
+                method: "POST",
+                body: formData,
+                headers: {
+                  ...(window.AdminAPI.token && {
+                    Authorization: `Bearer ${window.AdminAPI.token}`,
+                  }),
+                },
+              }
+            );
+
             if (!uploadResponse.ok) {
-              throw new Error(`Error ${uploadResponse.status}: ${uploadResponse.statusText}`);
+              throw new Error(
+                `Error ${uploadResponse.status}: ${uploadResponse.statusText}`
+              );
             }
-            
+
             const uploadData = await uploadResponse.json();
-            
+
             if (uploadData.success) {
               imageUrl = uploadData.data.fullUrl;
-              console.log("✅ Imagen subida exitosamente:", imageUrl.substring(0, 50) + "...");
+              console.log(
+                "✅ Imagen subida exitosamente:",
+                imageUrl.substring(0, 50) + "..."
+              );
             } else {
               throw new Error(uploadData.message || "Error al subir la imagen");
             }
           } catch (uploadError) {
             console.error("❌ Error al subir imagen:", uploadError);
             // NO usar fallback - mostrar error y no enviar imagen
-            alert(`Error al subir la imagen: ${uploadError.message}. Por favor, intenta con una imagen más pequeña o inténtalo de nuevo.`);
+            alert(
+              `Error al subir la imagen: ${uploadError.message}. Por favor, intenta con una imagen más pequeña o inténtalo de nuevo.`
+            );
             if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.textContent = "Guardar Cambios";
@@ -591,32 +681,41 @@ function setupEditProfileModal() {
             return; // Salir sin actualizar el perfil
           }
         } else {
-          console.log("📸 No se enviará imagen (no fue cambiada o no hay imagen nueva)");
+          console.log(
+            "📸 No se enviará imagen (no fue cambiada o no hay imagen nueva)"
+          );
         }
-        
+
         // Actualizar usuario
         const updateData = {
-          name: name
+          name: name,
         };
-        
+
         if (imageUrl) {
           // El backend devuelve data URLs (porque no tiene almacenamiento permanente)
           // Esto está bien - el backend procesa la imagen y devuelve el data URL
           // Enviar como avatar_url (preferido) y image para compatibilidad
           updateData.avatar_url = imageUrl;
           updateData.image = imageUrl;
-          
+
           if (imageUrl.startsWith("data:")) {
-            console.log("📸 Imagen incluida en updateData (data URL del backend), tamaño:", Math.round(imageUrl.length / 1024), "KB");
+            console.log(
+              "📸 Imagen incluida en updateData (data URL del backend), tamaño:",
+              Math.round(imageUrl.length / 1024),
+              "KB"
+            );
           } else {
-            console.log("📸 Imagen incluida en updateData (URL):", imageUrl.substring(0, 50) + "...");
+            console.log(
+              "📸 Imagen incluida en updateData (URL):",
+              imageUrl.substring(0, 50) + "..."
+            );
           }
         } else {
           console.log("📸 No se incluye imagen en updateData");
         }
-        
+
         const response = await window.AdminAPI.updateUser(user.id, updateData);
-        
+
         // Si hay una imagen y la respuesta fue exitosa o si falló pero la imagen está en updateData
         if (imageUrl) {
           // Guardar imagen en localStorage como respaldo
@@ -624,52 +723,62 @@ function setupEditProfileModal() {
           localStorage.setItem(userImageKey, imageUrl);
           console.log("📸 Imagen guardada en localStorage como respaldo");
         }
-        
+
         if (response.success) {
           // Actualizar usuario en localStorage
           // Mapear avatar_url a image para compatibilidad con el frontend
-          const updatedUser = { 
-            ...user, 
+          const updatedUser = {
+            ...user,
             ...response.data,
-            image: response.data.avatar_url || response.data.image || user.image || user.avatar_url || imageUrl
+            image:
+              response.data.avatar_url ||
+              response.data.image ||
+              user.image ||
+              user.avatar_url ||
+              imageUrl,
           };
-          
+
           // Si la imagen no se guardó en la BD pero está en localStorage, usarla
           if (!updatedUser.image && imageUrl) {
             updatedUser.image = imageUrl;
           }
-          
+
           localStorage.setItem("admin_user", JSON.stringify(updatedUser));
-          
+
           // Actualizar visualización
           updateProfileDisplay(updatedUser);
-          
+
           // Cerrar modal
           closeEditProfileModal();
-          
+
           // Mensaje según si la imagen se guardó o no
           if (imageUrl && !response.imageUpdated) {
-            alert("Nombre actualizado exitosamente. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase.");
+            alert(
+              "Nombre actualizado exitosamente. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase."
+            );
           } else {
             alert("Perfil actualizado exitosamente.");
           }
         } else {
           // Si falló pero tenemos imagen, guardarla en localStorage y actualizar visualización
           if (imageUrl) {
-            const updatedUser = { 
-              ...user, 
+            const updatedUser = {
+              ...user,
               name: name,
-              image: imageUrl
+              image: imageUrl,
             };
             localStorage.setItem("admin_user", JSON.stringify(updatedUser));
             updateProfileDisplay(updatedUser);
             closeEditProfileModal();
-            alert("Nombre actualizado. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase.");
+            alert(
+              "Nombre actualizado. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase."
+            );
             return;
           }
-          
+
           // Usar el mensaje del backend que ahora es más específico
-          const errorMessage = response.message || "Error al actualizar el perfil";
+          const errorMessage =
+            response.message || "Error al actualizar el perfil";
           console.error("Error del backend:", response);
           throw new Error(errorMessage);
         }
@@ -678,17 +787,17 @@ function setupEditProfileModal() {
         console.error("Detalles del error:", {
           message: error.message,
           response: error.response,
-          stack: error.stack
+          stack: error.stack,
         });
-        
+
         // Mostrar mensaje más específico si está disponible
         let errorMessage = error.message || "Error al actualizar el perfil";
-        
+
         // Si el error viene del backend con un mensaje específico, usarlo
         if (error.response && error.response.message) {
           errorMessage = error.response.message;
         }
-        
+
         alert(`Error al actualizar el perfil: ${errorMessage}`);
       } finally {
         if (submitBtn) {
@@ -717,11 +826,17 @@ async function loadStats() {
     // Total Donations
     const totalDonations = Number(stats.donations.totalAmount || 0);
     updateStatCard("totalAmount", `$${totalDonations.toLocaleString()}`);
-    updateStatSubtext("activeDonations", `${stats.donations.active || 0} donaciones activas`);
+    updateStatSubtext(
+      "activeDonations",
+      `${stats.donations.active || 0} donaciones activas`
+    );
 
     // Plants in Catalog
     updateStatCard("totalPlants", stats.plants.total || 0);
-    updateStatSubtext("availablePlants", `${stats.plants.available || 0} disponibles`);
+    updateStatSubtext(
+      "availablePlants",
+      `${stats.plants.available || 0} disponibles`
+    );
 
     // Health Score
     const healthScore = (() => {
@@ -789,17 +904,21 @@ async function loadRecentPlants() {
             // Si es data URL (base64), usar directamente - es la imagen subida por el usuario
             if (ownImage.startsWith("data:")) {
               plantImage = ownImage;
-              console.log(`✅ Usando imagen subida (data URL) para ${plant.name}`);
-            } 
+              console.log(
+                `✅ Usando imagen subida (data URL) para ${plant.name}`
+              );
+            }
             // Si es URL completa, usar directamente
             else if (ownImage.startsWith("http")) {
               plantImage = ownImage;
               console.log(`✅ Usando imagen subida (URL) para ${plant.name}`);
-            } 
+            }
             // Si es ruta relativa, construir URL completa
             else {
               plantImage = `${window.AdminConfig.API_BASE_URL}${ownImage}`;
-              console.log(`✅ Usando imagen subida (relativa) para ${plant.name}: ${plantImage}`);
+              console.log(
+                `✅ Usando imagen subida (relativa) para ${plant.name}: ${plantImage}`
+              );
             }
           }
 
@@ -813,55 +932,55 @@ async function loadRecentPlants() {
 
           if (!plantImage) {
             for (const searchTerm of searchTerms) {
-            try {
-              const perenualResponse = await fetch(
-                `${
-                  window.AdminConfig.API_BASE_URL
-                }/api/integrations/perenual/search?q=${encodeURIComponent(
-                  searchTerm
-                )}&limit=1`
-              );
-              const perenualData = await perenualResponse.json();
-
-              if (
-                perenualData.success &&
-                perenualData.search_results?.plants?.length > 0
-              ) {
-                const perenualPlant = perenualData.search_results.plants[0];
-                console.log(
-                  `🔍 Datos de imagen para ${plant.name}:`,
-                  perenualPlant.default_image
+              try {
+                const perenualResponse = await fetch(
+                  `${
+                    window.AdminConfig.API_BASE_URL
+                  }/api/integrations/perenual/search?q=${encodeURIComponent(
+                    searchTerm
+                  )}&limit=1`
                 );
-
-                // Verificar que la imagen no sea un placeholder genérico
-                const imageUrl =
-                  perenualPlant.default_image?.thumbnail ||
-                  perenualPlant.default_image?.small_url ||
-                  perenualPlant.default_image?.medium_url ||
-                  perenualPlant.default_image?.regular_url;
+                const perenualData = await perenualResponse.json();
 
                 if (
-                  imageUrl &&
-                  !imageUrl.includes("upgrade_access.jpg") &&
-                  !imageUrl.includes("placeholder")
+                  perenualData.success &&
+                  perenualData.search_results?.plants?.length > 0
                 ) {
-                  plantImage = imageUrl;
+                  const perenualPlant = perenualData.search_results.plants[0];
                   console.log(
-                    `✅ Imagen real encontrada para ${plant.name} con término: "${searchTerm}" - URL: ${plantImage}`
+                    `🔍 Datos de imagen para ${plant.name}:`,
+                    perenualPlant.default_image
                   );
+
+                  // Verificar que la imagen no sea un placeholder genérico
+                  const imageUrl =
+                    perenualPlant.default_image?.thumbnail ||
+                    perenualPlant.default_image?.small_url ||
+                    perenualPlant.default_image?.medium_url ||
+                    perenualPlant.default_image?.regular_url;
+
+                  if (
+                    imageUrl &&
+                    !imageUrl.includes("upgrade_access.jpg") &&
+                    !imageUrl.includes("placeholder")
+                  ) {
+                    plantImage = imageUrl;
+                    console.log(
+                      `✅ Imagen real encontrada para ${plant.name} con término: "${searchTerm}" - URL: ${plantImage}`
+                    );
                     break;
-                } else {
-                  console.log(
-                    `❌ Imagen placeholder detectada para ${plant.name} con término: "${searchTerm}" - URL: ${imageUrl}`
-                  );
+                  } else {
+                    console.log(
+                      `❌ Imagen placeholder detectada para ${plant.name} con término: "${searchTerm}" - URL: ${imageUrl}`
+                    );
+                  }
                 }
+              } catch (error) {
+                console.log(
+                  `Error buscando "${searchTerm}" para ${plant.name}:`,
+                  error
+                );
               }
-            } catch (error) {
-              console.log(
-                `Error buscando "${searchTerm}" para ${plant.name}:`,
-                error
-              );
-            }
             }
           }
 
@@ -933,27 +1052,26 @@ async function loadDevices() {
   try {
     const response = await window.AdminAPI.getDevices();
     const devices = response.data || [];
-    
+
     const deviceSelect = document.getElementById("deviceSelect");
     if (deviceSelect) {
       // Limpiar opciones existentes excepto la primera
-      deviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
-      
+      deviceSelect.innerHTML =
+        '<option value="">Select a device (optional)</option>';
+
       // Agregar dispositivos al selector
-      devices.forEach(device => {
+      devices.forEach((device) => {
         const option = document.createElement("option");
         option.value = device.id;
         // Mostrar información útil del dispositivo (serial_number o serial, model, location)
-        const serial = device.serial_number || device.serial || 'Unknown';
-        const deviceLabel = [
-          serial,
-          device.model || '',
-          device.location || ''
-        ].filter(Boolean).join(' - ');
+        const serial = device.serial_number || device.serial || "Unknown";
+        const deviceLabel = [serial, device.model || "", device.location || ""]
+          .filter(Boolean)
+          .join(" - ");
         option.textContent = deviceLabel || device.id;
         deviceSelect.appendChild(option);
       });
-      
+
       console.log(`✅ ${devices.length} dispositivos cargados en el selector`);
     }
   } catch (error) {
@@ -977,20 +1095,20 @@ function setupPlantForm() {
         // Comprimir la imagen antes de convertirla a data URL
         // Límite: 150KB en data URL para evitar problemas con Supabase
         const maxDataUrlSize = 150 * 1024; // 150KB (límite más conservador)
-        
+
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
             // Crear canvas para comprimir
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             // Calcular dimensiones manteniendo aspecto
             let width = img.width;
             let height = img.height;
             const maxDimension = 800; // Máximo 800px en la dimensión más grande
-            
+
             if (width > height && width > maxDimension) {
               height = (height * maxDimension) / width;
               width = maxDimension;
@@ -998,50 +1116,65 @@ function setupPlantForm() {
               width = (width * maxDimension) / height;
               height = maxDimension;
             }
-            
+
             canvas.width = width;
             canvas.height = height;
-            
+
             // Dibujar imagen redimensionada
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // Convertir a data URL con calidad ajustada
             let quality = 0.9;
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            
+            let dataUrl = canvas.toDataURL("image/jpeg", quality);
+
             // Si aún es muy grande, reducir calidad gradualmente
             while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
               quality -= 0.1;
-              dataUrl = canvas.toDataURL('image/jpeg', quality);
-              console.log(`🔄 Comprimiendo imagen, calidad: ${quality.toFixed(1)}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
+              console.log(
+                `🔄 Comprimiendo imagen, calidad: ${quality.toFixed(
+                  1
+                )}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`
+              );
             }
-            
+
             // Si sigue siendo muy grande después de comprimir, usar PNG
             if (dataUrl.length > maxDataUrlSize) {
-              dataUrl = canvas.toDataURL('image/png');
+              dataUrl = canvas.toDataURL("image/png");
               // Si PNG también es muy grande, reducir dimensiones más
               if (dataUrl.length > maxDataUrlSize) {
                 const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
                 canvas.width = Math.round(width * scale);
                 canvas.height = Math.round(height * scale);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                dataUrl = canvas.toDataURL("image/jpeg", 0.7);
               }
             }
-            
+
             if (dataUrl.length > maxDataUrlSize) {
-              console.warn(`⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(dataUrl.length / 1024)}KB`);
-              showNotification("La imagen es muy grande. Se guardará sin imagen.", "warning");
+              console.warn(
+                `⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(
+                  dataUrl.length / 1024
+                )}KB`
+              );
+              showNotification(
+                "La imagen es muy grande. Se guardará sin imagen.",
+                "warning"
+              );
               dataUrl = null;
             } else {
-              console.log(`✅ Dashboard - Imagen comprimida, tamaño final: ${Math.round(dataUrl.length / 1024)}KB`);
+              console.log(
+                `✅ Dashboard - Imagen comprimida, tamaño final: ${Math.round(
+                  dataUrl.length / 1024
+                )}KB`
+              );
             }
-            
-            preview.src = dataUrl || '/placeholder.png';
+
+            preview.src = dataUrl || "/placeholder.png";
             preview.style.display = "block";
             uploadBox.querySelector(".upload-inner").style.display = "none";
             // Guardar el data URL en un atributo del preview para usarlo después
-            preview.setAttribute('data-image-url', dataUrl || '');
+            preview.setAttribute("data-image-url", dataUrl || "");
           };
           img.onerror = () => {
             console.error("Error cargando imagen para compresión");
@@ -1077,37 +1210,39 @@ async function createPlant() {
   // Obtener la imagen subida (data URL)
   const photoPreview = document.getElementById("photoPreview");
   let imageUrl = null;
-  
+
   // Obtener el data URL del atributo o del src
   if (photoPreview && photoPreview.style.display !== "none") {
     // Primero intentar obtener del atributo data-image-url (más confiable)
-    const dataImageUrl = photoPreview.getAttribute('data-image-url');
+    const dataImageUrl = photoPreview.getAttribute("data-image-url");
     if (dataImageUrl && dataImageUrl.startsWith("data:")) {
       imageUrl = dataImageUrl;
       console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
-    } 
+    }
     // Si no está en el atributo, usar el src si es data URL
     else if (photoPreview.src && photoPreview.src.startsWith("data:")) {
       imageUrl = photoPreview.src;
       console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
     }
     // Si el src no es data URL, verificar que no sea placeholder
-    else if (photoPreview.src && 
-             photoPreview.src !== "" && 
-             photoPreview.src !== "about:blank" &&
-             !photoPreview.src.includes("unsplash.com/photo-1506905925346") && 
-             !photoPreview.src.includes("placeholder") && 
-             !photoPreview.src.includes("upgrade_access.jpg")) {
+    else if (
+      photoPreview.src &&
+      photoPreview.src !== "" &&
+      photoPreview.src !== "about:blank" &&
+      !photoPreview.src.includes("unsplash.com/photo-1506905925346") &&
+      !photoPreview.src.includes("placeholder") &&
+      !photoPreview.src.includes("upgrade_access.jpg")
+    ) {
       imageUrl = photoPreview.src;
       console.log("✅ Dashboard - Imagen obtenida del src (URL)");
     }
-    
+
     if (imageUrl) {
-      console.log("🔍 Dashboard - Imagen validada:", { 
-        hasImage: true, 
+      console.log("🔍 Dashboard - Imagen validada:", {
+        hasImage: true,
         isDataUrl: imageUrl.startsWith("data:"),
         imageLength: imageUrl.length,
-        imagePreview: imageUrl.substring(0, 50) + "..."
+        imagePreview: imageUrl.substring(0, 50) + "...",
       });
     } else {
       console.warn("⚠️ Dashboard - No se encontró imagen válida en el preview");
@@ -1141,10 +1276,15 @@ async function createPlant() {
       // Si se especificó un healthStatus, actualizarlo en plant_status
       if (healthStatus && result.data && result.data.id) {
         try {
-          await window.AdminAPI.updatePlantMetrics(result.data.id, { health_status: healthStatus });
+          await window.AdminAPI.updatePlantMetrics(result.data.id, {
+            health_status: healthStatus,
+          });
           console.log("✅ Health status registrado:", healthStatus);
         } catch (statusError) {
-          console.warn("⚠️ No se pudo registrar el health_status, pero la planta se creó:", statusError);
+          console.warn(
+            "⚠️ No se pudo registrar el health_status, pero la planta se creó:",
+            statusError
+          );
           // No fallar si no se puede actualizar el status, la planta ya se creó
         }
       }
@@ -1170,7 +1310,7 @@ async function loadRecentDonations() {
   try {
     const response = await window.AdminAPI.getDonations({});
     const donations = response.data || [];
-    
+
     // Ordenar por fecha de creación (más recientes primero) y tomar las primeras 3
     const sortedDonations = donations
       .sort((a, b) => {
@@ -1195,15 +1335,16 @@ async function loadRecentDonations() {
     container.innerHTML = sortedDonations
       .map((donation) => {
         // Obtener nombre del usuario
-        const userName = donation.user_name || donation.users?.name || "Usuario";
-        
+        const userName =
+          donation.user_name || donation.users?.name || "Usuario";
+
         // Obtener nombre de la planta o tipo de accesorio
         const plantName = donation.plant_name || donation.plants?.name || "";
         const accessoryType = donation.accessory_type || "";
-        const donationNote = accessoryType 
-          ? `For ${accessoryType}` 
-          : plantName 
-          ? `For ${plantName}` 
+        const donationNote = accessoryType
+          ? `For ${accessoryType}`
+          : plantName
+          ? `For ${plantName}`
           : "Donation";
 
         // Formatear monto

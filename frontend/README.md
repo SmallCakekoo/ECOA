@@ -22,22 +22,26 @@ Web client application for the ECOA smart plant monitoring system, built with HT
 ### Installation
 
 1. **Install dependencies**
+
 ```bash
 cd frontend
 npm install
 ```
 
 2. **Start development server**
+
 ```bash
 npm run dev
 ```
 
 3. **Build for production**
+
 ```bash
 npm run build
 ```
 
 4. **Preview the build**
+
 ```bash
 npm run preview
 ```
@@ -75,7 +79,9 @@ npm run preview
 ## Available Interfaces
 
 ### Client Panel (`/client`)
+
 **Features:**
+
 - Personal plant dashboard
 - Real-time metrics monitoring
 - Chat with plants using AI
@@ -84,13 +90,16 @@ npm run preview
 - Community donations
 
 **Technical features:**
+
 - Responsive design for mobile and desktop
 - Socket.IO connection for live updates
 - LocalStorage for temporary data
 - Fetch API for backend communication
 
 ### Admin Panel (`/admin`)
+
 **Features:**
+
 - System user management
 - Global plant administration
 - Alert and notification control
@@ -101,17 +110,20 @@ npm run preview
 ## Technologies Used
 
 ### Core
+
 - **HTML5** - Semantic structure
 - **CSS3** - Modern styles with Flexbox/Grid
 - **JavaScript ES6+** - Application logic
 - **Vite 7.1** - Build tool and dev server
 
 ### Libraries and APIs
+
 - **Socket.IO Client** - WebSockets for real-time
 - **Fetch API** - HTTP communication
 - **Web APIs** - Geolocation, Notifications, etc.
 
 ### Development Tools
+
 - **ESLint** - JavaScript linter
 - **Vite** - Ultra-fast bundler
 - **Hot Module Replacement** - Automatic reload
@@ -129,11 +141,11 @@ export default defineConfig({
     port: 5000,
     open: true,
     proxy: {
-      '/api': {
-        target: 'https://ecoabackendecoa.vercel.app',
-        changeOrigin: true
-      }
-    }
+      "/api": {
+        target: "https://ecoa-ruddy.vercel.app",
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     outDir: "../../dist",

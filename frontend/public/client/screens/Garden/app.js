@@ -1,40 +1,46 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
-const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace("http://", "ws://");
+const API_BASE_URL = "https://ecoa-ruddy.vercel.app";
+const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace(
+  "http://",
+  "ws://"
+);
 
 // Inicializar Socket.IO para actualización en tiempo real
 let socket = null;
-if (typeof io !== 'undefined' && window.io) {
+if (typeof io !== "undefined" && window.io) {
   socket = window.io(SOCKET_URL, {
-    transports: ['websocket', 'polling'],
+    transports: ["websocket", "polling"],
     reconnection: true,
     reconnectionDelay: 1000,
-    reconnectionAttempts: 5
+    reconnectionAttempts: 5,
   });
 
-  socket.on('connect', () => {
-    console.log('✅ Conectado a WebSocket en Garden');
+  socket.on("connect", () => {
+    console.log("✅ Conectado a WebSocket en Garden");
     if (USER_DATA && USER_DATA.id) {
-      socket.emit('join_user_room', USER_DATA.id);
+      socket.emit("join_user_room", USER_DATA.id);
     }
   });
 
-  socket.on('disconnect', () => {
-    console.log('❌ Desconectado de WebSocket');
+  socket.on("disconnect", () => {
+    console.log("❌ Desconectado de WebSocket");
   });
 
   // Escuchar actualizaciones de datos de sensores
-  socket.on('sensor_data_received', (eventData) => {
+  socket.on("sensor_data_received", (eventData) => {
     if (eventData.data && eventData.data.stats) {
-      console.log('📊 Actualización en tiempo real recibida en Garden:', eventData.data.stats);
+      console.log(
+        "📊 Actualización en tiempo real recibida en Garden:",
+        eventData.data.stats
+      );
       updatePlantCardStats(eventData.data.stats.plant_id, eventData.data.stats);
     }
   });
 
   // Escuchar actualizaciones de estadísticas de plantas
-  socket.on('plant_stats_updated', (eventData) => {
+  socket.on("plant_stats_updated", (eventData) => {
     if (eventData.data && eventData.data.plant_id) {
-      console.log('📊 Estadísticas actualizadas en Garden:', eventData.data);
+      console.log("📊 Estadísticas actualizadas en Garden:", eventData.data);
       updatePlantCardStats(eventData.data.plant_id, eventData.data);
     }
   });
@@ -47,8 +53,8 @@ function updatePlantCardStats(plantId, stats) {
 
   // Buscar la tarjeta de la planta
   const cards = plantsGrid.querySelectorAll(".plant-card");
-  cards.forEach(card => {
-    const cardPlantId = card.getAttribute('data-plant-id');
+  cards.forEach((card) => {
+    const cardPlantId = card.getAttribute("data-plant-id");
     if (cardPlantId === plantId) {
       const statsContainer = card.querySelector(".plant-stats");
       if (statsContainer) {
@@ -133,20 +139,20 @@ function getPlantImageUrl(plant) {
     const plantIdStr = String(plant.id);
     let hash = 0;
     for (let i = 0; i < plantIdStr.length; i++) {
-      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
       hash = hash & hash;
     }
     const imageIndex = (Math.abs(hash) % 10) + 1;
     return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
-  
+
   // Si no hay ID, usar nombre
   if (plant && plant.name) {
     const hash = plant.name.charCodeAt(0) % 10;
     const imageIndex = hash + 1;
     return `/client/src/assets/images/plants/plant-${imageIndex}.png`;
   }
-  
+
   return "/client/src/assets/images/plant.png";
 }
 
@@ -156,12 +162,12 @@ function handleGardenImageError(imgElement, plantId) {
     const plantIdStr = String(plantId);
     let hash = 0;
     for (let i = 0; i < plantIdStr.length; i++) {
-      hash = ((hash << 5) - hash) + plantIdStr.charCodeAt(i);
+      hash = (hash << 5) - hash + plantIdStr.charCodeAt(i);
       hash = hash & hash;
     }
     const imageIndex = (Math.abs(hash) % 10) + 1;
     imgElement.src = `/client/src/assets/images/plants/plant-${imageIndex}.png`;
-    imgElement.onerror = function() {
+    imgElement.onerror = function () {
       this.onerror = null;
       this.src = "/client/src/assets/images/plant.png";
     };
@@ -181,7 +187,9 @@ function createPlantCard(plant, i) {
         <div class="card-background"></div>
         <img class="plant-image" src="${getPlantImageUrl(
           plant
-        )}" alt="Planta ${i}" onerror="handleGardenImageError(this, '${plant.id || ''}')">
+        )}" alt="Planta ${i}" onerror="handleGardenImageError(this, '${
+    plant.id || ""
+  }')">
         <div class="card-overlay">
             <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">
@@ -247,7 +255,7 @@ const plantsGrid = document.getElementById("plantsGrid");
       );
 
       // Agregar data-plant-id para identificar la tarjeta
-      card.setAttribute('data-plant-id', plant.id);
+      card.setAttribute("data-plant-id", plant.id);
       plantsGrid.appendChild(card);
     } catch (error) {
       console.error(`Error loading stats for plant ${plant.id}:`, error);
@@ -262,7 +270,7 @@ const plantsGrid = document.getElementById("plantsGrid");
         index
       );
       // Agregar data-plant-id para identificar la tarjeta
-      card.setAttribute('data-plant-id', plant.id);
+      card.setAttribute("data-plant-id", plant.id);
       plantsGrid.appendChild(card);
     }
   });

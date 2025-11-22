@@ -87,14 +87,14 @@ function updateProfileDisplay(user) {
   const userEmailEl = document.getElementById("userEmail");
   const avatar = document.getElementById("profileAvatar");
   const dropdownAvatar = document.querySelector(".dropdown-avatar");
-  
+
   if (userNameEl) userNameEl.textContent = user.name || "Administrador";
   if (userEmailEl) userEmailEl.textContent = user.email || "admin@ecoa.org";
-  
+
   // Actualizar avatares (soporta tanto 'image' como 'avatar_url' para compatibilidad)
   // También verifica localStorage como respaldo
   let avatarUrl = user.image || user.avatar_url;
-  
+
   // Si no hay imagen en el usuario, buscar en localStorage
   if (!avatarUrl && user.id) {
     const userImageKey = `user_${user.id}_avatar`;
@@ -104,12 +104,13 @@ function updateProfileDisplay(user) {
       console.log("📸 Imagen recuperada de localStorage");
     }
   }
-  
+
   // Si aún no hay imagen, usar placeholder
   if (!avatarUrl) {
-    avatarUrl = 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop';
+    avatarUrl =
+      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop";
   }
-  
+
   if (avatar) {
     avatar.style.backgroundImage = `url(${avatarUrl})`;
   }
@@ -122,23 +123,23 @@ function updateProfileDisplay(user) {
 function openEditProfileModal() {
   const modal = document.getElementById("editProfileModal");
   const user = window.AdminAPI.getCurrentUser();
-  
+
   if (!modal || !user) return;
-  
+
   // Cargar datos actuales
   const nameInput = document.getElementById("profileName");
   const photoPreview = document.getElementById("profilePhotoPreview");
   const photoInput = document.getElementById("profilePhotoInput");
   const uploadInner = document.querySelector("#profileUploadBox .upload-inner");
-  
+
   if (nameInput) {
     nameInput.value = user.name || "";
   }
-  
+
   if (photoPreview) {
     // Buscar imagen en user, luego en localStorage
-    let avatarUrl = user.image || user.avatar_url || '';
-    
+    let avatarUrl = user.image || user.avatar_url || "";
+
     // Si no hay imagen en el usuario, buscar en localStorage
     if (!avatarUrl && user.id) {
       const userImageKey = `user_${user.id}_avatar`;
@@ -148,16 +149,16 @@ function openEditProfileModal() {
         console.log("📸 Imagen recuperada de localStorage para el modal");
       }
     }
-    
-    if (avatarUrl && avatarUrl.trim() !== '') {
+
+    if (avatarUrl && avatarUrl.trim() !== "") {
       photoPreview.src = avatarUrl;
       photoPreview.style.display = "block";
       photoPreview.style.opacity = "1";
       if (uploadInner) {
         uploadInner.style.display = "none";
       }
-      photoPreview.setAttribute('data-original-image', avatarUrl);
-      
+      photoPreview.setAttribute("data-original-image", avatarUrl);
+
       // Manejar error de carga de imagen
       photoPreview.onerror = () => {
         console.warn("⚠️ Error cargando imagen original, usando placeholder");
@@ -165,11 +166,14 @@ function openEditProfileModal() {
         if (uploadInner) {
           uploadInner.style.display = "flex";
         }
-        photoPreview.removeAttribute('data-original-image');
+        photoPreview.removeAttribute("data-original-image");
       };
-      
+
       photoPreview.onload = () => {
-        console.log("✅ Imagen original cargada correctamente:", avatarUrl.substring(0, 50));
+        console.log(
+          "✅ Imagen original cargada correctamente:",
+          avatarUrl.substring(0, 50)
+        );
       };
     } else {
       photoPreview.style.display = "none";
@@ -177,14 +181,14 @@ function openEditProfileModal() {
       if (uploadInner) {
         uploadInner.style.display = "flex";
       }
-      photoPreview.removeAttribute('data-original-image');
+      photoPreview.removeAttribute("data-original-image");
     }
   }
-  
+
   if (photoInput) {
     photoInput.value = "";
   }
-  
+
   modal.style.display = "flex";
 }
 
@@ -200,7 +204,7 @@ async function initializeApp() {
   try {
     // Configurar modal de edición de perfil
     setupEditProfileModal();
-    
+
     // Cargar plantas
     await loadPlants();
     await updateMetricsFromPlants();
@@ -233,16 +237,16 @@ function setupEditProfileModal() {
   const form = document.getElementById("editProfileForm");
   const photoInput = document.getElementById("profilePhotoInput");
   const photoPreview = document.getElementById("profilePhotoPreview");
-  
+
   // Cerrar modal
   if (closeBtn) {
     closeBtn.addEventListener("click", closeEditProfileModal);
   }
-  
+
   if (cancelBtn) {
     cancelBtn.addEventListener("click", closeEditProfileModal);
   }
-  
+
   // Cerrar al hacer clic fuera del modal
   if (modal) {
     modal.addEventListener("click", (e) => {
@@ -251,13 +255,13 @@ function setupEditProfileModal() {
       }
     });
   }
-  
+
   // Manejar subida de foto
   if (photoInput) {
     photoInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      
+
       try {
         // Convertir a base64
         const reader = new FileReader();
@@ -265,9 +269,10 @@ function setupEditProfileModal() {
           if (photoPreview) {
             photoPreview.src = event.target.result;
             photoPreview.style.display = "block";
-            photoPreview.setAttribute('data-image-changed', 'true');
+            photoPreview.setAttribute("data-image-changed", "true");
             if (photoPreview.parentElement) {
-              const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
+              const uploadInner =
+                photoPreview.parentElement.querySelector(".upload-inner");
               if (uploadInner) {
                 uploadInner.style.display = "none";
               }
@@ -281,39 +286,44 @@ function setupEditProfileModal() {
       }
     });
   }
-  
+
   // Manejar envío del formulario
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
+
       const user = window.AdminAPI.getCurrentUser();
       if (!user || !user.id) {
         alert("Error: No se pudo identificar al usuario.");
         return;
       }
-      
+
       const nameInput = document.getElementById("profileName");
       const name = nameInput ? nameInput.value.trim() : "";
-      
+
       if (!name) {
         alert("El nombre es requerido.");
         return;
       }
-      
+
       const submitBtn = form.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = "Guardando...";
       }
-      
+
       try {
         // Obtener imagen solo si fue cambiada
         let imageUrl = null;
-        const imageChanged = photoPreview?.getAttribute('data-image-changed') === 'true';
-        const originalImage = photoPreview?.getAttribute('data-original-image');
-        
-        if (imageChanged && photoPreview && photoPreview.style.display !== "none") {
+        const imageChanged =
+          photoPreview?.getAttribute("data-image-changed") === "true";
+        const originalImage = photoPreview?.getAttribute("data-original-image");
+
+        if (
+          imageChanged &&
+          photoPreview &&
+          photoPreview.style.display !== "none"
+        ) {
           if (photoPreview.src.startsWith("data:")) {
             imageUrl = photoPreview.src;
             console.log("📸 Enviando nueva imagen (data URL)");
@@ -321,25 +331,30 @@ function setupEditProfileModal() {
             imageUrl = photoPreview.src;
             console.log("📸 Enviando nueva imagen (URL)");
           }
-        } else if (!originalImage && photoPreview && photoPreview.style.display !== "none" && photoPreview.src.startsWith("data:")) {
+        } else if (
+          !originalImage &&
+          photoPreview &&
+          photoPreview.style.display !== "none" &&
+          photoPreview.src.startsWith("data:")
+        ) {
           imageUrl = photoPreview.src;
           console.log("📸 Enviando primera imagen");
         } else {
           console.log("📸 No se enviará imagen (no fue cambiada)");
         }
-        
+
         // Actualizar usuario
         const updateData = {
-          name: name
+          name: name,
         };
-        
+
         if (imageUrl) {
           updateData.image = imageUrl;
           console.log("📸 Imagen incluida en updateData");
         }
-        
+
         const response = await window.AdminAPI.updateUser(user.id, updateData);
-        
+
         // Si hay una imagen y la respuesta fue exitosa o si falló pero la imagen está en updateData
         if (imageUrl) {
           // Guardar imagen en localStorage como respaldo
@@ -347,50 +362,59 @@ function setupEditProfileModal() {
           localStorage.setItem(userImageKey, imageUrl);
           console.log("📸 Imagen guardada en localStorage como respaldo");
         }
-        
+
         if (response.success) {
           // Actualizar usuario en localStorage
           // Mapear avatar_url a image para compatibilidad con el frontend
-          const updatedUser = { 
-            ...user, 
+          const updatedUser = {
+            ...user,
             ...response.data,
-            image: response.data.avatar_url || response.data.image || user.image || user.avatar_url || imageUrl
+            image:
+              response.data.avatar_url ||
+              response.data.image ||
+              user.image ||
+              user.avatar_url ||
+              imageUrl,
           };
-          
+
           // Si la imagen no se guardó en la BD pero está en localStorage, usarla
           if (!updatedUser.image && imageUrl) {
             updatedUser.image = imageUrl;
           }
-          
+
           localStorage.setItem("admin_user", JSON.stringify(updatedUser));
-          
+
           // Actualizar visualización
           updateProfileDisplay(updatedUser);
-          
+
           // Cerrar modal
           closeEditProfileModal();
-          
+
           // Mensaje según si la imagen se guardó o no
           if (imageUrl && !response.imageUpdated) {
-            alert("Nombre actualizado exitosamente. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase.");
+            alert(
+              "Nombre actualizado exitosamente. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase."
+            );
           } else {
             alert("Perfil actualizado exitosamente.");
           }
         } else {
           // Si falló pero tenemos imagen, guardarla en localStorage y actualizar visualización
           if (imageUrl) {
-            const updatedUser = { 
-              ...user, 
+            const updatedUser = {
+              ...user,
               name: name,
-              image: imageUrl
+              image: imageUrl,
             };
             localStorage.setItem("admin_user", JSON.stringify(updatedUser));
             updateProfileDisplay(updatedUser);
             closeEditProfileModal();
-            alert("Nombre actualizado. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase.");
+            alert(
+              "Nombre actualizado. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase."
+            );
             return;
           }
-          
+
           throw new Error(response.message || "Error al actualizar el perfil");
         }
       } catch (error) {
@@ -398,14 +422,14 @@ function setupEditProfileModal() {
         console.error("Detalles del error:", {
           message: error.message,
           response: error.response,
-          stack: error.stack
+          stack: error.stack,
         });
-        
+
         let errorMessage = error.message || "Error al actualizar el perfil";
         if (error.response && error.response.message) {
           errorMessage = error.response.message;
         }
-        
+
         alert(`Error al actualizar el perfil: ${errorMessage}`);
       } finally {
         if (submitBtn) {
@@ -464,45 +488,60 @@ function renderPlants() {
       if (!img) {
         // Placeholder único para cada planta basado en su índice y nombre
         const placeholderIndex = (index % 10) + 1; // Ciclar entre 1-10
-        img = `https://images.unsplash.com/photo-${1506905925346 + placeholderIndex * 1000}?w=400&h=400&fit=crop`;
+        img = `https://images.unsplash.com/photo-${
+          1506905925346 + placeholderIndex * 1000
+        }?w=400&h=400&fit=crop`;
       }
-      
-      const date = plant.created_at || plant.registration_date
-        ? new Date(plant.created_at || plant.registration_date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          })
-        : "";
+
+      const date =
+        plant.created_at || plant.registration_date
+          ? new Date(
+              plant.created_at || plant.registration_date
+            ).toLocaleDateString("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "numeric",
+            })
+          : "";
       // Mapear health_status para mostrar correctamente (usar lowercase para clases CSS)
       let healthStatusValue = plant.health_status;
       // Normalizar valores legacy a nuevos valores para consistencia
-      if (healthStatusValue === 'excellent') healthStatusValue = 'healthy'; // Mapear excellent a healthy
-      if (healthStatusValue === 'needs_care') healthStatusValue = 'recovering';
-      if (healthStatusValue === 'dying') healthStatusValue = 'bad';
-      if (healthStatusValue === 'sick') healthStatusValue = 'bad';
-      if (healthStatusValue === 'critical') healthStatusValue = 'bad'; // Mapeo legacy
-      
+      if (healthStatusValue === "excellent") healthStatusValue = "healthy"; // Mapear excellent a healthy
+      if (healthStatusValue === "needs_care") healthStatusValue = "recovering";
+      if (healthStatusValue === "dying") healthStatusValue = "bad";
+      if (healthStatusValue === "sick") healthStatusValue = "bad";
+      if (healthStatusValue === "critical") healthStatusValue = "bad"; // Mapeo legacy
+
       // Usar AdminUtils.getStatusText si está disponible, sino usar función local
-      const statusText = window.AdminUtils && window.AdminUtils.getStatusText 
-        ? window.AdminUtils.getStatusText(healthStatusValue, 'health')
-        : (healthStatusValue === 'healthy' ? 'Healthy' :
-           healthStatusValue === 'recovering' ? 'Recovering' :
-           healthStatusValue === 'bad' ? 'Bad' : healthStatusValue);
-      
-      const statusBadge = healthStatusValue 
+      const statusText =
+        window.AdminUtils && window.AdminUtils.getStatusText
+          ? window.AdminUtils.getStatusText(healthStatusValue, "health")
+          : healthStatusValue === "healthy"
+          ? "Healthy"
+          : healthStatusValue === "recovering"
+          ? "Recovering"
+          : healthStatusValue === "bad"
+          ? "Bad"
+          : healthStatusValue;
+
+      const statusBadge = healthStatusValue
         ? `<span class="badge ${healthStatusValue.toLowerCase()}">${statusText}</span>`
         : '<span class="badge healthy">Healthy</span>';
       const adoptBadge = plant.is_adopted
         ? '<span class="badge adopted">Adopted</span>'
-        : '';
+        : "";
       return `
         <div class="trow">
           <div class="cell plant">
-            <div class="thumb"><img src="${img}" alt="${plant.name}" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'"></div>
+            <div class="thumb"><img src="${img}" alt="${
+        plant.name
+      }" onerror="this.src='https://images.unsplash.com/photo-1509937528035-ad76254b0356?w=400&h=400&fit=crop'"></div>
             <div>
               <div class="plant-name">${plant.name}</div>
-              <div class="plant-id">ID: PLT-${String(plant.id).substring(0, 8)}</div>
+              <div class="plant-id">ID: PLT-${String(plant.id).substring(
+                0,
+                8
+              )}</div>
             </div>
           </div>
           <div class="cell">${plant.species || ""}</div>
@@ -510,7 +549,9 @@ function renderPlants() {
           <div class="cell">${statusBadge} ${adoptBadge}</div>
           <div class="cell actions">
             <a class="edit" href="#" onclick="editPlant('${plant.id}')">Edit</a>
-            <a class="delete" href="#" onclick="deletePlant('${plant.id}')">Delete</a>
+            <a class="delete" href="#" onclick="deletePlant('${
+              plant.id
+            }')">Delete</a>
           </div>
         </div>`;
     })
@@ -623,45 +664,43 @@ async function loadDevices() {
   try {
     const response = await window.AdminAPI.getDevices();
     const devices = response.data || [];
-    
+
     // Cargar dispositivos en el selector del formulario de nueva planta
     const overlayDeviceSelect = document.getElementById("overlayDeviceSelect");
     if (overlayDeviceSelect) {
-      overlayDeviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
-      devices.forEach(device => {
+      overlayDeviceSelect.innerHTML =
+        '<option value="">Select a device (optional)</option>';
+      devices.forEach((device) => {
         const option = document.createElement("option");
         option.value = device.id;
-         // Mostrar información útil del dispositivo (serial_number o serial, model, location)
-         const serial = device.serial_number || device.serial || 'Unknown';
-         const deviceLabel = [
-           serial,
-           device.model || '',
-           device.location || ''
-         ].filter(Boolean).join(' - ');
-         option.textContent = deviceLabel || device.id;
+        // Mostrar información útil del dispositivo (serial_number o serial, model, location)
+        const serial = device.serial_number || device.serial || "Unknown";
+        const deviceLabel = [serial, device.model || "", device.location || ""]
+          .filter(Boolean)
+          .join(" - ");
+        option.textContent = deviceLabel || device.id;
         overlayDeviceSelect.appendChild(option);
       });
     }
-    
+
     // Cargar dispositivos en el selector del formulario de edición
     const editDeviceSelect = document.getElementById("editDeviceSelect");
     if (editDeviceSelect) {
-      editDeviceSelect.innerHTML = '<option value="">Select a device (optional)</option>';
-      devices.forEach(device => {
+      editDeviceSelect.innerHTML =
+        '<option value="">Select a device (optional)</option>';
+      devices.forEach((device) => {
         const option = document.createElement("option");
         option.value = device.id;
-         // Mostrar información útil del dispositivo (serial_number o serial, model, location)
-         const serial = device.serial_number || device.serial || 'Unknown';
-         const deviceLabel = [
-           serial,
-           device.model || '',
-           device.location || ''
-         ].filter(Boolean).join(' - ');
-         option.textContent = deviceLabel || device.id;
+        // Mostrar información útil del dispositivo (serial_number o serial, model, location)
+        const serial = device.serial_number || device.serial || "Unknown";
+        const deviceLabel = [serial, device.model || "", device.location || ""]
+          .filter(Boolean)
+          .join(" - ");
+        option.textContent = deviceLabel || device.id;
         editDeviceSelect.appendChild(option);
       });
     }
-    
+
     console.log(`✅ ${devices.length} dispositivos cargados en los selectores`);
   } catch (error) {
     console.error("Error loading devices:", error);
@@ -701,20 +740,20 @@ function setupPlantForm() {
         // Comprimir la imagen antes de convertirla a data URL
         // Límite: 200KB en data URL para evitar problemas con Supabase
         const maxDataUrlSize = 200 * 1024; // 200KB
-        
+
         const reader = new FileReader();
         reader.onload = (e) => {
           const img = new Image();
           img.onload = () => {
             // Crear canvas para comprimir
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
             // Calcular dimensiones manteniendo aspecto
             let width = img.width;
             let height = img.height;
             const maxDimension = 800; // Máximo 800px en la dimensión más grande
-            
+
             if (width > height && width > maxDimension) {
               height = (height * maxDimension) / width;
               width = maxDimension;
@@ -722,51 +761,66 @@ function setupPlantForm() {
               width = (width * maxDimension) / height;
               height = maxDimension;
             }
-            
+
             canvas.width = width;
             canvas.height = height;
-            
+
             // Dibujar imagen redimensionada
             ctx.drawImage(img, 0, 0, width, height);
-            
+
             // Convertir a data URL con calidad ajustada
             let quality = 0.9;
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            
+            let dataUrl = canvas.toDataURL("image/jpeg", quality);
+
             // Si aún es muy grande, reducir calidad gradualmente
             while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
               quality -= 0.1;
-              dataUrl = canvas.toDataURL('image/jpeg', quality);
-              console.log(`🔄 Comprimiendo imagen, calidad: ${quality.toFixed(1)}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
+              console.log(
+                `🔄 Comprimiendo imagen, calidad: ${quality.toFixed(
+                  1
+                )}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`
+              );
             }
-            
+
             // Si sigue siendo muy grande después de comprimir, usar PNG
             if (dataUrl.length > maxDataUrlSize) {
-              dataUrl = canvas.toDataURL('image/png');
+              dataUrl = canvas.toDataURL("image/png");
               // Si PNG también es muy grande, reducir dimensiones más
               if (dataUrl.length > maxDataUrlSize) {
                 const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
                 canvas.width = Math.round(width * scale);
                 canvas.height = Math.round(height * scale);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                dataUrl = canvas.toDataURL("image/jpeg", 0.7);
               }
             }
-            
+
             if (dataUrl.length > maxDataUrlSize) {
-              console.warn(`⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(dataUrl.length / 1024)}KB`);
-              showNotification("La imagen es muy grande. Se guardará sin imagen.", "warning");
+              console.warn(
+                `⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(
+                  dataUrl.length / 1024
+                )}KB`
+              );
+              showNotification(
+                "La imagen es muy grande. Se guardará sin imagen.",
+                "warning"
+              );
               dataUrl = null;
             } else {
-              console.log(`✅ Plant Catalog - Imagen comprimida, tamaño final: ${Math.round(dataUrl.length / 1024)}KB`);
+              console.log(
+                `✅ Plant Catalog - Imagen comprimida, tamaño final: ${Math.round(
+                  dataUrl.length / 1024
+                )}KB`
+              );
             }
-            
-            overlayPreview.src = dataUrl || '/placeholder.png';
+
+            overlayPreview.src = dataUrl || "/placeholder.png";
             overlayPreview.style.display = "block";
             const inner = overlayUpload.querySelector(".upload-inner");
             if (inner) inner.style.display = "none";
             // Guardar el data URL en un atributo del preview para usarlo después
-            overlayPreview.setAttribute('data-image-url', dataUrl || '');
+            overlayPreview.setAttribute("data-image-url", dataUrl || "");
           };
           img.onerror = () => {
             console.error("Error cargando imagen para compresión");
@@ -804,40 +858,49 @@ async function createPlant() {
   // Obtener la imagen subida (data URL)
   const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
   let imageUrl = null;
-  
+
   // Obtener el data URL del atributo o del src
   if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none") {
     // Primero intentar obtener del atributo data-image-url (más confiable)
-    const dataImageUrl = overlayPhotoPreview.getAttribute('data-image-url');
+    const dataImageUrl = overlayPhotoPreview.getAttribute("data-image-url");
     if (dataImageUrl && dataImageUrl.startsWith("data:")) {
       imageUrl = dataImageUrl;
-      console.log("✅ Plant Catalog - Imagen obtenida del atributo data-image-url");
-    } 
+      console.log(
+        "✅ Plant Catalog - Imagen obtenida del atributo data-image-url"
+      );
+    }
     // Si no está en el atributo, usar el src si es data URL
-    else if (overlayPhotoPreview.src && overlayPhotoPreview.src.startsWith("data:")) {
+    else if (
+      overlayPhotoPreview.src &&
+      overlayPhotoPreview.src.startsWith("data:")
+    ) {
       imageUrl = overlayPhotoPreview.src;
       console.log("✅ Plant Catalog - Imagen obtenida del src (data URL)");
     }
     // Si el src no es data URL, verificar que no sea placeholder
-    else if (overlayPhotoPreview.src && 
-             overlayPhotoPreview.src !== "" && 
-             overlayPhotoPreview.src !== "about:blank" &&
-             !overlayPhotoPreview.src.includes("unsplash.com/photo-1506905925346") && 
-             !overlayPhotoPreview.src.includes("placeholder") && 
-             !overlayPhotoPreview.src.includes("upgrade_access.jpg")) {
+    else if (
+      overlayPhotoPreview.src &&
+      overlayPhotoPreview.src !== "" &&
+      overlayPhotoPreview.src !== "about:blank" &&
+      !overlayPhotoPreview.src.includes("unsplash.com/photo-1506905925346") &&
+      !overlayPhotoPreview.src.includes("placeholder") &&
+      !overlayPhotoPreview.src.includes("upgrade_access.jpg")
+    ) {
       imageUrl = overlayPhotoPreview.src;
       console.log("✅ Plant Catalog - Imagen obtenida del src (URL)");
     }
-    
+
     if (imageUrl) {
-      console.log("🔍 Plant Catalog - Imagen validada:", { 
-        hasImage: true, 
+      console.log("🔍 Plant Catalog - Imagen validada:", {
+        hasImage: true,
         isDataUrl: imageUrl.startsWith("data:"),
         imageLength: imageUrl.length,
-        imagePreview: imageUrl.substring(0, 50) + "..."
+        imagePreview: imageUrl.substring(0, 50) + "...",
       });
     } else {
-      console.warn("⚠️ Plant Catalog - No se encontró imagen válida en el preview");
+      console.warn(
+        "⚠️ Plant Catalog - No se encontró imagen válida en el preview"
+      );
     }
   }
 
@@ -864,7 +927,9 @@ async function createPlant() {
       showNotification("Planta creada exitosamente", "success");
       form.reset();
       document.getElementById("overlayPhotoPreview").style.display = "none";
-      const uploadInner = document.querySelector("#overlayUpload .upload-inner");
+      const uploadInner = document.querySelector(
+        "#overlayUpload .upload-inner"
+      );
       if (uploadInner) uploadInner.style.display = "block";
 
       // Recargar datos
@@ -888,13 +953,13 @@ async function editPlant(plantId) {
     document.getElementById("editPlantName").value = plant.name || "";
     document.getElementById("editSpecies").value = plant.species || "";
     document.getElementById("editDescription").value = plant.description || "";
-    
+
     // Establecer el health_status si existe
     const healthStatusSelect = document.getElementById("editHealthStatus");
     if (healthStatusSelect && plant.health_status) {
       healthStatusSelect.value = plant.health_status;
     }
-    
+
     // Establecer el device_id si existe
     const deviceSelect = document.getElementById("editDeviceSelect");
     if (deviceSelect && plant.device_id) {
@@ -907,36 +972,44 @@ async function editPlant(plantId) {
     const editPhotoPreview = document.getElementById("editPhotoPreview");
     const editUpload = document.getElementById("editUpload");
     const editUploadInner = editUpload?.querySelector(".upload-inner");
-    
+
     if (editPhotoPreview && editUpload) {
       // Obtener la imagen actual de la planta
       let currentImageUrl = plant.image || plant.image_url;
-      
+
       if (currentImageUrl) {
         let previewSrc = currentImageUrl;
-        
+
         // Si es data URL, usar directamente
         if (currentImageUrl.startsWith("data:")) {
           previewSrc = currentImageUrl;
         }
         // Si es URL completa, usar directamente
-        else if (currentImageUrl.startsWith("http://") || currentImageUrl.startsWith("https://")) {
+        else if (
+          currentImageUrl.startsWith("http://") ||
+          currentImageUrl.startsWith("https://")
+        ) {
           previewSrc = currentImageUrl;
         }
         // Si es ruta relativa, construir URL completa
         else {
-          const API_BASE_URL = window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app";
-          previewSrc = `${API_BASE_URL}${currentImageUrl.startsWith("/") ? currentImageUrl : "/" + currentImageUrl}`;
+          const API_BASE_URL =
+            window.AdminConfig?.API_BASE_URL || "https://ecoa-ruddy.vercel.app";
+          previewSrc = `${API_BASE_URL}${
+            currentImageUrl.startsWith("/")
+              ? currentImageUrl
+              : "/" + currentImageUrl
+          }`;
         }
-        
+
         editPhotoPreview.src = previewSrc;
-        editPhotoPreview.setAttribute('data-original-src', previewSrc);
+        editPhotoPreview.setAttribute("data-original-src", previewSrc);
         editPhotoPreview.style.display = "block";
         if (editUploadInner) editUploadInner.style.display = "none";
       } else {
         // Si no hay imagen, mostrar el placeholder de subida
         editPhotoPreview.style.display = "none";
-        editPhotoPreview.removeAttribute('data-original-src');
+        editPhotoPreview.removeAttribute("data-original-src");
         if (editUploadInner) editUploadInner.style.display = "block";
       }
     }
@@ -972,17 +1045,17 @@ async function editPlant(plantId) {
 function compressImage(file, callback) {
   const maxDataUrlSize = 150 * 1024; // 150KB (límite más conservador para Supabase)
   const reader = new FileReader();
-  
+
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
       let width = img.width;
       let height = img.height;
       const maxDimension = 800;
-      
+
       if (width > height && width > maxDimension) {
         height = (height * maxDimension) / width;
         width = maxDimension;
@@ -990,32 +1063,34 @@ function compressImage(file, callback) {
         width = (width * maxDimension) / height;
         height = maxDimension;
       }
-      
+
       canvas.width = width;
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
-      
+
       let quality = 0.9;
-      let dataUrl = canvas.toDataURL('image/jpeg', quality);
-      
+      let dataUrl = canvas.toDataURL("image/jpeg", quality);
+
       while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
         quality -= 0.1;
-        dataUrl = canvas.toDataURL('image/jpeg', quality);
+        dataUrl = canvas.toDataURL("image/jpeg", quality);
       }
-      
+
       if (dataUrl.length > maxDataUrlSize) {
-        dataUrl = canvas.toDataURL('image/png');
+        dataUrl = canvas.toDataURL("image/png");
         if (dataUrl.length > maxDataUrlSize) {
           const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
           canvas.width = Math.round(width * scale);
           canvas.height = Math.round(height * scale);
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          dataUrl = canvas.toDataURL("image/jpeg", 0.7);
         }
       }
-      
+
       if (dataUrl.length > maxDataUrlSize) {
-        console.warn(`⚠️ Imagen muy grande: ${Math.round(dataUrl.length / 1024)}KB`);
+        console.warn(
+          `⚠️ Imagen muy grande: ${Math.round(dataUrl.length / 1024)}KB`
+        );
         callback(null);
       } else {
         callback(dataUrl);
@@ -1042,7 +1117,7 @@ function setupEditImageUpload() {
   // Remover listeners anteriores si existen (usando cloneNode para limpiar)
   const newEditInput = editInput.cloneNode(true);
   editInput.parentNode.replaceChild(newEditInput, editInput);
-  
+
   // Obtener referencias actualizadas después del clone
   const currentEditInput = document.getElementById("editPhotoInput");
   const editUploadInner = editUpload.querySelector(".upload-inner");
@@ -1055,17 +1130,30 @@ function setupEditImageUpload() {
       return;
     }
 
-    console.log("📸 Archivo seleccionado para edición:", file.name, "Tamaño:", Math.round(file.size / 1024), "KB");
+    console.log(
+      "📸 Archivo seleccionado para edición:",
+      file.name,
+      "Tamaño:",
+      Math.round(file.size / 1024),
+      "KB"
+    );
 
     compressImage(file, (dataUrl) => {
       if (dataUrl) {
         editPreview.src = dataUrl;
         editPreview.style.display = "block";
         if (editUploadInner) editUploadInner.style.display = "none";
-        editPreview.setAttribute('data-image-url', dataUrl);
-        console.log(`✅ Plant Catalog - Imagen comprimida para edición, tamaño: ${Math.round(dataUrl.length / 1024)}KB`);
+        editPreview.setAttribute("data-image-url", dataUrl);
+        console.log(
+          `✅ Plant Catalog - Imagen comprimida para edición, tamaño: ${Math.round(
+            dataUrl.length / 1024
+          )}KB`
+        );
       } else {
-        showNotification("La imagen es muy grande. Se guardará sin cambiar la imagen.", "warning");
+        showNotification(
+          "La imagen es muy grande. Se guardará sin cambiar la imagen.",
+          "warning"
+        );
       }
     });
   });
@@ -1080,20 +1168,25 @@ async function updatePlant(plantId) {
   // Obtener la nueva imagen si se subió una
   const editPhotoPreview = document.getElementById("editPhotoPreview");
   let imageUrl = null;
-  
+
   if (editPhotoPreview) {
     // Verificar si hay una nueva imagen subida (data URL en el atributo)
-    const dataImageUrl = editPhotoPreview.getAttribute('data-image-url');
+    const dataImageUrl = editPhotoPreview.getAttribute("data-image-url");
     if (dataImageUrl && dataImageUrl.startsWith("data:")) {
       // Verificar si es diferente a la imagen original
-      const originalSrc = editPhotoPreview.getAttribute('data-original-src') || '';
+      const originalSrc =
+        editPhotoPreview.getAttribute("data-original-src") || "";
       if (dataImageUrl !== originalSrc) {
         imageUrl = dataImageUrl;
         console.log("✅ Plant Catalog - Nueva imagen obtenida para edición");
       }
-    } else if (editPhotoPreview.src && editPhotoPreview.src.startsWith("data:")) {
+    } else if (
+      editPhotoPreview.src &&
+      editPhotoPreview.src.startsWith("data:")
+    ) {
       // Si no hay atributo pero el src es data URL, verificar si es nueva
-      const originalSrc = editPhotoPreview.getAttribute('data-original-src') || '';
+      const originalSrc =
+        editPhotoPreview.getAttribute("data-original-src") || "";
       if (editPhotoPreview.src !== originalSrc) {
         imageUrl = editPhotoPreview.src;
       }
@@ -1117,16 +1210,29 @@ async function updatePlant(plantId) {
     // Usar límite más conservador para evitar problemas con Supabase
     const maxDataUrlSize = 150 * 1024; // 150KB
     const imageSize = imageUrl.length;
-    
-    console.log(`📊 Tamaño de imagen a enviar: ${Math.round(imageSize / 1024)}KB`);
-    
+
+    console.log(
+      `📊 Tamaño de imagen a enviar: ${Math.round(imageSize / 1024)}KB`
+    );
+
     if (imageSize > maxDataUrlSize) {
-      console.warn(`⚠️ Imagen demasiado grande (${Math.round(imageSize / 1024)}KB), no se actualizará la imagen`);
-      showNotification("La imagen es demasiado grande. Se actualizará la planta sin cambiar la imagen.", "warning");
+      console.warn(
+        `⚠️ Imagen demasiado grande (${Math.round(
+          imageSize / 1024
+        )}KB), no se actualizará la imagen`
+      );
+      showNotification(
+        "La imagen es demasiado grande. Se actualizará la planta sin cambiar la imagen.",
+        "warning"
+      );
       // No incluir la imagen si es demasiado grande
     } else {
       plantData.image = imageUrl;
-      console.log(`✅ Imagen validada y lista para enviar (${Math.round(imageSize / 1024)}KB)`);
+      console.log(
+        `✅ Imagen validada y lista para enviar (${Math.round(
+          imageSize / 1024
+        )}KB)`
+      );
     }
   }
 
@@ -1136,12 +1242,12 @@ async function updatePlant(plantId) {
 
   try {
     showFormLoading(true);
-    
+
     // Actualizar primero los datos básicos de la planta
     let result;
     try {
       result = await window.AdminAPI.updatePlant(plantId, plantData);
-      
+
       if (!result.success) {
         throw new Error(result.message || "Error al actualizar la planta");
       }
@@ -1149,15 +1255,27 @@ async function updatePlant(plantId) {
       // Si falla y hay imagen, verificar si es un error de tamaño de imagen
       if (plantData.image && updateError.message) {
         // Si el error menciona que la imagen es muy grande, intentar sin imagen
-        if (updateError.message.includes("Error interno") || updateError.message.includes("muy grande") || updateError.message.includes("demasiado grande")) {
-          console.warn("⚠️ Error al actualizar con imagen, intentando sin imagen...");
+        if (
+          updateError.message.includes("Error interno") ||
+          updateError.message.includes("muy grande") ||
+          updateError.message.includes("demasiado grande")
+        ) {
+          console.warn(
+            "⚠️ Error al actualizar con imagen, intentando sin imagen..."
+          );
           const plantDataWithoutImage = { ...plantData };
           delete plantDataWithoutImage.image;
-          
+
           try {
-            result = await window.AdminAPI.updatePlant(plantId, plantDataWithoutImage);
+            result = await window.AdminAPI.updatePlant(
+              plantId,
+              plantDataWithoutImage
+            );
             if (result.success) {
-              showNotification("Planta actualizada exitosamente, pero la imagen no pudo ser actualizada. La imagen puede ser demasiado grande o tener un formato no soportado.", "warning");
+              showNotification(
+                "Planta actualizada exitosamente, pero la imagen no pudo ser actualizada. La imagen puede ser demasiado grande o tener un formato no soportado.",
+                "warning"
+              );
             } else {
               throw updateError; // Si también falla sin imagen, lanzar el error original
             }
@@ -1177,8 +1295,15 @@ async function updatePlant(plantId) {
     let healthStatusUpdated = false;
     if (healthStatus) {
       try {
-        const metricsResult = await window.AdminAPI.updatePlantMetrics(plantId, { health_status: healthStatus });
-        console.log("✅ Health status actualizado:", healthStatus, metricsResult);
+        const metricsResult = await window.AdminAPI.updatePlantMetrics(
+          plantId,
+          { health_status: healthStatus }
+        );
+        console.log(
+          "✅ Health status actualizado:",
+          healthStatus,
+          metricsResult
+        );
         healthStatusUpdated = true;
         // NO mostrar notificación aquí, solo una al final
       } catch (statusError) {
@@ -1186,7 +1311,9 @@ async function updatePlant(plantId) {
         // No mostrar notificación de warning aquí para evitar duplicados
         // Solo lanzar error si es crítico
         if (statusError.message && statusError.message.includes("coerce")) {
-          throw new Error("Error al actualizar el estado de salud. Por favor, inténtalo de nuevo.");
+          throw new Error(
+            "Error al actualizar el estado de salud. Por favor, inténtalo de nuevo."
+          );
         }
       }
     }
@@ -1196,47 +1323,54 @@ async function updatePlant(plantId) {
       console.log("✅ Respuesta del servidor:", {
         hasImage: !!result.data.image,
         imageLength: result.data.image ? result.data.image.length : 0,
-        imagePreview: result.data.image ? `${result.data.image.substring(0, 50)}...` : null
+        imagePreview: result.data.image
+          ? `${result.data.image.substring(0, 50)}...`
+          : null,
       });
-      
+
       // Si se envió una imagen pero no está en la respuesta, podría no haberse guardado
       if (imageUrl && !result.data.image) {
-        console.warn("⚠️ Se envió una imagen pero no está en la respuesta del servidor");
+        console.warn(
+          "⚠️ Se envió una imagen pero no está en la respuesta del servidor"
+        );
       }
     }
 
     // Actualizar el objeto local inmediatamente para reflejar cambios sin esperar recarga
-    const plantIndex = allPlants.findIndex(p => p.id === plantId);
+    const plantIndex = allPlants.findIndex((p) => p.id === plantId);
     if (plantIndex !== -1) {
       // Usar la imagen de la respuesta del servidor si está disponible, sino la que enviamos
-      const updatedImage = result.data?.image || imageUrl || allPlants[plantIndex].image;
+      const updatedImage =
+        result.data?.image || imageUrl || allPlants[plantIndex].image;
       allPlants[plantIndex] = {
         ...allPlants[plantIndex],
         ...plantData,
         image: updatedImage, // Usar imagen de la respuesta del servidor
-        health_status: healthStatus || allPlants[plantIndex].health_status
+        health_status: healthStatus || allPlants[plantIndex].health_status,
       };
       console.log("✅ Objeto local actualizado:", {
         id: allPlants[plantIndex].id,
         name: allPlants[plantIndex].name,
         hasImage: !!allPlants[plantIndex].image,
-        imageLength: allPlants[plantIndex].image ? allPlants[plantIndex].image.length : 0
+        imageLength: allPlants[plantIndex].image
+          ? allPlants[plantIndex].image.length
+          : 0,
       });
     }
 
     // Mostrar UNA sola notificación
-    const notificationMessage = healthStatusUpdated && healthStatus
-      ? `Planta actualizada exitosamente. Estado: ${healthStatus}`
-      : "Planta actualizada exitosamente";
+    const notificationMessage =
+      healthStatusUpdated && healthStatus
+        ? `Planta actualizada exitosamente. Estado: ${healthStatus}`
+        : "Planta actualizada exitosamente";
     showNotification(notificationMessage, "success");
     closeEditModal();
-    
+
     // Recargar plantas desde el servidor para obtener los datos más actualizados
     await loadPlants();
     // Renderizar y actualizar paginación
     renderPlants();
     updatePagination();
-    
   } catch (error) {
     console.error("❌ Error updating plant:", error);
     showNotification(error.message || "Error al actualizar la planta", "error");
@@ -1275,26 +1409,26 @@ function closeEditModal() {
   if (editModal) {
     editModal.classList.remove("show");
     document.body.style.overflow = "auto";
-    
+
     // Limpiar formulario y preview de imagen
     const editForm = document.getElementById("editPlantForm");
     if (editForm) editForm.reset();
-    
+
     const editPhotoPreview = document.getElementById("editPhotoPreview");
     const editPhotoInput = document.getElementById("editPhotoInput");
     const editUploadInner = document.querySelector("#editUpload .upload-inner");
-    
+
     if (editPhotoPreview) {
       editPhotoPreview.style.display = "none";
       editPhotoPreview.src = "";
-      editPhotoPreview.removeAttribute('data-image-url');
-      editPhotoPreview.removeAttribute('data-original-src');
+      editPhotoPreview.removeAttribute("data-image-url");
+      editPhotoPreview.removeAttribute("data-original-src");
     }
-    
+
     if (editPhotoInput) {
       editPhotoInput.value = "";
     }
-    
+
     if (editUploadInner) {
       editUploadInner.style.display = "block";
     }
@@ -1309,7 +1443,7 @@ function resetForm() {
   if (preview) {
     preview.style.display = "none";
     preview.src = "";
-    preview.removeAttribute('data-image-url');
+    preview.removeAttribute("data-image-url");
   }
 
   const uploadInner = document.querySelector("#overlayUpload .upload-inner");
@@ -1330,7 +1464,7 @@ function showFormLoading(show = true) {
   const editSubmitBtn = document.querySelector(
     '#editPlantForm button[type="submit"]'
   );
-  
+
   if (submitBtn) {
     if (show) {
       submitBtn.disabled = true;
@@ -1342,7 +1476,7 @@ function showFormLoading(show = true) {
       submitBtn.style.opacity = "1";
     }
   }
-  
+
   if (editSubmitBtn) {
     if (show) {
       editSubmitBtn.disabled = true;
@@ -1403,11 +1537,13 @@ function resolveImageUrl(url, fallback) {
   // Si es data URL, devolver directamente
   if (candidate.startsWith("data:")) return candidate;
   // Si es URL absoluta, devolver directamente
-  if (candidate.startsWith("http://") || candidate.startsWith("https://")) return candidate;
+  if (candidate.startsWith("http://") || candidate.startsWith("https://"))
+    return candidate;
   // Si viene relativa (/uploads/...), prepender base del backend
-  let baseUrl = window.AdminConfig?.API_BASE_URL || "https://ecoabackendecoa.vercel.app";
+  let baseUrl =
+    window.AdminConfig?.API_BASE_URL || "https://ecoa-ruddy.vercel.app";
   // Asegurar que baseUrl no termine con /
-  baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  baseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
   return `${baseUrl}${candidate.startsWith("/") ? candidate : "/" + candidate}`;
 }
 
@@ -1416,14 +1552,16 @@ async function updateMetricsFromPlants() {
     const totals = {
       total: allPlants.length,
       healthy: allPlants.filter((p) => p.health_status === "healthy").length,
-      recovering: allPlants.filter((p) => 
-        p.health_status === "recovering" || p.health_status === "needs_care"
+      recovering: allPlants.filter(
+        (p) =>
+          p.health_status === "recovering" || p.health_status === "needs_care"
       ).length,
-      bad: allPlants.filter((p) => 
-        p.health_status === "bad" || 
-        p.health_status === "critical" || 
-        p.health_status === "dying" || 
-        p.health_status === "sick"
+      bad: allPlants.filter(
+        (p) =>
+          p.health_status === "bad" ||
+          p.health_status === "critical" ||
+          p.health_status === "dying" ||
+          p.health_status === "sick"
       ).length,
     };
 
@@ -1438,4 +1576,3 @@ async function updateMetricsFromPlants() {
     console.error("Error updating metrics:", e);
   }
 }
-
