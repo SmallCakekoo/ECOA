@@ -186,10 +186,6 @@ function createPlantCard(plant, i) {
             <div class="plant-name">${plant.name}</div>
             <div class="plant-stats">
                 <div class="stat">
-                    <span class="iconify" data-icon="solar:sun-linear"></span>
-                    ${Math.round(plant.light || 0)} lx
-                </div>
-                <div class="stat">
                     <span class="iconify" data-icon="lets-icons:water-light"></span>
                     ${Math.round(plant.soil_moisture || 0)}%
                 </div>
