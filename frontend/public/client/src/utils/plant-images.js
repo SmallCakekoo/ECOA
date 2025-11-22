@@ -12,7 +12,7 @@ const UNSPLASH_PLACEHOLDER = 'https://images.unsplash.com/photo-1509937528035-ad
  * @param {string} API_BASE_URL - URL base del API (opcional)
  * @returns {string} URL de la imagen
  */
-function getPlantImageUrl(plant, API_BASE_URL = 'https://ecoabackendecoa.vercel.app') {
+function getPlantImageUrl(plant, API_BASE_URL = (typeof window !== 'undefined' && window.ECOA_CONFIG?.API_BASE_URL) || 'https://ecoabackendecoa.vercel.app') {
   if (!plant) {
     return getLocalPlantImage(null);
   }

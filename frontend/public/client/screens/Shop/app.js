@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = window.ECOA_CONFIG.API_BASE_URL;
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
 // Obtener el ID de la planta desde la URL
@@ -77,17 +77,17 @@ window.goBack = function () {
 // Funciones de navegación (expuestas globalmente)
 window.goToHome = function (event) {
   if (event) event.preventDefault();
-  window.location.href = "/client/screens/Home";
+  window.location.href = "/client/screens/Home/index.html";
 };
 
 window.goToPlants = function (event) {
   if (event) event.preventDefault();
-  window.location.href = "/client/screens/VirtualPet";
+  window.location.href = "/client/screens/VirtualPet/index.html";
 };
 
 window.goToProfile = function (event) {
   if (event) event.preventDefault();
-  window.location.href = "/client/screens/Profile";
+  window.location.href = "/client/screens/Profile/index.html";
 };
 
 // Función para comprar un accesorio (expuesta globalmente)
@@ -104,14 +104,14 @@ window.purchaseAccessory = async function (
     // Verificar que hay un usuario logueado
     if (!USER_DATA || !USER_DATA.id) {
       console.error("Usuario no autenticado");
-      window.location.href = "/client/screens/ShopFeedback/error";
+      window.location.href = "/client/screens/ShopFeedback/error/index.html";
       return;
     }
 
     // Verificar que hay una planta seleccionada
     if (!currentPlantId) {
       console.error("No se ha seleccionado una planta");
-      window.location.href = "/client/screens/ShopFeedback/error";
+      window.location.href = "/client/screens/ShopFeedback/error/index.html";
       return;
     }
 
@@ -164,7 +164,7 @@ window.purchaseAccessory = async function (
           error: errorText,
         })}`
       );
-      window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
+      window.location.href = `/client/screens/ShopFeedback/error/index.html?id=${currentPlantId}`;
       return;
     }
 
@@ -177,7 +177,7 @@ window.purchaseAccessory = async function (
           donationResult.message || donationResult.error || "Error desconocido"
         }`
       );
-      window.location.href = `/client/screens/ShopFeedback/error?id=${currentPlantId}`;
+      window.location.href = `/client/screens/ShopFeedback/error/index.html?id=${currentPlantId}`;
       return;
     }
 
@@ -229,10 +229,10 @@ window.purchaseAccessory = async function (
 
     // SIEMPRE redirigir a success si la donación se creó exitosamente
     console.log("✅ Redirigiendo a página de éxito...");
-    window.location.href = `/client/screens/ShopFeedback/success?id=${currentPlantId}`;
+    window.location.href = `/client/screens/ShopFeedback/success/index.html?id=${currentPlantId}`;
   } catch (error) {
     console.error("❌ Error en la compra:", error);
-    window.location.href = `/client/screens/ShopFeedback/error?id=${
+    window.location.href = `/client/screens/ShopFeedback/error/index.html?id=${
       plantId || ""
     }`;
   }
@@ -241,9 +241,9 @@ window.purchaseAccessory = async function (
 // Función para ir a Shop Feedback Success (expuesta globalmente) - Mantener para compatibilidad
 window.goToShopFeedback = function () {
   if (plantId) {
-    window.location.href = `/client/screens/ShopFeedback/success?id=${plantId}`;
+    window.location.href = `/client/screens/ShopFeedback/success/index.html?id=${plantId}`;
   } else {
-    window.location.href = "/client/screens/ShopFeedback/success";
+    window.location.href = "/client/screens/ShopFeedback/success/index.html";
   }
 };
 

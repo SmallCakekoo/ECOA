@@ -1,7 +1,10 @@
 // Configuración del panel de administración
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_URL = isLocalhost ? 'http://localhost:3000' : 'https://ecoabackendecoa.vercel.app';
+
 const AdminConfig = {
-  // URL del backend - Servidor en producción
-  API_BASE_URL: "https://ecoabackendecoa.vercel.app",
+  // URL del backend - Dinámico
+  API_BASE_URL: API_URL,
 
   // Configuración de autenticación
   AUTH: {

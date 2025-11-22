@@ -1,5 +1,5 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = window.ECOA_CONFIG.API_BASE_URL;
 
 function resolvePlantImage(plant) {
   const url = plant.image || plant.image_url;
@@ -109,7 +109,7 @@ if (USER_DATA && USER_DATA.name) {
           "ID:",
           plant.id
         );
-        window.location.href = `/client/screens/VirtualPet?id=${plant.id}`;
+        window.location.href = `/client/screens/VirtualPet/index.html?id=${plant.id}`;
       };
 
       document.querySelector(".plant-name").textContent = plant.name;
@@ -188,25 +188,25 @@ setInterval(updateTime, 60000);
 window.goToHome = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Home");
-  window.location.href = "/client/screens/Home";
+  window.location.href = "/client/screens/Home/index.html";
 };
 
 window.goToPlants = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Garden (todas las plantas)");
-  window.location.href = "/client/screens/Garden";
+  window.location.href = "/client/screens/Garden/index.html";
 };
 
 window.goToProfile = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Profile");
-  window.location.href = "/client/screens/Profile";
+  window.location.href = "/client/screens/Profile/index.html";
 };
 
 // Adopt button - Redirige a página de adopción
 document.getElementById("adoptBtn").addEventListener("click", () => {
   console.log("Adopt a new plant clicked");
-  window.location.href = "/client/screens/Adopt";
+  window.location.href = "/client/screens/Adopt/index.html";
 });
 
 // Actualizar estadísticas aleatoriamente

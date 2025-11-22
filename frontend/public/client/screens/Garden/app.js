@@ -1,6 +1,6 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
-const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace("http://", "ws://");
+const API_BASE_URL = window.ECOA_CONFIG.API_BASE_URL;
+const SOCKET_URL = window.ECOA_CONFIG.SOCKET_URL;
 
 // Inicializar Socket.IO para actualización en tiempo real
 let socket = null;
@@ -102,7 +102,7 @@ setInterval(updateTime, 60000);
 window.goToHome = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Home");
-  window.location.href = "/client/screens/Home";
+  window.location.href = "/client/screens/Home/index.html";
 };
 
 window.goToPlants = function (event) {
@@ -114,7 +114,7 @@ window.goToPlants = function (event) {
 window.goToProfile = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Profile");
-  window.location.href = "/client/screens/Profile";
+  window.location.href = "/client/screens/Profile/index.html";
 };
 
 // Función para obtener la URL de la imagen de la planta
@@ -205,7 +205,7 @@ function createPlantCard(plant, i) {
       "ID:",
       plant.id
     );
-    window.location.href = `/client/screens/VirtualPet?id=${plant.id}`;
+    window.location.href = `/client/screens/VirtualPet/index.html?id=${plant.id}`;
   };
 
   return card;
@@ -275,7 +275,7 @@ const plantsGrid = document.getElementById("plantsGrid");
   addButton.onclick = function () {
     console.log("Navegando a Adopt para adoptar nueva planta");
     window.location.href =
-      "https://ecoafrontendecoa.vercel.app/client/screens/Adopt";
+      "/client/screens/Adopt/index.html";
   };
   plantsGrid.appendChild(addButton);
 

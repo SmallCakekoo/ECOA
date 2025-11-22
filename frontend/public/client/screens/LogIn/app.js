@@ -27,7 +27,7 @@ loginForm.addEventListener("submit", async (e) => {
 
   try {
     // Obtener todos los usuarios y buscar por email
-    const response = await fetch("https://ecoabackendecoa.vercel.app/users");
+    const response = await fetch(`${window.ECOA_CONFIG.API_BASE_URL}/users`);
     const data = await response.json();
     console.log(data);
 
@@ -38,7 +38,7 @@ loginForm.addEventListener("submit", async (e) => {
       if (user) {
         localStorage.setItem("USER_DATA", JSON.stringify(user));
         // Si el usuario existe, redirigir a home
-        window.location.href = "/client/screens/Home";
+        window.location.href = "/client/screens/Home/index.html";
       } else {
         // Si no existe, mostrar mensaje de error
         alert("User not found. Please sign up first.");
@@ -56,5 +56,5 @@ loginForm.addEventListener("submit", async (e) => {
 const signupLink = document.getElementById("signupLink");
 signupLink.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location.href = "/client/screens/SingUp";
+  window.location.href = "/client/screens/SingUp/index.html";
 });

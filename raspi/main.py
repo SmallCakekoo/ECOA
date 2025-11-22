@@ -31,7 +31,7 @@ def get_or_create_device_serial():
     # 1. Intentar desde variable de entorno
     env_serial = os.getenv("DEVICE_SERIAL")
     if env_serial and env_serial.strip():
-        print(f"✅ Usando DEVICE_SERIAL del .env: {env_serial}")
+        print(f"Usando DEVICE_SERIAL del .env: {env_serial}")
         return env_serial.strip()
     
     # 2. Intentar leer serial de CPU de Raspberry Pi
@@ -43,10 +43,10 @@ def get_or_create_device_serial():
                     if cpu_serial and len(cpu_serial) > 0:
                         # Formatear como "RPI-XXXXXXXX"
                         formatted_serial = f"RPI-{cpu_serial[-8:].upper()}"
-                        print(f"✅ Usando serial de CPU: {formatted_serial}")
+                        print(f"Usando serial de CPU: {formatted_serial}")
                         return formatted_serial
     except Exception as e:
-        print(f"⚠️  No se pudo leer serial de CPU: {e}")
+        print(f"No se pudo leer serial de CPU: {e}")
     
     # 3. Intentar leer UUID guardado en archivo (persistente)
     serial_file = os.path.join(os.path.dirname(__file__), '.device_serial')
@@ -55,20 +55,20 @@ def get_or_create_device_serial():
             with open(serial_file, 'r') as f:
                 saved_serial = f.read().strip()
                 if saved_serial:
-                    print(f"✅ Usando serial guardado: {saved_serial}")
+                    print(f"Usando serial guardado: {saved_serial}")
                     return saved_serial
     except Exception as e:
-        print(f"⚠️  No se pudo leer archivo de serial: {e}")
+        print(f"No se pudo leer archivo de serial: {e}")
     
     # 4. Generar nuevo UUID y guardarlo
     new_serial = f"RPI-{str(uuid.uuid4()).replace('-', '').upper()[:12]}"
     try:
         with open(serial_file, 'w') as f:
             f.write(new_serial)
-        print(f"✅ Nuevo serial generado y guardado: {new_serial}")
+        print(f"Nuevo serial generado y guardado: {new_serial}")
     except Exception as e:
-        print(f"⚠️  No se pudo guardar serial en archivo: {e}")
-        print(f"   Usando serial temporal: {new_serial}")
+        print(f"No se pudo guardar serial en archivo: {e}")
+        print(f"Usando serial temporal: {new_serial}")
     
     return new_serial
 
@@ -84,12 +84,12 @@ FOUNDATION_ID = os.getenv("FOUNDATION_ID", None)
 
 # Validar variable de entorno
 if not BACKEND_URL:
-    raise ValueError("⚠️  Falta BACKEND_URL en el archivo .env")
+    raise ValueError("Falta BACKEND_URL en el archivo .env")
 
 # Mostrar información del dispositivo
-print(f"🆔 Device Serial: {DEVICE_SERIAL}")
-print(f"📱 Device Model: {DEVICE_MODEL}")
-print(f"📍 Device Location: {DEVICE_LOCATION}")
+print(f"Device Serial: {DEVICE_SERIAL}")
+print(f"Device Model: {DEVICE_MODEL}")
+print(f"Device Location: {DEVICE_LOCATION}")
 
 # GPIO para sensor de humedad digital
 DIGITAL_PIN = 17
@@ -172,7 +172,7 @@ def read_soil_moisture():
             "estado_digital": estado_str
         }
     except Exception as e:
-        print(f"❌ Error leyendo humedad: {e}")
+        print(f"Error leyendo humedad: {e}")
         return None
 
 def read_light():
@@ -184,7 +184,7 @@ def read_light():
         light_level = ((data[0] << 8) | data[1]) / 1.2
         return round(light_level, 2)
     except Exception as e:
-        print(f"❌ Error leyendo luminosidad: {e}")
+        print(f"Error leyendo luminosidad: {e}")
         return None
 
 def read_temperature():
@@ -193,7 +193,7 @@ def read_temperature():
         temperature = temp_sensor.get_temperature()
         return round(temperature, 2)
     except Exception as e:
-        print(f"❌ Error leyendo temperatura: {e}")
+        print(f"Error leyendo temperatura: {e}")
         return None
 
 # ==================== COMUNICACIÓN CON BACKEND ====================
@@ -210,7 +210,7 @@ def send_sensor_data_to_backend(temperatura, luminosidad, humedad, plant_id=None
             "temperature": temperatura,
             "light": luminosidad,
             "soil_moisture": humedad,
-            "status": status,  # 🔥 CAMPO REQUERIDO: 'healthy', 'bad', o 'recovering'
+            "status": status,  # 'healthy', 'bad', o 'recovering'
             "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
         
@@ -228,7 +228,7 @@ def send_sensor_data_to_backend(temperatura, luminosidad, humedad, plant_id=None
         if FOUNDATION_ID:
             data["foundation_id"] = FOUNDATION_ID
         
-        print(f"📤 Enviando datos al backend...")
+        print(f"Enviando datos al backend...")
         print(f"   Status calculado: {status}")
         
         response = requests.post(
@@ -239,24 +239,24 @@ def send_sensor_data_to_backend(temperatura, luminosidad, humedad, plant_id=None
         )
         
         if response.status_code in [200, 201]:
-            print("✅ Datos enviados correctamente")
+            print("Datos enviados correctamente")
             result = response.json()
             if result.get("success"):
                 print(f"   Respuesta: {result.get('message', 'OK')}")
             return True
         else:
-            print(f"❌ Error del backend: {response.status_code}")
+            print(f"Error del backend: {response.status_code}")
             print(f"   Respuesta: {response.text}")
             return False
             
     except requests.exceptions.Timeout:
-        print("❌ Timeout: el backend tardó demasiado en responder")
+        print("Timeout: el backend tardó demasiado en responder")
         return False
     except requests.exceptions.ConnectionError:
-        print("❌ Error de conexión: no se puede alcanzar el backend")
+        print("Error de conexión: no se puede alcanzar el backend")
         return False
     except Exception as e:
-        print(f"❌ Excepción enviando al backend: {e}")
+        print(f"Excepción enviando al backend: {e}")
         return False
 
 def get_emoji_from_backend(plant_id=None):
@@ -275,11 +275,11 @@ def get_emoji_from_backend(plant_id=None):
             data = response.json()
             return data.get("matrix")
         else:
-            print(f"❌ Error obteniendo emoji: {response.status_code}")
+            print(f"Error obteniendo emoji: {response.status_code}")
             return None
             
     except Exception as e:
-        print(f"❌ Excepción obteniendo emoji: {e}")
+        print(f"Excepción obteniendo emoji: {e}")
         return None
 
 # ==================== DISPLAY LED ====================
@@ -293,7 +293,7 @@ def display_matrix(matrix):
                     if pixel:
                         draw.point((x, y), fill="white")
     else:
-        print("⚠️  Matriz inválida recibida")
+        print("Matriz inválida recibida")
 
 # ==================== EMOJIS POR DEFECTO ====================
 
@@ -333,11 +333,11 @@ default_emojis = {
 # ==================== LOOP PRINCIPAL ====================
 
 def main():
-    print("🌱 Sistema de monitoreo de plantas iniciado")
-    print(f"🔗 Backend: {BACKEND_URL}")
-    print(f"🆔 Device Serial: {DEVICE_SERIAL}")
+    print("Sistema de monitoreo de plantas iniciado")
+    print(f"Backend: {BACKEND_URL}")
+    print(f"Device Serial: {DEVICE_SERIAL}")
     if PLANT_ID:
-        print(f"🌿 Plant ID: {PLANT_ID}")
+        print(f"Plant ID: {PLANT_ID}")
     print("=" * 60)
     print("Flujo del sistema:")
     print("  1. Raspberry lee sensores cada 5 segundos")
@@ -361,18 +361,18 @@ def main():
             # ========== LEER Y ENVIAR SENSORES ==========
             if current_time - last_sensor_read >= SENSOR_INTERVAL:
                 print("\n" + "─" * 60)
-                print("📊 Leyendo sensores...")
+                print("Leyendo sensores...")
                 
                 temperatura = read_temperature()
                 luminosidad = read_light()
                 humedad_suelo = read_soil_moisture()
                 
                 if temperatura is not None:
-                    print(f"  🌡️  Temperatura: {temperatura}°C")
+                    print(f"  Temperatura: {temperatura}°C")
                 if luminosidad is not None:
-                    print(f"  💡 Luminosidad: {luminosidad} lx")
+                    print(f"  Luminosidad: {luminosidad} lx")
                 if humedad_suelo:
-                    print(f"  💧 Humedad: {humedad_suelo['humedad_porcentaje']}% ({humedad_suelo['estado_digital']})")
+                    print(f"  Humedad: {humedad_suelo['humedad_porcentaje']}% ({humedad_suelo['estado_digital']})")
                 
                 # Enviar al backend si tenemos todos los datos
                 if all([temperatura is not None, luminosidad is not None, humedad_suelo is not None]):
@@ -388,7 +388,7 @@ def main():
                             temperatura, luminosidad, humedad_suelo['humedad_porcentaje']
                         )
                 else:
-                    print("⚠️  Datos incompletos, no se envía al backend")
+                    print("Datos incompletos, no se envía al backend")
                 
                 last_sensor_read = current_time
             
@@ -397,10 +397,10 @@ def main():
                 emoji_matrix = get_emoji_from_backend()
                 
                 if emoji_matrix:
-                    print("😊 Mostrando emoji del backend")
+                    print("Mostrando emoji del backend")
                     display_matrix(emoji_matrix)
                 else:
-                    print(f"⚠️  Sin conexión, mostrando emoji por defecto ({current_status})")
+                    print(f"Sin conexión, mostrando emoji por defecto ({current_status})")
                     display_matrix(default_emojis[current_status])
                 
                 last_emoji_check = current_time
@@ -408,15 +408,15 @@ def main():
             time.sleep(0.5)
             
     except KeyboardInterrupt:
-        print("\n\n🛑 Sistema detenido por el usuario")
+        print("\n\nSistema detenido por el usuario")
     except Exception as e:
-        print(f"\n❌ Error crítico: {e}")
+        print(f"\nError crítico: {e}")
         import traceback
         traceback.print_exc()
     finally:
         device.clear()
         GPIO.cleanup()
-        print("✅ Limpieza completada")
+        print("Limpieza completada")
 
 if __name__ == "__main__":
     main()

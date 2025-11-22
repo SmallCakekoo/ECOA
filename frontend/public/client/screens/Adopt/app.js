@@ -1,6 +1,6 @@
 const USER_DATA = JSON.parse(localStorage.getItem("USER_DATA"));
 
-const API_BASE_URL = "https://ecoabackendecoa.vercel.app";
+const API_BASE_URL = window.ECOA_CONFIG.API_BASE_URL;
 
 // Función para obtener la URL de la imagen de la planta usando recursos locales
 function getPlantImageUrl(plant) {
@@ -186,31 +186,31 @@ setInterval(updateTime, 60000);
 window.goToHome = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Home");
-  window.location.href = "/client/screens/Home";
+  window.location.href = "/client/screens/Home/index.html";
 };
 
 window.goToPlants = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Virtual Pet");
-  window.location.href = "/client/screens/VirtualPet";
+  window.location.href = "/client/screens/VirtualPet/index.html";
 };
 
 window.goToProfile = function (event) {
   if (event) event.preventDefault();
   console.log("Navegando a Profile");
-  window.location.href = "/client/screens/Profile";
+  window.location.href = "/client/screens/Profile/index.html";
 };
 
 // Función para volver atrás - va a Home
 window.goBack = function () {
   console.log("Volviendo a Home...");
-  window.location.href = "/client/screens/Home";
+  window.location.href = "/client/screens/Home/index.html";
 };
 
 // Función para ver detalles de una planta (click en tarjeta)
 window.selectPlant = function (id) {
   console.log("Ver detalles de planta:", id);
-  window.location.href = "/client/screens/AdoptDetail?id=" + id;
+  window.location.href = "/client/screens/AdoptDetail/index.html?id=" + id;
 };
 
 // Función para adoptar una planta (click en botón +)
@@ -266,7 +266,7 @@ window.adoptPlant = async function (id) {
       console.error("Error en adopción:", response.status, errorMessage);
       // Guardar mensaje de error en sessionStorage para mostrarlo en la pantalla de error
       sessionStorage.setItem("adoptionError", errorMessage);
-      window.location.href = "/client/screens/AdoptFeedback/error";
+      window.location.href = "/client/screens/AdoptFeedback/error/index.html";
       return;
     }
 
@@ -275,15 +275,15 @@ window.adoptPlant = async function (id) {
     console.log("Adopción exitosa:", success, plant);
 
     if (success) {
-      window.location.href = "/client/screens/AdoptFeedback/success";
+      window.location.href = "/client/screens/AdoptFeedback/success/index.html";
     } else {
       // Si success es false aunque el status sea 200
       sessionStorage.setItem("adoptionError", "La adopción no se pudo completar.");
-      window.location.href = "/client/screens/AdoptFeedback/error";
+      window.location.href = "/client/screens/AdoptFeedback/error/index.html";
     }
   } catch (error) {
     console.error("Error adoptando planta:", error);
     sessionStorage.setItem("adoptionError", "Error de conexión. Por favor verifica tu internet.");
-    window.location.href = "/client/screens/AdoptFeedback/error";
+    window.location.href = "/client/screens/AdoptFeedback/error/index.html";
   }
 };

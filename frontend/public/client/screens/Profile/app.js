@@ -21,7 +21,7 @@ setInterval(updateTime, 60000);
 async function loadUserData() {
   if (!USER_DATA) {
     console.error("No user data found");
-    window.location.href = "/client/screens/LogIn";
+    window.location.href = "/client/screens/LogIn/index.html";
     return;
   }
 
@@ -35,7 +35,7 @@ async function loadUserData() {
     } else if (USER_DATA.image.startsWith("http://") || USER_DATA.image.startsWith("https://")) {
       profileImageEl.src = USER_DATA.image;
     } else {
-      profileImageEl.src = `https://ecoabackendecoa.vercel.app${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
+      profileImageEl.src = `${window.ECOA_CONFIG.API_BASE_URL}${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
     }
     profileImageEl.onerror = function() {
       this.src = "../../src/assets/images/Profile.png";
@@ -44,7 +44,7 @@ async function loadUserData() {
 
   try {
     const response = await fetch(
-      `https://ecoabackendecoa.vercel.app/users/${USER_DATA.id}/plants`
+      `${window.ECOA_CONFIG.API_BASE_URL}/users/${USER_DATA.id}/plants`
     );
     const { success, count } = await response.json();
     console.log(success, count);
@@ -61,12 +61,12 @@ window.addEventListener("DOMContentLoaded", loadUserData);
 // Funciones de navegación del navbar (expuestas globalmente)
 window.goToHome = function () {
   console.log("Navegando a Home");
-  window.location.href = "/client/screens/Home";
+  window.location.href = "/client/screens/Home/index.html";
 };
 
 window.goToPlants = function () {
   console.log("Navegando a Virtual Pet");
-  window.location.href = "/client/screens/VirtualPet";
+  window.location.href = "/client/screens/VirtualPet/index.html";
 };
 
 window.goToGlobe = function () {
@@ -106,7 +106,7 @@ window.openEditProfileModal = function () {
       } else if (USER_DATA.image.startsWith("http://") || USER_DATA.image.startsWith("https://")) {
         photoImg.src = USER_DATA.image;
       } else {
-        photoImg.src = `https://ecoabackendecoa.vercel.app${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
+        photoImg.src = `${window.ECOA_CONFIG.API_BASE_URL}${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
       }
     }
     
@@ -299,7 +299,7 @@ async function updateUserProfile() {
   }
   
   try {
-    const response = await fetch(`https://ecoabackendecoa.vercel.app/users/${USER_DATA.id}`, {
+    const response = await fetch(`${window.ECOA_CONFIG.API_BASE_URL}/users/${USER_DATA.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -342,7 +342,7 @@ async function updateUserProfile() {
         } else if (USER_DATA.image.startsWith("http://") || USER_DATA.image.startsWith("https://")) {
           profileImageEl.src = USER_DATA.image;
         } else {
-          profileImageEl.src = `https://ecoabackendecoa.vercel.app${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
+          profileImageEl.src = `${window.ECOA_CONFIG.API_BASE_URL}${USER_DATA.image.startsWith("/") ? USER_DATA.image : "/" + USER_DATA.image}`;
         }
       }
       
@@ -409,6 +409,6 @@ window.handleLogout = function () {
     alert("You have been logged out successfully");
 
     // Redirigir a la página de inicio de sesión
-    window.location.href = "/client/screens/LogIn";
+    window.location.href = "/client/screens/LogIn/index.html";
   }
 };

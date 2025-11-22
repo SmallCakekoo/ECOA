@@ -46,7 +46,7 @@ signupForm.addEventListener("submit", async (e) => {
 
   try {
     // POST directo a la tabla users
-    const response = await fetch("https://ecoabackendecoa.vercel.app/users", {
+    const response = await fetch(`${window.ECOA_CONFIG.API_BASE_URL}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -75,7 +75,7 @@ signupForm.addEventListener("submit", async (e) => {
       );
 
       // Redirigir a la página de Home
-      window.location.href = "/client/screens/Home";
+      window.location.href = "/client/screens/Home/index.html";
     }
   } catch (error) {
     console.error("Signup error:", error);
@@ -88,5 +88,5 @@ signupForm.addEventListener("submit", async (e) => {
 const signinLink = document.getElementById("signinLink");
 signinLink.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location.href = "/client/screens/LogIn";
+  window.location.href = "/client/screens/LogIn/index.html";
 });
