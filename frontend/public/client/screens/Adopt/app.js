@@ -152,8 +152,8 @@ function createPlantCard(plant, index) {
 
     if (!success) return;
 
-    // Mostrar todas las plantas (adoptadas y disponibles)
-    const availablePlants = plants;
+    // Mostrar solo las plantas disponibles (no adoptadas)
+    const availablePlants = plants.filter((plant) => !plant.is_adopted);
     console.log("Plantas disponibles para adopción:", availablePlants);
 
     if (availablePlants.length === 0) {

@@ -1010,11 +1010,13 @@ async function loadRecentPlants() {
               <p>${plant.species}</p>
             </div>
             <div class="adopter-info">${
-              plant.is_adopted ? "Adopted" : "Available"
+              plant.users?.name || "None"
             }</div>
             <div class="status-cell">
-              <span class="status healthy">${
-                plant.is_adopted ? "Adopted" : "Available"
+              <span class="status ${
+                (plant.health_status || "healthy").toLowerCase()
+              }">${
+                getStatusText(plant.health_status || "healthy")
               }</span>
             </div>
             <div class="care-notes">${
@@ -1086,7 +1088,7 @@ function setupPlantForm() {
   const preview = document.getElementById("photoPreview");
 
   if (uploadBox && fileInput && preview) {
-    uploadBox.addEventListener("click", () => fileInput.click());
+    // uploadBox.addEventListener("click", () => fileInput.click()); // Eliminado para evitar doble apertura
     fileInput.addEventListener("change", async () => {
       const file = fileInput.files && fileInput.files[0];
       if (!file) return;

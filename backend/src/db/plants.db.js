@@ -7,7 +7,7 @@ export async function findAllPlants(filters = {}) {
   delete otherFilters.health_status;
 
   // Query básica en la tabla plants
-  let query = supabase.from("plants").select("*");
+  let query = supabase.from("plants").select("*, users(name)");
 
   // búsqueda por nombre o especie
   if (otherFilters.search) {
