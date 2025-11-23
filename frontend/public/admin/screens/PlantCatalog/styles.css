@@ -503,6 +503,11 @@ body {
   color: #6b6b6b;
 }
 
+.badge.unknown {
+  background: #f0f0f0;
+  color: #6b6b6b;
+}
+
 .actions .edit {
   color: #43a047;
   text-decoration: none;
