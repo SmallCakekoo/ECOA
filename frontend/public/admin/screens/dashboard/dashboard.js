@@ -459,7 +459,7 @@ function setupEditProfileModal() {
               // Crear un File desde el Blob
               const file = new File(
                 [blob],
-                `profile-${user.id}-${Date.now()}.jpg`,
+                `profile-${user.id}-${Date.now()}.png`,
                 {
                   type: mime,
                 }
@@ -624,7 +624,7 @@ function setupEditProfileModal() {
             // Crear un File desde el Blob
             const file = new File(
               [blob],
-              `profile-${user.id}-${Date.now()}.jpg`,
+              `profile-${user.id}-${Date.now()}.png`,
               {
                 type: mime,
               }
@@ -961,7 +961,7 @@ async function loadRecentPlants() {
 
                   if (
                     imageUrl &&
-                    !imageUrl.includes("upgrade_access.jpg") &&
+                    !imageUrl.includes("upgrade_access.png") &&
                     !imageUrl.includes("placeholder")
                   ) {
                     plantImage = imageUrl;
@@ -1233,7 +1233,7 @@ async function createPlant() {
       photoPreview.src !== "about:blank" &&
       !photoPreview.src.includes("unsplash.com/photo-1506905925346") &&
       !photoPreview.src.includes("placeholder") &&
-      !photoPreview.src.includes("upgrade_access.jpg")
+      !photoPreview.src.includes("upgrade_access.png")
     ) {
       imageUrl = photoPreview.src;
       console.log("✅ Dashboard - Imagen obtenida del src (URL)");
