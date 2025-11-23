@@ -292,9 +292,11 @@ function setupEditProfileModal() {
 
       try {
         // Mostrar estado de carga
-        const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
+        const uploadInner =
+          photoPreview.parentElement.querySelector(".upload-inner");
         if (uploadInner) {
-          uploadInner.innerHTML = '<div class="spinner"></div><p>Subiendo...</p>';
+          uploadInner.innerHTML =
+            '<div class="spinner"></div><p>Subiendo...</p>';
           uploadInner.style.display = "flex";
         }
         photoPreview.style.display = "none";
@@ -310,23 +312,25 @@ function setupEditProfileModal() {
           photoPreview.setAttribute("data-image-changed", "true");
           // Guardar URL en atributo para usarla al guardar
           photoPreview.setAttribute("data-uploaded-url", imageUrl);
-          
+
           if (uploadInner) {
             uploadInner.style.display = "none";
             // Restaurar contenido original
-            uploadInner.innerHTML = '<i class="fas fa-camera"></i><p>Change Photo</p>';
+            uploadInner.innerHTML =
+              '<i class="fas fa-camera"></i><p>Change Photo</p>';
           }
         }
         console.log("✅ Imagen de perfil subida:", imageUrl);
-
       } catch (error) {
         console.error("Error al subir imagen:", error);
         alert("Error al subir la imagen. Por favor, intenta de nuevo.");
-        
+
         // Restaurar estado
-        const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
+        const uploadInner =
+          photoPreview.parentElement.querySelector(".upload-inner");
         if (uploadInner) {
-          uploadInner.innerHTML = '<i class="fas fa-camera"></i><p>Change Photo</p>';
+          uploadInner.innerHTML =
+            '<i class="fas fa-camera"></i><p>Change Photo</p>';
           uploadInner.style.display = "flex";
         }
       }
@@ -361,14 +365,19 @@ function setupEditProfileModal() {
       try {
         // Obtener URL de la imagen
         let imageUrl = null;
-        const imageChanged = photoPreview?.getAttribute("data-image-changed") === "true";
+        const imageChanged =
+          photoPreview?.getAttribute("data-image-changed") === "true";
         const uploadedUrl = photoPreview?.getAttribute("data-uploaded-url");
         const originalImage = photoPreview?.getAttribute("data-original-image");
 
         if (imageChanged && uploadedUrl) {
           imageUrl = uploadedUrl;
           console.log("📸 Usando nueva imagen subida:", imageUrl);
-        } else if (imageChanged && photoPreview.src && photoPreview.src !== originalImage) {
+        } else if (
+          imageChanged &&
+          photoPreview.src &&
+          photoPreview.src !== originalImage
+        ) {
           // Fallback por si acaso
           imageUrl = photoPreview.src;
         }
@@ -391,7 +400,7 @@ function setupEditProfileModal() {
             ...user,
             ...response.data,
             image: imageUrl || user.image,
-            avatar_url: imageUrl || user.avatar_url
+            avatar_url: imageUrl || user.avatar_url,
           };
 
           localStorage.setItem("admin_user", JSON.stringify(updatedUser));
@@ -622,15 +631,13 @@ async function loadRecentPlants() {
               <h4>${plant.name} #${String(plant.id).padStart(6, "0")}</h4>
               <p>${plant.species}</p>
             </div>
-            <div class="adopter-info">${
-              plant.users?.name || "None"
-            }</div>
+            <div class="adopter-info">${plant.users?.name || "None"}</div>
             <div class="status-cell">
-              <span class="status ${
-                (plant.health_status || "healthy").toLowerCase()
-              }">${
-                getStatusText(plant.health_status || "healthy")
-              }</span>
+              <span class="status ${(
+                plant.health_status || "healthy"
+              ).toLowerCase()}">${getStatusText(
+            plant.health_status || "healthy"
+          )}</span>
             </div>
             <div class="care-notes">${
               plant.description || "No recent notes"
@@ -709,7 +716,8 @@ function setupPlantForm() {
         // Mostrar estado de carga
         const uploadInner = uploadBox.querySelector(".upload-inner");
         if (uploadInner) {
-          uploadInner.innerHTML = '<div class="spinner"></div><p>Procesando y subiendo...</p>';
+          uploadInner.innerHTML =
+            '<div class="spinner"></div><p>Procesando y subiendo...</p>';
           uploadInner.style.display = "flex";
         }
         preview.style.display = "none";
@@ -725,23 +733,27 @@ function setupPlantForm() {
         preview.src = imageUrl;
         preview.style.display = "block";
         preview.setAttribute("data-image-url", imageUrl);
-        
+
         if (uploadInner) {
           uploadInner.style.display = "none";
           // Restaurar contenido original
-          uploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+          uploadInner.innerHTML =
+            '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
         }
-        
-        console.log("✅ Imagen subida exitosamente:", imageUrl);
 
+        console.log("✅ Imagen subida exitosamente:", imageUrl);
       } catch (error) {
         console.error("Error uploading image:", error);
-        showNotification("Error al subir la imagen: " + (error.message || "Error desconocido"), "error");
-        
+        showNotification(
+          "Error al subir la imagen: " + (error.message || "Error desconocido"),
+          "error"
+        );
+
         // Restaurar estado
         const uploadInner = uploadBox.querySelector(".upload-inner");
         if (uploadInner) {
-          uploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+          uploadInner.innerHTML =
+            '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
           uploadInner.style.display = "flex";
         }
         preview.style.display = "none";
@@ -781,19 +793,25 @@ async function convertImageToPNG(file) {
         ctx.drawImage(img, 0, 0, width, height);
 
         // Convertir a Blob en formato PNG
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject(new Error("Error al convertir imagen a PNG"));
-            return;
-          }
-          
-          // Crear un nuevo File con nombre .png
-          const fileName = file.name.replace(/\.[^/.]+$/, "") + ".png";
-          const pngFile = new File([blob], fileName, { type: "image/png" });
-          
-          console.log(`✅ Imagen convertida a PNG: ${Math.round(pngFile.size / 1024)}KB`);
-          resolve(pngFile);
-        }, "image/png", 0.95); // Calidad 0.95 para PNG (mantiene buena calidad y transparencia)
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Error al convertir imagen a PNG"));
+              return;
+            }
+
+            // Crear un nuevo File con nombre .png
+            const fileName = file.name.replace(/\.[^/.]+$/, "") + ".png";
+            const pngFile = new File([blob], fileName, { type: "image/png" });
+
+            console.log(
+              `✅ Imagen convertida a PNG: ${Math.round(pngFile.size / 1024)}KB`
+            );
+            resolve(pngFile);
+          },
+          "image/png",
+          0.95
+        ); // Calidad 0.95 para PNG (mantiene buena calidad y transparencia)
       };
       img.onerror = () => {
         reject(new Error("Error al cargar la imagen"));
@@ -807,13 +825,12 @@ async function convertImageToPNG(file) {
   });
 }
 
-  const plantForm = document.getElementById("plantForm");
-  if (plantForm) {
-    plantForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await createPlant();
-    });
-  }
+const plantForm = document.getElementById("plantForm");
+if (plantForm) {
+  plantForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await createPlant();
+  });
 }
 
 async function createPlant() {
@@ -829,7 +846,9 @@ async function createPlant() {
     const uploadedUrl = photoPreview.getAttribute("data-image-url");
     if (uploadedUrl) {
       imageUrl = uploadedUrl;
-      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url (URL de Supabase)");
+      console.log(
+        "✅ Dashboard - Imagen obtenida del atributo data-image-url (URL de Supabase)"
+      );
     } else if (
       photoPreview.src &&
       photoPreview.src !== "" &&
