@@ -421,11 +421,9 @@ def main():
     print("=" * 60)
     
     last_sensor_read = 0
-    last_emoji_check = 0
-    current_status = 'healthy'
+    current_status = 'healthy'  # Estado inicial, se actualiza con cada lectura
     
     SENSOR_INTERVAL = 5  # segundos
-    EMOJI_INTERVAL = 3   # segundos
     
     try:
         while True:
@@ -471,13 +469,6 @@ def main():
                     
                     if success:
                         print("✅ Datos enviados al backend correctamente")
-                        # Opcional: actualizar desde backend después de enviar (para sincronización)
-                        # Pero la matriz LED ya se mostró basada en el cálculo local
-                        emoji_matrix = get_emoji_from_backend()
-                        if emoji_matrix:
-                            print("🔄 Sincronizando emoji desde backend (opcional)")
-                            display_matrix(emoji_matrix)
-                            last_emoji_check = current_time  # Resetear el timer
                     else:
                         print(f"⚠️  Error enviando al backend, usando emoji local ({current_status})")
                 else:
@@ -485,18 +476,9 @@ def main():
                 
                 last_sensor_read = current_time
             
-            # ========== ACTUALIZAR EMOJI ==========
-            if current_time - last_emoji_check >= EMOJI_INTERVAL:
-                emoji_matrix = get_emoji_from_backend()
-                
-                if emoji_matrix:
-                    print("😊 Mostrando emoji del backend")
-                    display_matrix(emoji_matrix)
-                else:
-                    print(f"⚠️  Sin conexión, mostrando emoji por defecto ({current_status})")
-                    display_matrix(default_emojis[current_status])
-                
-                last_emoji_check = current_time
+            # NO actualizar emoji periódicamente desde el backend
+            # El emoji se muestra inmediatamente basado en el cálculo local
+            # cuando se leen los sensores (cada SENSOR_INTERVAL segundos)
             
             time.sleep(0.5)
             

@@ -106,14 +106,17 @@ export async function findAllPlants(filters = {}) {
       });
     }
 
-    // Agregar health_status a cada planta
+    // Agregar health_status a cada planta desde plant_status
+    // IMPORTANTE: No asignar valor por defecto, usar el último status conocido
+    // Si no hay status, dejar undefined para que el frontend sepa que no hay datos
     data.forEach(plant => {
       const latestStatus = latestStatusMap[plant.id];
       if (latestStatus) {
+        // Usar el status real de la tabla plant_status
         plant.health_status = latestStatus.status;
-      } else {
-        plant.health_status = "healthy"; // Valor por defecto
       }
+      // Si no hay latestStatus, NO asignar valor por defecto
+      // Esto permite que el frontend detecte que no hay datos de la Raspberry
     });
   }
 

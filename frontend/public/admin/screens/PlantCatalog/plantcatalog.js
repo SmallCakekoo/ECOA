@@ -504,29 +504,43 @@ function renderPlants() {
             })
           : "";
       // Mapear health_status para mostrar correctamente (usar lowercase para clases CSS)
+      // IMPORTANTE: Leer desde plant.health_status que viene de la tabla plant_status
+      // Si no hay health_status, significa que la Raspberry no ha enviado datos aún
       let healthStatusValue = plant.health_status;
-      // Normalizar valores legacy a nuevos valores para consistencia
-      if (healthStatusValue === "excellent") healthStatusValue = "healthy"; // Mapear excellent a healthy
-      if (healthStatusValue === "needs_care") healthStatusValue = "recovering";
-      if (healthStatusValue === "dying") healthStatusValue = "bad";
-      if (healthStatusValue === "sick") healthStatusValue = "bad";
-      if (healthStatusValue === "critical") healthStatusValue = "bad"; // Mapeo legacy
+      
+      // Si no hay health_status, no mostrar badge (no asignar "healthy" por defecto)
+      if (!healthStatusValue) {
+        healthStatusValue = null; // No hay datos de la Raspberry
+      } else {
+        // Normalizar valores legacy a nuevos valores para consistencia
+        if (healthStatusValue === "excellent") healthStatusValue = "healthy";
+        if (healthStatusValue === "needs_care") healthStatusValue = "recovering";
+        if (healthStatusValue === "dying") healthStatusValue = "bad";
+        if (healthStatusValue === "sick") healthStatusValue = "bad";
+        if (healthStatusValue === "critical") healthStatusValue = "bad";
+      }
 
       // Usar AdminUtils.getStatusText si está disponible, sino usar función local
-      const statusText =
-        window.AdminUtils && window.AdminUtils.getStatusText
-          ? window.AdminUtils.getStatusText(healthStatusValue, "health")
-          : healthStatusValue === "healthy"
-          ? "Healthy"
-          : healthStatusValue === "recovering"
-          ? "Recovering"
-          : healthStatusValue === "bad"
-          ? "Bad"
-          : healthStatusValue;
+      // Solo generar statusText si hay un healthStatusValue real
+      let statusText = "";
+      if (healthStatusValue) {
+        statusText =
+          window.AdminUtils && window.AdminUtils.getStatusText
+            ? window.AdminUtils.getStatusText(healthStatusValue, "health")
+            : healthStatusValue === "healthy"
+            ? "Healthy"
+            : healthStatusValue === "recovering"
+            ? "Recovering"
+            : healthStatusValue === "bad"
+            ? "Bad"
+            : healthStatusValue;
+      }
 
+      // Solo mostrar badge si hay un status real desde plant_status
+      // No mostrar "healthy" por defecto si no hay datos (Raspberry desconectada)
       const statusBadge = healthStatusValue
         ? `<span class="badge ${healthStatusValue.toLowerCase()}">${statusText}</span>`
-        : '<span class="badge healthy">Healthy</span>';
+        : '<span class="badge unknown" title="No hay datos de sensores de la Raspberry">No Data</span>';
       const adoptBadge = plant.is_adopted
         ? '<span class="badge adopted">Adopted</span>'
         : "";

@@ -257,39 +257,79 @@ export const receiveSensorData = async (req, res) => {
       statsData.soil_moisture
     );
 
-    // Verificar si ya existe un status para esta planta
-    // IMPORTANTE: Siempre buscar el último registro para evitar duplicados
-    const { data: existingStatus, error: statusCheckError } =
-      await getLatestPlantStatus(targetPlantId);
+    // Verificar si ya existe un registro en plant_status para este plant_id
+    // CRÍTICO: Verificar ANTES de insertar para evitar duplicados
+    const { plantStatusExists } = await import("../db/plant_status.db.js");
+    const { data: statusExists, error: existsCheckError } =
+      await plantStatusExists(targetPlantId);
 
     let savedStatus;
 
-    // SIEMPRE actualizar si existe un registro para este plant_id
-    // Esto previene duplicados al asignar/reiniciar la Raspberry
-    if (existingStatus && existingStatus.plant_id === targetPlantId) {
-      // Actualizar status existente de la misma planta
-      const updateData = {
-        status: statusData.status,
-        mood_index: statusData.mood_index,
-        mood_face: statusData.mood_face,
-        updated_at: new Date().toISOString(),
-      };
-
-      const { data: updatedStatus, error: updateError } =
-        await updatePlantStatus(existingStatus.id, updateData);
-
-      if (updateError) {
-        console.error("Error actualizando plant_status:", updateError);
-        throw updateError;
-      }
-
-      savedStatus = updatedStatus;
-      console.log(
-        `✅ Plant_status actualizado para plant_id: ${targetPlantId} (ID registro: ${existingStatus.id})`
+    if (existsCheckError) {
+      console.warn(
+        "⚠️ Error verificando existencia de plant_status, intentando obtener último registro:",
+        existsCheckError
       );
+    }
+
+    // Si existe un registro para este plant_id, SIEMPRE actualizar
+    // Esto previene duplicados al asignar/reiniciar la Raspberry
+    if (statusExists || (!existsCheckError && statusExists === undefined)) {
+      // Obtener el registro existente para actualizarlo
+      const { data: existingStatus, error: statusCheckError } =
+        await getLatestPlantStatus(targetPlantId);
+
+      if (existingStatus && existingStatus.plant_id === targetPlantId) {
+        // Actualizar status existente de la misma planta
+        const updateData = {
+          status: statusData.status,
+          mood_index: statusData.mood_index,
+          mood_face: statusData.mood_face,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { data: updatedStatus, error: updateError } =
+          await updatePlantStatus(existingStatus.id, updateData);
+
+        if (updateError) {
+          console.error("Error actualizando plant_status:", updateError);
+          throw updateError;
+        }
+
+        savedStatus = updatedStatus;
+        console.log(
+          `✅ Plant_status actualizado para plant_id: ${targetPlantId} (ID registro: ${existingStatus.id})`
+        );
+      } else {
+        // Si no se encontró el registro pero existe, crear uno nuevo
+        // Esto puede pasar en casos de inconsistencia de datos
+        console.warn(
+          `⚠️ Se detectó existencia pero no se encontró registro, creando nuevo para plant_id: ${targetPlantId}`
+        );
+        const newStatusData = {
+          plant_id: targetPlantId,
+          status: statusData.status,
+          mood_index: statusData.mood_index,
+          mood_face: statusData.mood_face,
+          recorded_at: new Date().toISOString(),
+        };
+
+        const { data: createdStatus, error: createError } =
+          await insertPlantStatus(newStatusData);
+
+        if (createError) {
+          console.error("Error creando plant_status:", createError);
+          throw createError;
+        }
+
+        savedStatus = createdStatus;
+        console.log(
+          `✅ Nuevo plant_status creado para plant_id: ${targetPlantId} (después de verificación)`
+        );
+      }
     } else {
       // Solo crear nuevo status si NO existe ningún registro para esta planta
-      // Esto asegura que no se mezclen estados entre diferentes plantas
+      // Verificación explícita antes de insertar
       const newStatusData = {
         plant_id: targetPlantId,
         status: statusData.status,
@@ -302,14 +342,51 @@ export const receiveSensorData = async (req, res) => {
         await insertPlantStatus(newStatusData);
 
       if (createError) {
-        console.error("Error creando plant_status:", createError);
-        throw createError;
+        // Si hay error de duplicado, intentar actualizar
+        if (
+          createError.code === "23505" ||
+          createError.message?.includes("duplicate") ||
+          createError.message?.includes("unique")
+        ) {
+          console.warn(
+            "⚠️ Intento de duplicado detectado, actualizando registro existente"
+          );
+          const { data: existingStatus } = await getLatestPlantStatus(
+            targetPlantId
+          );
+          if (existingStatus) {
+            const updateData = {
+              status: statusData.status,
+              mood_index: statusData.mood_index,
+              mood_face: statusData.mood_face,
+              updated_at: new Date().toISOString(),
+            };
+            const { data: updatedStatus, error: updateError } =
+              await updatePlantStatus(existingStatus.id, updateData);
+            if (updateError) {
+              console.error(
+                "Error actualizando después de duplicado:",
+                updateError
+              );
+              throw updateError;
+            }
+            savedStatus = updatedStatus;
+            console.log(
+              `✅ Plant_status actualizado después de detectar duplicado para plant_id: ${targetPlantId}`
+            );
+          } else {
+            throw createError;
+          }
+        } else {
+          console.error("Error creando plant_status:", createError);
+          throw createError;
+        }
+      } else {
+        savedStatus = createdStatus;
+        console.log(
+          `✅ Nuevo plant_status creado para plant_id: ${targetPlantId} (primera vez, verificado)`
+        );
       }
-
-      savedStatus = createdStatus;
-      console.log(
-        `✅ Nuevo plant_status creado para plant_id: ${targetPlantId} (primera vez)`
-      );
     }
 
     // Generar matriz LED basada en el estado actual

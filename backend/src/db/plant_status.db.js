@@ -75,6 +75,25 @@ export async function getLatestPlantStatus(plantId) {
   return { data, error };
 }
 
+/**
+ * Verifica si existe un registro en plant_status para un plant_id dado
+ * @param {string} plantId - ID de la planta
+ * @returns {Promise<{data: boolean, error: any}>} - true si existe, false si no
+ */
+export async function plantStatusExists(plantId) {
+  const { data, error } = await supabase
+    .from("plant_status")
+    .select("id")
+    .eq("plant_id", plantId)
+    .limit(1);
+  
+  if (error) {
+    return { data: false, error };
+  }
+  
+  return { data: data && data.length > 0, error: null };
+}
+
 export async function findPlantStatusByStatus(status) {
   return await supabase
     .from("plant_status")
@@ -92,4 +111,5 @@ export default {
   findPlantStatusByPlant,
   getLatestPlantStatus,
   findPlantStatusByStatus,
+  plantStatusExists,
 };
