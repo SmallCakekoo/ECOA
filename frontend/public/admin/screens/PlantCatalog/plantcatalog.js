@@ -740,11 +740,14 @@ async function loadDevices() {
         // Mostrar estado de carga
         const uploadInner = overlayUpload.querySelector(".upload-inner");
         if (uploadInner) {
-          uploadInner.innerHTML = '<div class="spinner"></div><p>Subiendo...</p>';
+          uploadInner.innerHTML = '<div class="spinner"></div><p>Procesando y subiendo...</p>';
         }
 
+        // Convertir a PNG para preservar transparencia
+        const processedFile = await convertImageToPNG(file);
+
         // Subir imagen al backend
-        const imageUrl = await window.AdminAPI.uploadImage(file);
+        const imageUrl = await window.AdminAPI.uploadImage(processedFile);
         
         // Mostrar preview
         overlayPreview.src = imageUrl;
@@ -961,12 +964,19 @@ function setupEditImageUpload() {
       // Mostrar estado de carga
       if (editUploadInner) {
         editUploadInner.style.display = "block"; // Mostrar para poner el spinner
-        editUploadInner.innerHTML = '<div class="spinner"></div><p>Subiendo...</p>';
+        editUploadInner.innerHTML = '<div class="spinner"></div><p>Procesando y subiendo...</p>';
       }
       editPreview.style.display = "none"; // Ocultar preview anterior mientras carga
 
-      // Subir imagen al backend
-      const imageUrl = await window.AdminAPI.uploadImage(file);
+      // Obtener la imagen original para eliminarla después
+      const originalImageUrl = editPreview.getAttribute("data-original-src") || 
+                                editPreview.getAttribute("data-image-url");
+      
+      // Convertir a PNG para preservar transparencia
+      const processedFile = await convertImageToPNG(file);
+
+      // Subir imagen al backend (pasar oldImageUrl para eliminarla)
+      const imageUrl = await window.AdminAPI.uploadImage(processedFile, originalImageUrl);
       
       // Mostrar preview
       editPreview.src = imageUrl;
@@ -1010,26 +1020,23 @@ async function updatePlant(plantId) {
   let imageUrl = null;
 
   if (editPhotoPreview) {
-    // Verificar si hay una nueva imagen subida (data URL en el atributo)
-    const dataImageUrl = editPhotoPreview.getAttribute("data-image-url");
-    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
-      // Verificar si es diferente a la imagen original
-      const originalSrc =
-        editPhotoPreview.getAttribute("data-original-src") || "";
-      if (dataImageUrl !== originalSrc) {
-        imageUrl = dataImageUrl;
-        console.log("✅ Plant Catalog - Nueva imagen obtenida para edición");
-      }
+    // Verificar si hay una nueva imagen subida (URL de Supabase en el atributo)
+    const uploadedImageUrl = editPhotoPreview.getAttribute("data-image-url");
+    const originalSrc = editPhotoPreview.getAttribute("data-original-src") || "";
+    
+    if (uploadedImageUrl && uploadedImageUrl !== originalSrc) {
+      // Si hay una nueva imagen subida y es diferente a la original
+      imageUrl = uploadedImageUrl;
+      console.log("✅ Plant Catalog - Nueva imagen obtenida para edición (URL de Supabase)");
     } else if (
       editPhotoPreview.src &&
-      editPhotoPreview.src.startsWith("data:")
+      !editPhotoPreview.src.startsWith("data:") &&
+      editPhotoPreview.src !== originalSrc &&
+      editPhotoPreview.src.includes("supabase")
     ) {
-      // Si no hay atributo pero el src es data URL, verificar si es nueva
-      const originalSrc =
-        editPhotoPreview.getAttribute("data-original-src") || "";
-      if (editPhotoPreview.src !== originalSrc) {
-        imageUrl = editPhotoPreview.src;
-      }
+      // Si no hay atributo pero el src es una URL de Supabase diferente
+      imageUrl = editPhotoPreview.src;
+      console.log("✅ Plant Catalog - Nueva imagen obtenida del src (URL de Supabase)");
     }
   }
 
@@ -1312,6 +1319,63 @@ function getStatusText(status) {
     dying: "En peligro",
   };
   return statusMap[status] || status;
+}
+
+// Función para convertir imagen a PNG preservando transparencia
+async function convertImageToPNG(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Crear canvas para redimensionar y convertir a PNG
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Calcular dimensiones manteniendo aspecto
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 1200; // Máximo 1200px en la dimensión más grande
+
+        if (width > height && width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        } else if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Dibujar imagen redimensionada (preserva transparencia)
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convertir a Blob en formato PNG
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Error al convertir imagen a PNG"));
+            return;
+          }
+          
+          // Crear un nuevo File con nombre .png
+          const fileName = file.name.replace(/\.[^/.]+$/, "") + ".png";
+          const pngFile = new File([blob], fileName, { type: "image/png" });
+          
+          console.log(`✅ Imagen convertida a PNG: ${Math.round(pngFile.size / 1024)}KB`);
+          resolve(pngFile);
+        }, "image/png", 0.95); // Calidad 0.95 para PNG (mantiene buena calidad y transparencia)
+      };
+      img.onerror = () => {
+        reject(new Error("Error al cargar la imagen"));
+      };
+      img.src = e.target.result;
+    };
+    reader.onerror = (error) => {
+      reject(new Error("Error al leer el archivo"));
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function showNotification(message, type = "error") {

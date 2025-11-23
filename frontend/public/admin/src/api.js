@@ -469,10 +469,15 @@ class AdminAPI {
   }
 
   // ===== SUBIDA DE ARCHIVOS =====
-  async uploadImage(file) {
+  async uploadImage(file, oldImageUrl = null) {
     try {
       const formData = new FormData();
       formData.append("image", file);
+      
+      // Si hay una imagen antigua, incluirla para eliminarla
+      if (oldImageUrl) {
+        formData.append("oldImageUrl", oldImageUrl);
+      }
 
       const response = await fetch(`${this.baseURL}/api/upload/image`, {
         method: "POST",
@@ -496,20 +501,7 @@ class AdminAPI {
       }
     } catch (error) {
       console.error("Error uploading image:", error);
-
-      // Si falla la subida, usar base64 como fallback
-      console.warn("⚠️ Falló la subida a Supabase, usando almacenamiento local (Base64) como respaldo.");
-      if (window.showNotification) {
-        window.showNotification("Problema con la nube. Guardando imagen localmente.", "warning");
-      }
-      
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          resolve(e.target.result);
-        };
-        reader.readAsDataURL(file);
-      });
+      throw error; // No usar fallback a Base64, lanzar el error
     }
   }
 }

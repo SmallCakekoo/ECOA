@@ -701,113 +701,111 @@ function setupPlantForm() {
   const preview = document.getElementById("photoPreview");
 
   if (uploadBox && fileInput && preview) {
-    // uploadBox.addEventListener("click", () => fileInput.click()); // Eliminado para evitar doble apertura
     fileInput.addEventListener("change", async () => {
       const file = fileInput.files && fileInput.files[0];
       if (!file) return;
 
       try {
-        // Comprimir la imagen antes de convertirla a data URL
-        // Límite: 150KB en data URL para evitar problemas con Supabase
-        const maxDataUrlSize = 150 * 1024; // 150KB (límite más conservador)
+        // Mostrar estado de carga
+        const uploadInner = uploadBox.querySelector(".upload-inner");
+        if (uploadInner) {
+          uploadInner.innerHTML = '<div class="spinner"></div><p>Procesando y subiendo...</p>';
+          uploadInner.style.display = "flex";
+        }
+        preview.style.display = "none";
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            // Crear canvas para comprimir
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+        // Convertir imagen a PNG para preservar transparencia
+        const processedFile = await convertImageToPNG(file);
 
-            // Calcular dimensiones manteniendo aspecto
-            let width = img.width;
-            let height = img.height;
-            const maxDimension = 800; // Máximo 800px en la dimensión más grande
+        // Subir imagen directamente a Supabase Storage
+        console.log("📤 Subiendo imagen al backend...");
+        const imageUrl = await window.AdminAPI.uploadImage(processedFile);
 
-            if (width > height && width > maxDimension) {
-              height = (height * maxDimension) / width;
-              width = maxDimension;
-            } else if (height > maxDimension) {
-              width = (width * maxDimension) / height;
-              height = maxDimension;
-            }
+        // Mostrar preview
+        preview.src = imageUrl;
+        preview.style.display = "block";
+        preview.setAttribute("data-image-url", imageUrl);
+        
+        if (uploadInner) {
+          uploadInner.style.display = "none";
+          // Restaurar contenido original
+          uploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+        }
+        
+        console.log("✅ Imagen subida exitosamente:", imageUrl);
 
-            canvas.width = width;
-            canvas.height = height;
-
-            // Dibujar imagen redimensionada
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // Convertir a data URL con calidad ajustada
-            let quality = 0.9;
-            let dataUrl = canvas.toDataURL("image/jpeg", quality);
-
-            // Si aún es muy grande, reducir calidad gradualmente
-            while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
-              quality -= 0.1;
-              dataUrl = canvas.toDataURL("image/jpeg", quality);
-              console.log(
-                `🔄 Comprimiendo imagen, calidad: ${quality.toFixed(
-                  1
-                )}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`
-              );
-            }
-
-            // Si sigue siendo muy grande después de comprimir, usar jpg
-            if (dataUrl.length > maxDataUrlSize) {
-              dataUrl = canvas.toDataURL("image/jpg");
-              // Si jpg también es muy grande, reducir dimensiones más
-              if (dataUrl.length > maxDataUrlSize) {
-                const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
-                canvas.width = Math.round(width * scale);
-                canvas.height = Math.round(height * scale);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-              }
-            }
-
-            if (dataUrl.length > maxDataUrlSize) {
-              console.warn(
-                `⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(
-                  dataUrl.length / 1024
-                )}KB`
-              );
-              showNotification(
-                "La imagen es muy grande. Se guardará sin imagen.",
-                "warning"
-              );
-              dataUrl = null;
-            } else {
-              console.log(
-                `✅ Dashboard - Imagen comprimida, tamaño final: ${Math.round(
-                  dataUrl.length / 1024
-                )}KB`
-              );
-            }
-
-            preview.src = dataUrl || "/placeholder.jpg";
-            preview.style.display = "block";
-            uploadBox.querySelector(".upload-inner").style.display = "none";
-            // Guardar el data URL en un atributo del preview para usarlo después
-            preview.setAttribute("data-image-url", dataUrl || "");
-          };
-          img.onerror = () => {
-            console.error("Error cargando imagen para compresión");
-            showNotification("Error al procesar la imagen", "error");
-          };
-          img.src = e.target.result;
-        };
-        reader.onerror = (error) => {
-          console.error("Error leyendo archivo:", error);
-          showNotification("Error al leer la imagen", "error");
-        };
-        reader.readAsDataURL(file);
       } catch (error) {
-        console.error("Error processing image:", error);
-        showNotification("Error al procesar la imagen", "error");
+        console.error("Error uploading image:", error);
+        showNotification("Error al subir la imagen: " + (error.message || "Error desconocido"), "error");
+        
+        // Restaurar estado
+        const uploadInner = uploadBox.querySelector(".upload-inner");
+        if (uploadInner) {
+          uploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+          uploadInner.style.display = "flex";
+        }
+        preview.style.display = "none";
       }
     });
   }
+}
+
+// Función para convertir imagen a PNG preservando transparencia
+async function convertImageToPNG(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Crear canvas para redimensionar y convertir a PNG
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Calcular dimensiones manteniendo aspecto
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 1200; // Máximo 1200px en la dimensión más grande
+
+        if (width > height && width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        } else if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Dibujar imagen redimensionada (preserva transparencia)
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convertir a Blob en formato PNG
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error("Error al convertir imagen a PNG"));
+            return;
+          }
+          
+          // Crear un nuevo File con nombre .png
+          const fileName = file.name.replace(/\.[^/.]+$/, "") + ".png";
+          const pngFile = new File([blob], fileName, { type: "image/png" });
+          
+          console.log(`✅ Imagen convertida a PNG: ${Math.round(pngFile.size / 1024)}KB`);
+          resolve(pngFile);
+        }, "image/png", 0.95); // Calidad 0.95 para PNG (mantiene buena calidad y transparencia)
+      };
+      img.onerror = () => {
+        reject(new Error("Error al cargar la imagen"));
+      };
+      img.src = e.target.result;
+    };
+    reader.onerror = (error) => {
+      reject(new Error("Error al leer el archivo"));
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
   const plantForm = document.getElementById("plantForm");
   if (plantForm) {
@@ -822,32 +820,26 @@ async function createPlant() {
   const form = document.getElementById("plantForm");
   const formData = new FormData(form);
 
-  // Obtener la imagen subida (data URL)
+  // Obtener la imagen subida (URL de Supabase)
   const photoPreview = document.getElementById("photoPreview");
   let imageUrl = null;
 
-  // Obtener el data URL del atributo o del src
+  // Obtener la URL del atributo data-image-url (ahora será URL de Supabase, no Base64)
   if (photoPreview && photoPreview.style.display !== "none") {
-    // Primero intentar obtener del atributo data-image-url (más confiable)
-    const dataImageUrl = photoPreview.getAttribute("data-image-url");
-    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
-      imageUrl = dataImageUrl;
-      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url");
-    }
-    // Si no está en el atributo, usar el src si es data URL
-    else if (photoPreview.src && photoPreview.src.startsWith("data:")) {
-      imageUrl = photoPreview.src;
-      console.log("✅ Dashboard - Imagen obtenida del src (data URL)");
-    }
-    // Si el src no es data URL, verificar que no sea placeholder
-    else if (
+    const uploadedUrl = photoPreview.getAttribute("data-image-url");
+    if (uploadedUrl) {
+      imageUrl = uploadedUrl;
+      console.log("✅ Dashboard - Imagen obtenida del atributo data-image-url (URL de Supabase)");
+    } else if (
       photoPreview.src &&
       photoPreview.src !== "" &&
       photoPreview.src !== "about:blank" &&
       !photoPreview.src.includes("unsplash.com/photo-1506905925346") &&
       !photoPreview.src.includes("placeholder") &&
-      !photoPreview.src.includes("upgrade_access.jpg")
+      !photoPreview.src.includes("upgrade_access.jpg") &&
+      !photoPreview.src.startsWith("data:")
     ) {
+      // Si no hay atributo pero el src es una URL válida (no Base64), usarla
       imageUrl = photoPreview.src;
       console.log("✅ Dashboard - Imagen obtenida del src (URL)");
     }
@@ -855,9 +847,8 @@ async function createPlant() {
     if (imageUrl) {
       console.log("🔍 Dashboard - Imagen validada:", {
         hasImage: true,
-        isDataUrl: imageUrl.startsWith("data:"),
-        imageLength: imageUrl.length,
-        imagePreview: imageUrl.substring(0, 50) + "...",
+        isSupabaseUrl: imageUrl.includes("supabase"),
+        imageUrl: imageUrl.substring(0, 100) + "...",
       });
     } else {
       console.warn("⚠️ Dashboard - No se encontró imagen válida en el preview");
