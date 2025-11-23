@@ -52,8 +52,7 @@ export const receiveSensorData = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "temperature, light y soil_moisture son requeridos",
+        message: "temperature, light y soil_moisture son requeridos",
       });
     }
 
@@ -67,26 +66,35 @@ export const receiveSensorData = async (req, res) => {
       if (foundation_id) {
         try {
           const { findUserById } = await import("../db/users.db.js");
-          const { data: foundationUser, error: foundationError } = await findUserById(foundation_id);
-          
+          const { data: foundationUser, error: foundationError } =
+            await findUserById(foundation_id);
+
           if (!foundationError && foundationUser && foundationUser.name) {
             location = foundationUser.name;
             console.log(`📍 Location obtenida desde fundación: ${location}`);
           } else {
             // Si no se encuentra en users, intentar buscar en foundations
-            const FoundationsDB = (await import("../db/foundations.db.js")).default;
+            const FoundationsDB = (await import("../db/foundations.db.js"))
+              .default;
             try {
               const foundation = await FoundationsDB.getById(foundation_id);
               if (foundation && foundation.name) {
                 location = foundation.name;
-                console.log(`📍 Location obtenida desde tabla foundations: ${location}`);
+                console.log(
+                  `📍 Location obtenida desde tabla foundations: ${location}`
+                );
               }
             } catch (foundationDbError) {
-              console.warn("⚠️ No se pudo obtener nombre de fundación, usando location proporcionado o 'Unknown'");
+              console.warn(
+                "⚠️ No se pudo obtener nombre de fundación, usando location proporcionado o 'Unknown'"
+              );
             }
           }
         } catch (error) {
-          console.warn("⚠️ Error obteniendo location desde fundación:", error.message);
+          console.warn(
+            "⚠️ Error obteniendo location desde fundación:",
+            error.message
+          );
         }
       }
 
@@ -118,8 +126,9 @@ export const receiveSensorData = async (req, res) => {
         // Si no se proporcionó plant_id, buscar la planta asociada a este device
         if (!targetPlantId && existingDevice.id) {
           const { findPlantByDeviceId } = await import("../db/plants.db.js");
-          const { data: plantWithDevice, error: plantError } = await findPlantByDeviceId(existingDevice.id);
-          
+          const { data: plantWithDevice, error: plantError } =
+            await findPlantByDeviceId(existingDevice.id);
+
           if (!plantError && plantWithDevice) {
             targetPlantId = plantWithDevice.id;
             console.log(
@@ -170,8 +179,10 @@ export const receiveSensorData = async (req, res) => {
 
     // Validar que el plant_id existe
     const { findPlantById } = await import("../db/plants.db.js");
-    const { data: plantExists, error: plantCheckError } = await findPlantById(targetPlantId);
-    
+    const { data: plantExists, error: plantCheckError } = await findPlantById(
+      targetPlantId
+    );
+
     if (plantCheckError || !plantExists) {
       return res.status(404).json({
         success: false,
@@ -179,7 +190,7 @@ export const receiveSensorData = async (req, res) => {
       });
     }
 
-    // Guardar datos en plant_stats - SIEMPRE crear nuevo registro (historial)
+    // Guardar datos en plant_stats - Actualizar si existe, crear si no
     const statsData = {
       plant_id: targetPlantId,
       soil_moisture: parseFloat(soil_moisture) || 0,
@@ -188,12 +199,55 @@ export const receiveSensorData = async (req, res) => {
       recorded_at: new Date().toISOString(),
     };
 
-    // Siempre crear un nuevo registro en plant_stats (no sobreescribir)
-    const { data: savedStats, error: statsError } = await insertPlantStats(statsData);
+    // Buscar el último registro de stats para esta planta
+    const { getLatestPlantStats, updatePlantStats } = await import(
+      "../db/plant_stats.db.js"
+    );
+    const { data: existingStats, error: statsCheckError } =
+      await getLatestPlantStats(targetPlantId);
 
-    if (statsError) {
-      console.error("Error guardando plant_stats:", statsError);
-      throw statsError;
+    let savedStats;
+
+    // Si existe un registro para esta planta, actualizarlo
+    if (
+      !statsCheckError &&
+      existingStats &&
+      existingStats.plant_id === targetPlantId
+    ) {
+      const updateData = {
+        soil_moisture: statsData.soil_moisture,
+        temperature: statsData.temperature,
+        light: statsData.light,
+        recorded_at: statsData.recorded_at,
+      };
+
+      const { data: updatedStats, error: updateError } = await updatePlantStats(
+        existingStats.id,
+        updateData
+      );
+
+      if (updateError) {
+        console.error("Error actualizando plant_stats:", updateError);
+        throw updateError;
+      }
+
+      savedStats = updatedStats;
+      console.log(`✅ Plant_stats actualizado para plant_id: ${targetPlantId}`);
+    } else {
+      // Si no existe, crear nuevo registro
+      const { data: createdStats, error: statsError } = await insertPlantStats(
+        statsData
+      );
+
+      if (statsError) {
+        console.error("Error guardando plant_stats:", statsError);
+        throw statsError;
+      }
+
+      savedStats = createdStats;
+      console.log(
+        `✅ Nuevo plant_stats creado para plant_id: ${targetPlantId}`
+      );
     }
 
     // Calcular estado de la planta
@@ -233,7 +287,9 @@ export const receiveSensorData = async (req, res) => {
       }
 
       savedStatus = updatedStatus;
-      console.log(`✅ Plant_status actualizado para plant_id: ${targetPlantId}`);
+      console.log(
+        `✅ Plant_status actualizado para plant_id: ${targetPlantId}`
+      );
     } else {
       // Crear nuevo status (nueva planta o primera vez)
       const newStatusData = {
@@ -253,16 +309,50 @@ export const receiveSensorData = async (req, res) => {
       }
 
       savedStatus = createdStatus;
-      console.log(`✅ Nuevo plant_status creado para plant_id: ${targetPlantId}`);
+      console.log(
+        `✅ Nuevo plant_status creado para plant_id: ${targetPlantId}`
+      );
     }
 
-    // Emitir evento Socket.IO
+    // Generar matriz LED basada en el estado actual
+    const emojiMatrix = getEmojiMatrix(
+      savedStatus.status,
+      savedStatus.mood_index
+    );
+
+    // Emitir evento Socket.IO global
     req.io?.emit("sensor_data_received", {
       type: "sensor_data_received",
       data: {
         stats: savedStats,
         status: savedStatus,
         device: deviceRecord,
+        matrix: emojiMatrix, // Incluir matriz LED
+      },
+      timestamp: new Date().toISOString(),
+    });
+
+    // Emitir evento específico para la planta (sala por plant_id)
+    req.io?.to(`plant_${targetPlantId}`).emit("plant_status_updated", {
+      type: "plant_status_updated",
+      data: {
+        plant_id: targetPlantId,
+        stats: savedStats,
+        status: savedStatus,
+        matrix: emojiMatrix, // Matriz LED para actualización inmediata
+      },
+      timestamp: new Date().toISOString(),
+    });
+
+    // Emitir evento para actualización de mood/emoji
+    req.io?.to(`plant_${targetPlantId}`).emit("mood_updated", {
+      type: "mood_updated",
+      data: {
+        plant_id: targetPlantId,
+        status: savedStatus.status,
+        mood_index: savedStatus.mood_index,
+        mood_face: savedStatus.mood_face,
+        matrix: emojiMatrix,
       },
       timestamp: new Date().toISOString(),
     });
@@ -329,10 +419,7 @@ export const getEmoji = async (req, res) => {
     }
 
     // Generar matriz basada en el estado
-    const matrix = getEmojiMatrix(
-      latestStatus.status,
-      latestStatus.mood_index
-    );
+    const matrix = getEmojiMatrix(latestStatus.status, latestStatus.mood_index);
 
     return res.status(200).json({
       success: true,
@@ -351,4 +438,3 @@ export default {
   receiveSensorData,
   getEmoji,
 };
-

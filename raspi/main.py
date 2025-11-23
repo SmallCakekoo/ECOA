@@ -446,6 +446,19 @@ def main():
                         current_status = calculate_plant_status(
                             temperatura, luminosidad, humedad_suelo['humedad_porcentaje']
                         )
+                        
+                        # Actualizar emoji inmediatamente después de enviar datos
+                        # Esto asegura que la matriz LED se actualice en tiempo real
+                        print("🔄 Actualizando emoji inmediatamente después de enviar datos...")
+                        emoji_matrix = get_emoji_from_backend()
+                        
+                        if emoji_matrix:
+                            print("😊 Mostrando emoji actualizado del backend")
+                            display_matrix(emoji_matrix)
+                            last_emoji_check = current_time  # Resetear el timer
+                        else:
+                            print(f"⚠️  Sin respuesta del backend, usando emoji por defecto ({current_status})")
+                            display_matrix(default_emojis[current_status])
                 else:
                     print("⚠️  Datos incompletos, no se envía al backend")
                 

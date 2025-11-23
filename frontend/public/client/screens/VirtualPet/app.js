@@ -42,10 +42,42 @@ if (typeof io !== "undefined" && window.io) {
         eventData.data.stats
       );
       updatePlantStats(eventData.data.stats, eventData.data.status);
+      
+      // Si hay matriz LED, actualizar visualización
+      if (eventData.data.matrix) {
+        console.log("😊 Matriz LED recibida, actualizando visualización");
+        updateLEDMatrix(eventData.data.matrix);
+      }
     }
   });
 
-  // Escuchar actualizaciones de estadísticas de plantas
+  // Escuchar actualizaciones de estado de planta (específico por plant_id)
+  socket.on("plant_status_updated", (eventData) => {
+    if (eventData.data && eventData.data.plant_id === plantId) {
+      console.log("📊 Estado de planta actualizado:", eventData.data);
+      if (eventData.data.stats) {
+        updatePlantStats(eventData.data.stats, eventData.data.status);
+      }
+      if (eventData.data.matrix) {
+        console.log("😊 Matriz LED actualizada desde plant_status_updated");
+        updateLEDMatrix(eventData.data.matrix);
+      }
+    }
+  });
+
+  // Escuchar actualizaciones de mood (específico por plant_id)
+  socket.on("mood_updated", (eventData) => {
+    if (eventData.data && eventData.data.plant_id === plantId) {
+      console.log("😊 Mood actualizado:", eventData.data);
+      if (eventData.data.matrix) {
+        updateLEDMatrix(eventData.data.matrix);
+      }
+      // Actualizar mood card si existe
+      updateMoodDisplay(eventData.data);
+    }
+  });
+
+  // Escuchar actualizaciones de estadísticas de plantas (legacy)
   socket.on("plant_stats_updated", (eventData) => {
     if (eventData.data && eventData.data.plant_id === plantId) {
       console.log("📊 Estadísticas actualizadas:", eventData.data);
@@ -447,18 +479,64 @@ function updatePlantStats(stats, status = null) {
 
   // Actualizar Card 4: Mood (si hay status)
   if (status) {
-    const moodCard = infoCardsContainer.children[3];
-    if (moodCard) {
-      const valueElement = moodCard.querySelector(".info-card-value");
-      if (valueElement) {
-        let moodPercent = 0;
-        const moodIndex = status.mood_index || 0;
-        moodPercent =
-          moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
-        const moodDisplay = status.mood_face || `${moodPercent}%`;
-        valueElement.textContent = moodDisplay;
+    updateMoodDisplay(status);
+  }
+}
+
+// Función para actualizar el display del mood
+function updateMoodDisplay(statusData) {
+  const infoCardsContainer = document.getElementById("infoCardsContainer");
+  if (!infoCardsContainer) return;
+
+  const moodCard = infoCardsContainer.children[3];
+  if (moodCard) {
+    const valueElement = moodCard.querySelector(".info-card-value");
+    if (valueElement) {
+      let moodPercent = 0;
+      const moodIndex = statusData.mood_index || 0;
+      moodPercent =
+        moodIndex < 1 ? Math.round(moodIndex * 100) : Math.round(moodIndex);
+      const moodDisplay = statusData.mood_face || `${moodPercent}%`;
+      valueElement.textContent = moodDisplay;
+    }
+  }
+}
+
+// Función para actualizar la matriz LED (si hay un elemento para renderizarla)
+function updateLEDMatrix(matrix) {
+  if (!matrix || !Array.isArray(matrix) || matrix.length !== 8) {
+    console.warn("⚠️ Matriz LED inválida recibida:", matrix);
+    return;
+  }
+
+  // Buscar si hay un elemento canvas o div para renderizar la matriz
+  let matrixContainer = document.getElementById("ledMatrixContainer");
+  
+  // Si no existe, crear un contenedor (opcional, solo para debugging)
+  if (!matrixContainer) {
+    console.log("📊 Matriz LED recibida pero no hay contenedor en el DOM");
+    // Podrías crear un elemento aquí si quieres mostrar la matriz
+    return;
+  }
+
+  // Si existe un canvas, renderizar la matriz
+  const canvas = matrixContainer.querySelector("canvas");
+  if (canvas) {
+    const ctx = canvas.getContext("2d");
+    const cellSize = canvas.width / 8;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (matrix[y] && matrix[y][x]) {
+          ctx.fillStyle = "#00ff00"; // Verde para LEDs encendidos
+          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
       }
     }
+    
+    console.log("✅ Matriz LED renderizada en canvas");
   }
 }
 
