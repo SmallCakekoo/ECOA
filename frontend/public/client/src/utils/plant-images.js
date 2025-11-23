@@ -1,4 +1,4 @@
-// Utilidad para manejar imágenes de plantas desde recursos locales
+// Utilidad para manejar imágenes de plantas desde recursos locales y Supabase
 // Esta función ayuda a resolver imágenes de plantas usando recursos locales como fallback
 
 // Usar rutas absolutas desde /client/ para que funcionen correctamente en Vercel
@@ -28,7 +28,7 @@ function getPlantImageUrl(
     if (ownImage.startsWith("data:")) {
       return ownImage;
     }
-    // Si es URL completa, usar directamente
+    // Si es URL completa (incluye URLs de Supabase), usar directamente
     if (ownImage.startsWith("http://") || ownImage.startsWith("https://")) {
       return ownImage;
     }
@@ -96,17 +96,32 @@ function getLocalPlantImage(plant) {
  * @returns {void}
  */
 function handlePlantImageError(imgElement, plant) {
-  // Intentar con imagen local
-  const localImage = getLocalPlantImage(plant);
-  if (imgElement.src !== localImage && !imgElement.src.includes(localImage)) {
-    imgElement.src = localImage;
-    // Si la imagen local también falla, usar placeholder de Unsplash
-    imgElement.onerror = function () {
-      this.onerror = null; // Prevenir loops infinitos
-      this.src = UNSPLASH_PLACEHOLDER;
-    };
+  console.warn("🖼️ Error cargando imagen:", imgElement.src);
+
+  // Si la imagen que falló es de Supabase o del backend, intentar con imagen local
+  if (
+    imgElement.src.includes("supabase") ||
+    imgElement.src.includes(window.location.origin)
+  ) {
+    const localImage = getLocalPlantImage(plant);
+    if (imgElement.src !== localImage && !imgElement.src.includes(localImage)) {
+      console.log("🔄 Intentando con imagen local:", localImage);
+      imgElement.src = localImage;
+      // Si la imagen local también falla, usar placeholder de Unsplash
+      imgElement.onerror = function () {
+        console.log("🔄 Usando placeholder de Unsplash");
+        this.onerror = null; // Prevenir loops infinitos
+        this.src = UNSPLASH_PLACEHOLDER;
+      };
+    } else {
+      // Si ya intentamos la local, usar placeholder
+      console.log("🔄 Usando placeholder de Unsplash (final)");
+      imgElement.onerror = null; // Prevenir loops infinitos
+      imgElement.src = UNSPLASH_PLACEHOLDER;
+    }
   } else {
-    // Si ya intentamos la local, usar placeholder
+    // Si ya no es imagen del servidor, usar placeholder directamente
+    console.log("🔄 Usando placeholder de Unsplash (directo)");
     imgElement.onerror = null; // Prevenir loops infinitos
     imgElement.src = UNSPLASH_PLACEHOLDER;
   }
