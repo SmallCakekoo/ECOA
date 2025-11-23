@@ -28,6 +28,10 @@ if (typeof io !== "undefined" && window.io) {
 
   socket.on("disconnect", () => {
     console.log("❌ Desconectado de WebSocket");
+    // IMPORTANTE: NO modificar el estado de la planta al desconectarse
+    // El frontend debe mantener los últimos valores conocidos hasta que
+    // la Raspberry vuelva a enviar datos o se reconecte
+    console.log("ℹ️ Manteniendo últimos valores conocidos de la planta");
   });
 
   // Escuchar actualizaciones de datos de sensores

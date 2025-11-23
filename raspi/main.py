@@ -214,6 +214,20 @@ def calculate_plant_status(temperatura, luminosidad, humedad):
     """
     return compute_mood(temperatura, luminosidad, humedad)
 
+def get_emoji_matrix_from_status(status):
+    """
+    Obtiene la matriz LED correspondiente al estado calculado localmente.
+    Esto asegura que la matriz LED refleje el estado real calculado en la Raspberry,
+    no dependa del backend.
+    
+    Args:
+        status: 'healthy', 'bad', o 'recovering'
+    
+    Returns:
+        list: Matriz 8x8 para el LED
+    """
+    return default_emojis.get(status, default_emojis['healthy'])
+
 # ==================== FUNCIONES DE LECTURA ====================
 
 def read_soil_moisture():
@@ -435,30 +449,37 @@ def main():
                 
                 # Enviar al backend si tenemos todos los datos
                 if all([temperatura is not None, luminosidad is not None, humedad_suelo is not None]):
+                    # Calcular estado LOCALMENTE antes de enviar al backend
+                    # Esto asegura que la matriz LED muestre el estado correcto inmediatamente
+                    current_status = calculate_plant_status(
+                        temperatura, luminosidad, humedad_suelo['humedad_porcentaje']
+                    )
+                    
+                    # Obtener matriz LED basada en el cálculo local
+                    local_emoji_matrix = get_emoji_matrix_from_status(current_status)
+                    
+                    # Mostrar matriz LED inmediatamente (no esperar al backend)
+                    print(f"😊 Mostrando emoji calculado localmente: {current_status}")
+                    display_matrix(local_emoji_matrix)
+                    
+                    # Enviar datos al backend
                     success = send_sensor_data_to_backend(
                         temperatura=temperatura,
                         luminosidad=luminosidad,
                         humedad=humedad_suelo['humedad_porcentaje']
                     )
                     
-                    # Guardar el estado actual para usar emoji por defecto
                     if success:
-                        current_status = calculate_plant_status(
-                            temperatura, luminosidad, humedad_suelo['humedad_porcentaje']
-                        )
-                        
-                        # Actualizar emoji inmediatamente después de enviar datos
-                        # Esto asegura que la matriz LED se actualice en tiempo real
-                        print("🔄 Actualizando emoji inmediatamente después de enviar datos...")
+                        print("✅ Datos enviados al backend correctamente")
+                        # Opcional: actualizar desde backend después de enviar (para sincronización)
+                        # Pero la matriz LED ya se mostró basada en el cálculo local
                         emoji_matrix = get_emoji_from_backend()
-                        
                         if emoji_matrix:
-                            print("😊 Mostrando emoji actualizado del backend")
+                            print("🔄 Sincronizando emoji desde backend (opcional)")
                             display_matrix(emoji_matrix)
                             last_emoji_check = current_time  # Resetear el timer
-                        else:
-                            print(f"⚠️  Sin respuesta del backend, usando emoji por defecto ({current_status})")
-                            display_matrix(default_emojis[current_status])
+                    else:
+                        print(f"⚠️  Error enviando al backend, usando emoji local ({current_status})")
                 else:
                     print("⚠️  Datos incompletos, no se envía al backend")
                 

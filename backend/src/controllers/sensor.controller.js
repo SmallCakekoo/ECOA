@@ -258,18 +258,15 @@ export const receiveSensorData = async (req, res) => {
     );
 
     // Verificar si ya existe un status para esta planta
+    // IMPORTANTE: Siempre buscar el último registro para evitar duplicados
     const { data: existingStatus, error: statusCheckError } =
       await getLatestPlantStatus(targetPlantId);
 
     let savedStatus;
 
-    // Solo actualizar si el status existente pertenece a la misma planta
-    // Si el plant_id cambió (reasignación), crear un nuevo registro
-    if (
-      !statusCheckError &&
-      existingStatus &&
-      existingStatus.plant_id === targetPlantId
-    ) {
+    // SIEMPRE actualizar si existe un registro para este plant_id
+    // Esto previene duplicados al asignar/reiniciar la Raspberry
+    if (existingStatus && existingStatus.plant_id === targetPlantId) {
       // Actualizar status existente de la misma planta
       const updateData = {
         status: statusData.status,
@@ -288,10 +285,11 @@ export const receiveSensorData = async (req, res) => {
 
       savedStatus = updatedStatus;
       console.log(
-        `✅ Plant_status actualizado para plant_id: ${targetPlantId}`
+        `✅ Plant_status actualizado para plant_id: ${targetPlantId} (ID registro: ${existingStatus.id})`
       );
     } else {
-      // Crear nuevo status (nueva planta o primera vez)
+      // Solo crear nuevo status si NO existe ningún registro para esta planta
+      // Esto asegura que no se mezclen estados entre diferentes plantas
       const newStatusData = {
         plant_id: targetPlantId,
         status: statusData.status,
@@ -310,7 +308,7 @@ export const receiveSensorData = async (req, res) => {
 
       savedStatus = createdStatus;
       console.log(
-        `✅ Nuevo plant_status creado para plant_id: ${targetPlantId}`
+        `✅ Nuevo plant_status creado para plant_id: ${targetPlantId} (primera vez)`
       );
     }
 
