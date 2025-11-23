@@ -291,106 +291,44 @@ function setupEditProfileModal() {
       if (!file) return;
 
       try {
-        // Comprimir la imagen antes de mostrarla
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            // Crear canvas para comprimir
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+        // Mostrar estado de carga
+        const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
+        if (uploadInner) {
+          uploadInner.innerHTML = '<div class="spinner"></div><p>Subiendo...</p>';
+          uploadInner.style.display = "flex";
+        }
+        photoPreview.style.display = "none";
 
-            // Calcular dimensiones manteniendo aspecto (máximo 400px para perfil)
-            let width = img.width;
-            let height = img.height;
-            const maxDimension = 400; // Reducido para perfil de usuario
+        // Subir imagen directamente al backend
+        console.log("📤 Subiendo imagen de perfil...");
+        const imageUrl = await window.AdminAPI.uploadImage(file);
 
-            if (width > height && width > maxDimension) {
-              height = (height * maxDimension) / width;
-              width = maxDimension;
-            } else if (height > maxDimension) {
-              width = (width * maxDimension) / height;
-              height = maxDimension;
-            }
+        // Mostrar imagen subida
+        if (photoPreview) {
+          photoPreview.src = imageUrl;
+          photoPreview.style.display = "block";
+          photoPreview.setAttribute("data-image-changed", "true");
+          // Guardar URL en atributo para usarla al guardar
+          photoPreview.setAttribute("data-uploaded-url", imageUrl);
+          
+          if (uploadInner) {
+            uploadInner.style.display = "none";
+            // Restaurar contenido original
+            uploadInner.innerHTML = '<i class="fas fa-camera"></i><p>Change Photo</p>';
+          }
+        }
+        console.log("✅ Imagen de perfil subida:", imageUrl);
 
-            canvas.width = width;
-            canvas.height = height;
-
-            // Dibujar imagen redimensionada
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // Comprimir con calidad más baja para reducir tamaño
-            let quality = 0.6; // Reducido de 0.8 a 0.6
-            let maxDataUrlSize = 30 * 1024; // Máximo 30KB de data URL
-
-            // Intentar diferentes calidades hasta que el tamaño sea aceptable
-            let dataUrl = canvas.toDataURL("image/jpeg", quality);
-            while (dataUrl.length > maxDataUrlSize && quality > 0.2) {
-              quality -= 0.1;
-              dataUrl = canvas.toDataURL("image/jpeg", quality);
-            }
-
-            // Si aún es muy grande, reducir dimensiones más
-            if (dataUrl.length > maxDataUrlSize) {
-              const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
-              canvas.width = Math.round(width * scale);
-              canvas.height = Math.round(height * scale);
-              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              quality = 0.6;
-              dataUrl = canvas.toDataURL("image/jpeg", quality);
-            }
-
-            console.log(
-              `📸 Imagen comprimida: ${Math.round(
-                dataUrl.length / 1024
-              )}KB, dimensiones: ${canvas.width}x${
-                canvas.height
-              }, calidad: ${quality.toFixed(1)}`
-            );
-
-            // Guardar el archivo comprimido también
-            canvas.toBlob(
-              (blob) => {
-                if (photoPreview) {
-                  photoPreview.src = dataUrl;
-                  photoPreview.style.display = "block";
-                  // Guardar el blob comprimido para subirlo después
-                  photoPreview.setAttribute(
-                    "data-compressed-blob",
-                    JSON.stringify({
-                      size: blob.size,
-                      type: blob.type,
-                    })
-                  );
-                  // Guardar el blob en un atributo data (usaremos el data URL para crear el File después)
-                  photoPreview.setAttribute("data-image-changed", "true");
-                  if (photoPreview.parentElement) {
-                    const uploadInner =
-                      photoPreview.parentElement.querySelector(".upload-inner");
-                    if (uploadInner) {
-                      uploadInner.style.display = "none";
-                    }
-                  }
-                }
-              },
-              "image/jpeg",
-              quality
-            );
-          };
-          img.onerror = () => {
-            console.error("Error cargando imagen para compresión");
-            alert("Error al procesar la imagen. Por favor, intenta de nuevo.");
-          };
-          img.src = e.target.result;
-        };
-        reader.onerror = (error) => {
-          console.error("Error leyendo archivo:", error);
-          alert("Error al leer la imagen. Por favor, intenta de nuevo.");
-        };
-        reader.readAsDataURL(file);
       } catch (error) {
-        console.error("Error al cargar imagen:", error);
-        alert("Error al cargar la imagen. Por favor, intenta de nuevo.");
+        console.error("Error al subir imagen:", error);
+        alert("Error al subir la imagen. Por favor, intenta de nuevo.");
+        
+        // Restaurar estado
+        const uploadInner = photoPreview.parentElement.querySelector(".upload-inner");
+        if (uploadInner) {
+          uploadInner.innerHTML = '<i class="fas fa-camera"></i><p>Change Photo</p>';
+          uploadInner.style.display = "flex";
+        }
       }
     });
   }
@@ -421,269 +359,18 @@ function setupEditProfileModal() {
       }
 
       try {
-        // Obtener imagen solo si fue cambiada
+        // Obtener URL de la imagen
         let imageUrl = null;
-        const imageChanged =
-          photoPreview?.getAttribute("data-image-changed") === "true";
+        const imageChanged = photoPreview?.getAttribute("data-image-changed") === "true";
+        const uploadedUrl = photoPreview?.getAttribute("data-uploaded-url");
         const originalImage = photoPreview?.getAttribute("data-original-image");
 
-        if (
-          imageChanged &&
-          photoPreview &&
-          photoPreview.style.display !== "none"
-        ) {
-          // Solo enviar si la imagen fue cambiada
-          if (photoPreview.src.startsWith("data:")) {
-            // Es una nueva imagen en base64 - convertir a File y subir
-            console.log(
-              "📸 Imagen nueva detectada (data URL), convirtiendo y subiendo..."
-            );
-            try {
-              // Convertir data URL a Blob directamente
-              const dataUrl = photoPreview.src;
-              const arr = dataUrl.split(",");
-              if (arr.length < 2) {
-                throw new Error("Formato de data URL inválido");
-              }
-
-              const mimeMatch = arr[0].match(/:(.*?);/);
-              const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
-              const bstr = atob(arr[1]);
-              let n = bstr.length;
-              const u8arr = new Uint8Array(n);
-              while (n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-              }
-              const blob = new Blob([u8arr], { type: mime });
-
-              // Crear un File desde el Blob
-              const file = new File(
-                [blob],
-                `profile-${user.id}-${Date.now()}.png`,
-                {
-                  type: mime,
-                }
-              );
-
-              console.log("📤 Subiendo imagen al servidor...");
-              // Subir la imagen usando el método uploadImage (sin fallback a base64)
-              // Crear FormData y subir directamente
-              const formData = new FormData();
-              formData.append("image", file);
-
-              const token =
-                window.AdminAPI.token || localStorage.getItem("admin_token");
-              const uploadResponse = await fetch(
-                `${
-                  window.AdminConfig?.API_BASE_URL ||
-                  "https://ecoa-ruddy.vercel.app"
-                }/api/upload/image`,
-                {
-                  method: "POST",
-                  body: formData,
-                  headers: {
-                    ...(token && { Authorization: `Bearer ${token}` }),
-                  },
-                }
-              );
-
-              if (!uploadResponse.ok) {
-                throw new Error(
-                  `Error ${uploadResponse.status}: ${uploadResponse.statusText}`
-                );
-              }
-
-              const uploadData = await uploadResponse.json();
-
-              if (uploadData.success) {
-                imageUrl = uploadData.data.fullUrl;
-
-                // Si el backend devuelve un data URL muy grande, comprimirlo más
-                if (
-                  imageUrl.startsWith("data:") &&
-                  imageUrl.length > 30 * 1024
-                ) {
-                  console.log(
-                    `⚠️ Data URL del backend es muy grande (${Math.round(
-                      imageUrl.length / 1024
-                    )}KB), comprimiendo más...`
-                  );
-                  try {
-                    // Esperar a que la imagen cargue y re-comprimirla
-                    await new Promise((resolve, reject) => {
-                      const img = new Image();
-                      img.onload = () => {
-                        const canvas = document.createElement("canvas");
-                        const ctx = canvas.getContext("2d");
-
-                        let width = img.width;
-                        let height = img.height;
-                        const maxDim = 300;
-
-                        if (width > height && width > maxDim) {
-                          height = (height * maxDim) / width;
-                          width = maxDim;
-                        } else if (height > maxDim) {
-                          width = (width * maxDim) / height;
-                          height = maxDim;
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        let quality = 0.5;
-                        let compressed = canvas.toDataURL(
-                          "image/jpeg",
-                          quality
-                        );
-
-                        while (compressed.length > 25 * 1024 && quality > 0.2) {
-                          quality -= 0.1;
-                          compressed = canvas.toDataURL("image/jpeg", quality);
-                        }
-
-                        imageUrl = compressed;
-                        console.log(
-                          `✅ Imagen re-comprimida: ${Math.round(
-                            imageUrl.length / 1024
-                          )}KB`
-                        );
-                        resolve();
-                      };
-                      img.onerror = () => {
-                        console.warn(
-                          "⚠️ No se pudo cargar imagen para re-comprimir"
-                        );
-                        resolve(); // Continuar con el original
-                      };
-                      img.src = imageUrl;
-                    });
-                  } catch (recompressError) {
-                    console.warn(
-                      "⚠️ No se pudo re-comprimir, usando el original:",
-                      recompressError
-                    );
-                  }
-                }
-
-                console.log(
-                  "✅ Imagen subida exitosamente:",
-                  imageUrl.substring(0, 50) + "..."
-                );
-              } else {
-                throw new Error(
-                  uploadData.message || "Error al subir la imagen"
-                );
-              }
-            } catch (uploadError) {
-              console.error("❌ Error al subir imagen:", uploadError);
-              // NO usar fallback - mostrar error y no enviar imagen
-              alert(
-                `Error al subir la imagen: ${uploadError.message}. Por favor, intenta con una imagen más pequeña o inténtalo de nuevo.`
-              );
-              if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Guardar Cambios";
-              }
-              return; // Salir sin actualizar el perfil
-            }
-          } else if (photoPreview.src && photoPreview.src !== originalImage) {
-            // La imagen cambió a una URL diferente (ya está subida)
-            imageUrl = photoPreview.src;
-            console.log("📸 Enviando nueva imagen (URL)");
-          }
-        } else if (
-          !originalImage &&
-          photoPreview &&
-          photoPreview.style.display !== "none" &&
-          photoPreview.src.startsWith("data:")
-        ) {
-          // Si no había imagen original pero ahora hay una nueva
-          console.log(
-            "📸 Primera imagen detectada (data URL), convirtiendo y subiendo..."
-          );
-          try {
-            // Convertir data URL a Blob directamente
-            const dataUrl = photoPreview.src;
-            const arr = dataUrl.split(",");
-            if (arr.length < 2) {
-              throw new Error("Formato de data URL inválido");
-            }
-
-            const mimeMatch = arr[0].match(/:(.*?);/);
-            const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-            while (n--) {
-              u8arr[n] = bstr.charCodeAt(n);
-            }
-            const blob = new Blob([u8arr], { type: mime });
-
-            // Crear un File desde el Blob
-            const file = new File(
-              [blob],
-              `profile-${user.id}-${Date.now()}.png`,
-              {
-                type: mime,
-              }
-            );
-
-            console.log("📤 Subiendo imagen al servidor...");
-            // Subir la imagen directamente sin usar el método con fallback
-            const formData = new FormData();
-            formData.append("image", file);
-
-            const uploadResponse = await fetch(
-              `${
-                window.AdminConfig?.API_BASE_URL ||
-                "https://ecoa-ruddy.vercel.app"
-              }/api/upload/image`,
-              {
-                method: "POST",
-                body: formData,
-                headers: {
-                  ...(window.AdminAPI.token && {
-                    Authorization: `Bearer ${window.AdminAPI.token}`,
-                  }),
-                },
-              }
-            );
-
-            if (!uploadResponse.ok) {
-              throw new Error(
-                `Error ${uploadResponse.status}: ${uploadResponse.statusText}`
-              );
-            }
-
-            const uploadData = await uploadResponse.json();
-
-            if (uploadData.success) {
-              imageUrl = uploadData.data.fullUrl;
-              console.log(
-                "✅ Imagen subida exitosamente:",
-                imageUrl.substring(0, 50) + "..."
-              );
-            } else {
-              throw new Error(uploadData.message || "Error al subir la imagen");
-            }
-          } catch (uploadError) {
-            console.error("❌ Error al subir imagen:", uploadError);
-            // NO usar fallback - mostrar error y no enviar imagen
-            alert(
-              `Error al subir la imagen: ${uploadError.message}. Por favor, intenta con una imagen más pequeña o inténtalo de nuevo.`
-            );
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Guardar Cambios";
-            }
-            return; // Salir sin actualizar el perfil
-          }
-        } else {
-          console.log(
-            "📸 No se enviará imagen (no fue cambiada o no hay imagen nueva)"
-          );
+        if (imageChanged && uploadedUrl) {
+          imageUrl = uploadedUrl;
+          console.log("📸 Usando nueva imagen subida:", imageUrl);
+        } else if (imageChanged && photoPreview.src && photoPreview.src !== originalImage) {
+          // Fallback por si acaso
+          imageUrl = photoPreview.src;
         }
 
         // Actualizar usuario
@@ -692,56 +379,20 @@ function setupEditProfileModal() {
         };
 
         if (imageUrl) {
-          // El backend devuelve data URLs (porque no tiene almacenamiento permanente)
-          // Esto está bien - el backend procesa la imagen y devuelve el data URL
-          // Enviar como avatar_url (preferido) y image para compatibilidad
-          updateData.avatar_url = imageUrl;
           updateData.image = imageUrl;
-
-          if (imageUrl.startsWith("data:")) {
-            console.log(
-              "📸 Imagen incluida en updateData (data URL del backend), tamaño:",
-              Math.round(imageUrl.length / 1024),
-              "KB"
-            );
-          } else {
-            console.log(
-              "📸 Imagen incluida en updateData (URL):",
-              imageUrl.substring(0, 50) + "..."
-            );
-          }
-        } else {
-          console.log("📸 No se incluye imagen en updateData");
+          updateData.avatar_url = imageUrl; // Para compatibilidad
         }
 
         const response = await window.AdminAPI.updateUser(user.id, updateData);
 
-        // Si hay una imagen y la respuesta fue exitosa o si falló pero la imagen está en updateData
-        if (imageUrl) {
-          // Guardar imagen en localStorage como respaldo
-          const userImageKey = `user_${user.id}_avatar`;
-          localStorage.setItem(userImageKey, imageUrl);
-          console.log("📸 Imagen guardada en localStorage como respaldo");
-        }
-
         if (response.success) {
           // Actualizar usuario en localStorage
-          // Mapear avatar_url a image para compatibilidad con el frontend
           const updatedUser = {
             ...user,
             ...response.data,
-            image:
-              response.data.avatar_url ||
-              response.data.image ||
-              user.image ||
-              user.avatar_url ||
-              imageUrl,
+            image: imageUrl || user.image,
+            avatar_url: imageUrl || user.avatar_url
           };
-
-          // Si la imagen no se guardó en la BD pero está en localStorage, usarla
-          if (!updatedUser.image && imageUrl) {
-            updatedUser.image = imageUrl;
-          }
 
           localStorage.setItem("admin_user", JSON.stringify(updatedUser));
 
@@ -750,54 +401,16 @@ function setupEditProfileModal() {
 
           // Cerrar modal
           closeEditProfileModal();
-
-          // Mensaje según si la imagen se guardó o no
-          if (imageUrl && !response.imageUpdated) {
-            alert(
-              "Nombre actualizado exitosamente. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase."
-            );
-          } else {
-            alert("Perfil actualizado exitosamente.");
-          }
+          alert("Perfil actualizado exitosamente.");
         } else {
-          // Si falló pero tenemos imagen, guardarla en localStorage y actualizar visualización
-          if (imageUrl) {
-            const updatedUser = {
-              ...user,
-              name: name,
-              image: imageUrl,
-            };
-            localStorage.setItem("admin_user", JSON.stringify(updatedUser));
-            updateProfileDisplay(updatedUser);
-            closeEditProfileModal();
-            alert(
-              "Nombre actualizado. La imagen se guardó localmente. Para guardarla permanentemente, agrega el campo 'avatar_url' a la tabla 'users' en Supabase."
-            );
-            return;
-          }
-
-          // Usar el mensaje del backend que ahora es más específico
-          const errorMessage =
-            response.message || "Error al actualizar el perfil";
-          console.error("Error del backend:", response);
-          throw new Error(errorMessage);
+          throw new Error(response.message || "Error al actualizar el perfil");
         }
       } catch (error) {
         console.error("Error al actualizar perfil:", error);
-        console.error("Detalles del error:", {
-          message: error.message,
-          response: error.response,
-          stack: error.stack,
-        });
-
-        // Mostrar mensaje más específico si está disponible
         let errorMessage = error.message || "Error al actualizar el perfil";
-
-        // Si el error viene del backend con un mensaje específico, usarlo
         if (error.response && error.response.message) {
           errorMessage = error.response.message;
         }
-
         alert(`Error al actualizar el perfil: ${errorMessage}`);
       } finally {
         if (submitBtn) {
@@ -961,7 +574,7 @@ async function loadRecentPlants() {
 
                   if (
                     imageUrl &&
-                    !imageUrl.includes("upgrade_access.png") &&
+                    !imageUrl.includes("upgrade_access.jpg") &&
                     !imageUrl.includes("placeholder")
                   ) {
                     plantImage = imageUrl;
@@ -1140,10 +753,10 @@ function setupPlantForm() {
               );
             }
 
-            // Si sigue siendo muy grande después de comprimir, usar PNG
+            // Si sigue siendo muy grande después de comprimir, usar jpg
             if (dataUrl.length > maxDataUrlSize) {
-              dataUrl = canvas.toDataURL("image/png");
-              // Si PNG también es muy grande, reducir dimensiones más
+              dataUrl = canvas.toDataURL("image/jpg");
+              // Si jpg también es muy grande, reducir dimensiones más
               if (dataUrl.length > maxDataUrlSize) {
                 const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
                 canvas.width = Math.round(width * scale);
@@ -1172,7 +785,7 @@ function setupPlantForm() {
               );
             }
 
-            preview.src = dataUrl || "/placeholder.png";
+            preview.src = dataUrl || "/placeholder.jpg";
             preview.style.display = "block";
             uploadBox.querySelector(".upload-inner").style.display = "none";
             // Guardar el data URL en un atributo del preview para usarlo después
@@ -1233,7 +846,7 @@ async function createPlant() {
       photoPreview.src !== "about:blank" &&
       !photoPreview.src.includes("unsplash.com/photo-1506905925346") &&
       !photoPreview.src.includes("placeholder") &&
-      !photoPreview.src.includes("upgrade_access.png")
+      !photoPreview.src.includes("upgrade_access.jpg")
     ) {
       imageUrl = photoPreview.src;
       console.log("✅ Dashboard - Imagen obtenida del src (URL)");
