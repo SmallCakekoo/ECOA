@@ -115,45 +115,104 @@ device = max7219(serial, cascaded=1, block_orientation=0, rotate=0)
 
 # ==================== LÓGICA DE NEGOCIO ====================
 
+def normalize_sensor_values(temperatura, luminosidad, humedad):
+    """
+    Normaliza los valores de los sensores.
+    
+    Args:
+        temperatura: Temperatura en °C
+        luminosidad: Luminosidad (0-1023 o 0-1 según sensor)
+        humedad: Humedad del suelo en %
+    
+    Returns:
+        tuple: (temp, light, humidity) valores normalizados
+    """
+    # Normalizar temperatura: rango aceptable 15-35°C
+    TEMP_MIN = 15
+    TEMP_MAX = 35
+    temp = max(TEMP_MIN, min(TEMP_MAX, temperatura))
+    
+    # Normalizar luz: si está en rango 0-1, convertir a 0-1023
+    # Asumimos que valores > 1 están en escala 0-1023
+    normalized_light = luminosidad
+    if luminosidad <= 1:
+        normalized_light = luminosidad * 1023
+    normalized_light = max(0, min(1023, normalized_light))
+    
+    # Normalizar humedad: 0-100%
+    humidity = max(0, min(100, humedad))
+    
+    return (temp, normalized_light, humidity)
+
+def compute_mood(temperatura, luminosidad, humedad):
+    """
+    Función unificada para calcular el mood index y estado de la planta.
+    Misma lógica que en JavaScript.
+    
+    Reglas:
+    - bad si luz demasiado alta (>900) o demasiado baja (<100)
+    - bad si temperatura demasiado alta (>35) o demasiado baja (<15)
+    - bad si humedad demasiado alta (>80)
+    - healthy si valores dentro de rango
+    - recovering si humedad ligeramente alta (70-80)
+    
+    Args:
+        temperatura: Temperatura en °C
+        luminosidad: Luminosidad (0-1023 o 0-1 según sensor)
+        humedad: Humedad del suelo en %
+    
+    Returns:
+        str: 'healthy', 'bad', o 'recovering'
+    """
+    # Normalizar valores
+    temp, normalized_light, humidity = normalize_sensor_values(temperatura, luminosidad, humedad)
+    
+    # Rangos aceptables
+    TEMP_MIN = 15
+    TEMP_MAX = 35
+    LIGHT_MIN = 100  # Mínimo aceptable
+    LIGHT_MAX = 900  # Máximo aceptable
+    HUMIDITY_MAX_ACCEPTABLE = 80  # Máximo aceptable
+    HUMIDITY_RECOVERING_MIN = 70  # Inicio de rango "recovering"
+    
+    # Evaluar condiciones críticas (bad)
+    is_bad = False
+    reasons = []
+    
+    # Temperatura fuera de rango
+    if temp < TEMP_MIN or temp > TEMP_MAX:
+        is_bad = True
+        reasons.append(f"temperatura {'muy baja' if temp < TEMP_MIN else 'muy alta'}")
+    
+    # Luz fuera de rango
+    if normalized_light < LIGHT_MIN or normalized_light > LIGHT_MAX:
+        is_bad = True
+        reasons.append(f"luz {'muy baja' if normalized_light < LIGHT_MIN else 'muy alta'}")
+    
+    # Humedad demasiado alta
+    if humidity > HUMIDITY_MAX_ACCEPTABLE:
+        is_bad = True
+        reasons.append('humedad muy alta')
+    
+    # Si hay alguna condición crítica, retornar bad
+    if is_bad:
+        return 'bad'
+    
+    # Evaluar condición recovering (humedad ligeramente alta)
+    if HUMIDITY_RECOVERING_MIN <= humidity <= HUMIDITY_MAX_ACCEPTABLE:
+        return 'recovering'
+    
+    # Si llegamos aquí, está healthy
+    return 'healthy'
+
 def calculate_plant_status(temperatura, luminosidad, humedad):
     """
     Calcula el estado de la planta basado en los valores de los sensores.
+    Usa la función compute_mood unificada.
     
     Retorna: 'healthy', 'bad', o 'recovering'
     """
-    # Rangos ideales (ajusta según tu tipo de planta)
-    TEMP_MIN, TEMP_MAX = 18, 28  # °C
-    LIGHT_MIN, LIGHT_MAX = 200, 800  # lx
-    HUMIDITY_MIN, HUMIDITY_MAX = 40, 70  # %
-    
-    problems = 0
-    warnings = 0
-    
-    # Evaluar temperatura
-    if temperatura < TEMP_MIN - 5 or temperatura > TEMP_MAX + 5:
-        problems += 1
-    elif temperatura < TEMP_MIN or temperatura > TEMP_MAX:
-        warnings += 1
-    
-    # Evaluar luminosidad
-    if luminosidad < LIGHT_MIN * 0.5 or luminosidad > LIGHT_MAX * 1.5:
-        problems += 1
-    elif luminosidad < LIGHT_MIN or luminosidad > LIGHT_MAX:
-        warnings += 1
-    
-    # Evaluar humedad
-    if humedad < HUMIDITY_MIN - 15 or humedad > HUMIDITY_MAX + 15:
-        problems += 1
-    elif humedad < HUMIDITY_MIN or humedad > HUMIDITY_MAX:
-        warnings += 1
-    
-    # Determinar estado
-    if problems >= 2:
-        return 'bad'
-    elif problems == 1 or warnings >= 2:
-        return 'recovering'
-    else:
-        return 'healthy'
+    return compute_mood(temperatura, luminosidad, humedad)
 
 # ==================== FUNCIONES DE LECTURA ====================
 

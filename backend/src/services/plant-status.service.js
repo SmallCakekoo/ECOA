@@ -65,70 +65,153 @@ const EMOJI_MATRICES = {
 };
 
 /**
- * Calcula el estado de la planta basado en los valores de los sensores
+ * Normaliza los valores de los sensores
  * @param {number} temperature - Temperatura en °C
- * @param {number} light - Luminosidad en lx
+ * @param {number} light - Luminosidad (0-1023 o 0-1 según sensor)
+ * @param {number} soil_moisture - Humedad del suelo en %
+ * @returns {Object} { temp, light, humidity } valores normalizados
+ */
+function normalizeSensorValues(temperature, light, soil_moisture) {
+  // Normalizar temperatura: rango aceptable 15-35°C
+  const TEMP_MIN = 15;
+  const TEMP_MAX = 35;
+  const temp = Math.max(TEMP_MIN, Math.min(TEMP_MAX, temperature));
+
+  // Normalizar luz: si está en rango 0-1, convertir a 0-1023
+  // Asumimos que valores > 1 están en escala 0-1023
+  let normalizedLight = light;
+  if (light <= 1) {
+    normalizedLight = light * 1023;
+  }
+  normalizedLight = Math.max(0, Math.min(1023, normalizedLight));
+
+  // Normalizar humedad: 0-100%
+  const humidity = Math.max(0, Math.min(100, soil_moisture));
+
+  return { temp, light: normalizedLight, humidity };
+}
+
+/**
+ * Calcula el estado de la planta basado en los valores de los sensores
+ * Lógica unificada para JS y Python
+ * @param {number} temperature - Temperatura en °C
+ * @param {number} light - Luminosidad (0-1023 o 0-1 según sensor)
  * @param {number} soil_moisture - Humedad del suelo en %
  * @returns {Object} { status, mood_index, mood_face }
  */
 export function calculatePlantStatus(temperature, light, soil_moisture) {
-  // Valores ideales (ajustables según el tipo de planta)
-  const IDEAL_TEMP_MIN = 18;
-  const IDEAL_TEMP_MAX = 26;
-  const IDEAL_LIGHT_MIN = 200; // lx
-  const IDEAL_LIGHT_MAX = 1000; // lx
-  const IDEAL_MOISTURE_MIN = 40;
-  const IDEAL_MOISTURE_MAX = 70;
+  return computeMood(temperature, light, soil_moisture);
+}
 
-  // Calcular scores individuales (0-1)
-  let tempScore = 1;
-  if (temperature < IDEAL_TEMP_MIN) {
-    tempScore = Math.max(0, 1 - (IDEAL_TEMP_MIN - temperature) / 10);
-  } else if (temperature > IDEAL_TEMP_MAX) {
-    tempScore = Math.max(0, 1 - (temperature - IDEAL_TEMP_MAX) / 10);
+/**
+ * Función unificada para calcular el mood index y estado de la planta
+ * Reglas:
+ * - bad si luz demasiado alta (>900) o demasiado baja (<100)
+ * - bad si temperatura demasiado alta (>35) o demasiado baja (<15)
+ * - bad si humedad demasiado alta (>80)
+ * - healthy si valores dentro de rango
+ * - recovering si humedad ligeramente alta (70-80)
+ * 
+ * @param {number} temperature - Temperatura en °C
+ * @param {number} light - Luminosidad (0-1023 o 0-1 según sensor)
+ * @param {number} soil_moisture - Humedad del suelo en %
+ * @returns {Object} { status, mood_index, mood_face }
+ */
+export function computeMood(temperature, light, soil_moisture) {
+  // Normalizar valores
+  const { temp, light: normalizedLight, humidity } = normalizeSensorValues(
+    temperature,
+    light,
+    soil_moisture
+  );
+
+  // Rangos aceptables
+  const TEMP_MIN = 15;
+  const TEMP_MAX = 35;
+  const LIGHT_MIN = 100; // Mínimo aceptable
+  const LIGHT_MAX = 900; // Máximo aceptable
+  const HUMIDITY_MAX_ACCEPTABLE = 80; // Máximo aceptable
+  const HUMIDITY_RECOVERING_MIN = 70; // Inicio de rango "recovering"
+
+  // Evaluar condiciones críticas (bad)
+  let isBad = false;
+  let reasons = [];
+
+  // Temperatura fuera de rango
+  if (temp < TEMP_MIN || temp > TEMP_MAX) {
+    isBad = true;
+    reasons.push(`temperatura ${temp < TEMP_MIN ? 'muy baja' : 'muy alta'}`);
   }
 
-  let lightScore = 1;
-  if (light < IDEAL_LIGHT_MIN) {
-    lightScore = Math.max(0, light / IDEAL_LIGHT_MIN);
-  } else if (light > IDEAL_LIGHT_MAX) {
-    lightScore = Math.max(0, 1 - (light - IDEAL_LIGHT_MAX) / 2000);
+  // Luz fuera de rango
+  if (normalizedLight < LIGHT_MIN || normalizedLight > LIGHT_MAX) {
+    isBad = true;
+    reasons.push(`luz ${normalizedLight < LIGHT_MIN ? 'muy baja' : 'muy alta'}`);
   }
 
-  let moistureScore = 1;
-  if (soil_moisture < IDEAL_MOISTURE_MIN) {
-    moistureScore = Math.max(0, soil_moisture / IDEAL_MOISTURE_MIN);
-  } else if (soil_moisture > IDEAL_MOISTURE_MAX) {
-    moistureScore = Math.max(0, 1 - (soil_moisture - IDEAL_MOISTURE_MAX) / 30);
+  // Humedad demasiado alta
+  if (humidity > HUMIDITY_MAX_ACCEPTABLE) {
+    isBad = true;
+    reasons.push('humedad muy alta');
   }
 
-  // Score general (promedio ponderado)
-  // La humedad es más crítica, así que tiene más peso
-  const overallScore =
-    tempScore * 0.3 + lightScore * 0.3 + moistureScore * 0.4;
+  // Si hay alguna condición crítica, retornar bad
+  if (isBad) {
+    const statusKey = normalizeStatusKey("bad");
+    const statusConfig = STATUS_CONFIG[statusKey];
+    
+    // Calcular mood_index basado en qué tan mal está
+    let mood_index = 0.2; // Base para "bad"
+    
+    // Ajustar según número de problemas
+    if (reasons.length === 1) {
+      mood_index = 0.3;
+    } else if (reasons.length >= 2) {
+      mood_index = 0.1;
+    }
 
-  // Determinar estado
-  let status;
-  let mood_index;
-  let mood_face;
-
-  if (overallScore >= 0.7) {
-    status = "healthy";
-  } else if (overallScore >= 0.4) {
-    status = "recovering";
-  } else {
-    status = "bad";
+    return {
+      status: statusKey,
+      mood_index: Math.round(mood_index * 100) / 100,
+      mood_face: statusConfig.mood_face,
+    };
   }
 
-  const statusKey = normalizeStatusKey(status);
+  // Evaluar condición recovering (humedad ligeramente alta)
+  if (humidity >= HUMIDITY_RECOVERING_MIN && humidity <= HUMIDITY_MAX_ACCEPTABLE) {
+    const statusKey = normalizeStatusKey("recovering");
+    const statusConfig = STATUS_CONFIG[statusKey];
+    
+    // Calcular mood_index: más cerca de 80 = peor, más cerca de 70 = mejor
+    const humidityScore = 1 - ((humidity - HUMIDITY_RECOVERING_MIN) / (HUMIDITY_MAX_ACCEPTABLE - HUMIDITY_RECOVERING_MIN));
+    const mood_index = 0.4 + (humidityScore * 0.3); // Entre 0.4 y 0.7
+
+    return {
+      status: statusKey,
+      mood_index: Math.round(mood_index * 100) / 100,
+      mood_face: statusConfig.mood_face,
+    };
+  }
+
+  // Si llegamos aquí, está healthy
+  // Calcular mood_index basado en qué tan cerca están los valores del ideal
+  const tempScore = temp >= TEMP_MIN && temp <= TEMP_MAX ? 1 : 0;
+  const lightScore = normalizedLight >= LIGHT_MIN && normalizedLight <= LIGHT_MAX ? 1 : 0;
+  const humidityScore = humidity >= 0 && humidity < HUMIDITY_RECOVERING_MIN ? 1 : 0;
+
+  // Promedio ponderado (todos tienen igual peso)
+  const overallScore = (tempScore + lightScore + humidityScore) / 3;
+  
+  // Asegurar que healthy tenga un mood_index alto
+  const mood_index = Math.max(0.7, 0.7 + (overallScore * 0.3)); // Entre 0.7 y 1.0
+
+  const statusKey = normalizeStatusKey("healthy");
   const statusConfig = STATUS_CONFIG[statusKey];
-  mood_index = overallScore;
-  mood_face = statusConfig.mood_face;
 
   return {
     status: statusKey,
-    mood_index: Math.round(mood_index * 100) / 100, // Redondear a 2 decimales
-    mood_face,
+    mood_index: Math.round(mood_index * 100) / 100,
+    mood_face: statusConfig.mood_face,
   };
 }
 

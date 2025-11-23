@@ -57,28 +57,8 @@ export const receiveSensorData = async (req, res) => {
       });
     }
 
-    // Si no hay plant_id, buscar la primera planta adoptada
+    // Determinar el plant_id correcto basado en device_serial
     let targetPlantId = plant_id;
-    if (!targetPlantId) {
-      const { data: plants, error: plantsError } = await findAllPlants({
-        is_adopted: true,
-      });
-
-      if (plantsError || !plants || plants.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message:
-            "No hay plantas adoptadas. Se requiere plant_id o al menos una planta adoptada.",
-        });
-      }
-
-      // Usar la primera planta adoptada
-      targetPlantId = plants[0].id;
-      console.log(
-        `⚠️ No se proporcionó plant_id, usando primera planta adoptada: ${targetPlantId}`
-      );
-    }
-
     let deviceRecord = null;
 
     if (device_serial) {
@@ -134,6 +114,19 @@ export const receiveSensorData = async (req, res) => {
         }
 
         deviceRecord = updatedDevice;
+
+        // Si no se proporcionó plant_id, buscar la planta asociada a este device
+        if (!targetPlantId && existingDevice.id) {
+          const { findPlantByDeviceId } = await import("../db/plants.db.js");
+          const { data: plantWithDevice, error: plantError } = await findPlantByDeviceId(existingDevice.id);
+          
+          if (!plantError && plantWithDevice) {
+            targetPlantId = plantWithDevice.id;
+            console.log(
+              `✅ Plant_id determinado desde device_serial: ${device_serial} -> plant_id: ${targetPlantId}`
+            );
+          }
+        }
       } else {
         const baseDevicePayload = createDeviceModel({
           serial_number: device_serial,
@@ -154,7 +147,39 @@ export const receiveSensorData = async (req, res) => {
       }
     }
 
-    // Guardar datos en plant_stats - Actualizar si existe, crear si no
+    // Si aún no hay plant_id, buscar la primera planta adoptada (fallback)
+    if (!targetPlantId) {
+      const { data: plants, error: plantsError } = await findAllPlants({
+        is_adopted: true,
+      });
+
+      if (plantsError || !plants || plants.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "No se pudo determinar plant_id. Se requiere plant_id, device_serial asociado a una planta, o al menos una planta adoptada.",
+        });
+      }
+
+      // Usar la primera planta adoptada como último recurso
+      targetPlantId = plants[0].id;
+      console.log(
+        `⚠️ No se pudo determinar plant_id desde device, usando primera planta adoptada: ${targetPlantId}`
+      );
+    }
+
+    // Validar que el plant_id existe
+    const { findPlantById } = await import("../db/plants.db.js");
+    const { data: plantExists, error: plantCheckError } = await findPlantById(targetPlantId);
+    
+    if (plantCheckError || !plantExists) {
+      return res.status(404).json({
+        success: false,
+        message: `El plant_id ${targetPlantId} no existe en la base de datos.`,
+      });
+    }
+
+    // Guardar datos en plant_stats - SIEMPRE crear nuevo registro (historial)
     const statsData = {
       plant_id: targetPlantId,
       soil_moisture: parseFloat(soil_moisture) || 0,
@@ -163,45 +188,12 @@ export const receiveSensorData = async (req, res) => {
       recorded_at: new Date().toISOString(),
     };
 
-    // Buscar si ya existe una estadística para esta planta
-    const { getLatestPlantStats } = await import("../db/plant_stats.db.js");
-    const { updatePlantStats } = await import("../db/plant_stats.db.js");
-    const { data: existingStats, error: statsCheckError } = await getLatestPlantStats(targetPlantId);
+    // Siempre crear un nuevo registro en plant_stats (no sobreescribir)
+    const { data: savedStats, error: statsError } = await insertPlantStats(statsData);
 
-    let savedStats;
-
-    if (!statsCheckError && existingStats && existingStats.plant_id === targetPlantId) {
-      // Actualizar estadística existente
-      const updateData = {
-        soil_moisture: statsData.soil_moisture,
-        temperature: statsData.temperature,
-        light: statsData.light,
-        recorded_at: statsData.recorded_at,
-      };
-
-      const { data: updatedStats, error: updateError } = await updatePlantStats(
-        existingStats.id,
-        updateData
-      );
-
-      if (updateError) {
-        console.error("Error actualizando plant_stats:", updateError);
-        throw updateError;
-      }
-
-      savedStats = updatedStats;
-    } else {
-      // Crear nueva estadística
-      const { data: createdStats, error: statsError } = await insertPlantStats(
-        statsData
-      );
-
-      if (statsError) {
-        console.error("Error guardando plant_stats:", statsError);
-        throw statsError;
-      }
-
-      savedStats = createdStats;
+    if (statsError) {
+      console.error("Error guardando plant_stats:", statsError);
+      throw statsError;
     }
 
     // Calcular estado de la planta
@@ -217,12 +209,14 @@ export const receiveSensorData = async (req, res) => {
 
     let savedStatus;
 
+    // Solo actualizar si el status existente pertenece a la misma planta
+    // Si el plant_id cambió (reasignación), crear un nuevo registro
     if (
       !statusCheckError &&
       existingStatus &&
       existingStatus.plant_id === targetPlantId
     ) {
-      // Actualizar status existente
+      // Actualizar status existente de la misma planta
       const updateData = {
         status: statusData.status,
         mood_index: statusData.mood_index,
@@ -239,8 +233,9 @@ export const receiveSensorData = async (req, res) => {
       }
 
       savedStatus = updatedStatus;
+      console.log(`✅ Plant_status actualizado para plant_id: ${targetPlantId}`);
     } else {
-      // Crear nuevo status
+      // Crear nuevo status (nueva planta o primera vez)
       const newStatusData = {
         plant_id: targetPlantId,
         status: statusData.status,
@@ -258,6 +253,7 @@ export const receiveSensorData = async (req, res) => {
       }
 
       savedStatus = createdStatus;
+      console.log(`✅ Nuevo plant_status creado para plant_id: ${targetPlantId}`);
     }
 
     // Emitir evento Socket.IO

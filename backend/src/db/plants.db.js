@@ -155,6 +155,15 @@ export async function assignAccessoryToPlant(plantId, accessoryId) {
     .single();
 }
 
+export async function findPlantByDeviceId(deviceId) {
+  const { data, error } = await supabase
+    .from("plants")
+    .select("*")
+    .eq("device_id", deviceId)
+    .single();
+  return { data, error };
+}
+
 export default {
   findAllPlants,
   findPlantById,
@@ -162,4 +171,5 @@ export default {
   updatePlant,
   deletePlant,
   assignAccessoryToPlant,
+  findPlantByDeviceId,
 };
