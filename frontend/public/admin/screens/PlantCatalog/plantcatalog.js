@@ -708,7 +708,7 @@ async function loadDevices() {
   }
 }
 
-function setupPlantForm() {
+  function setupPlantForm() {
   const openAddPlant = document.getElementById("openAddPlant");
   const overlay = document.getElementById("addPlantOverlay");
   const closeAddPlant = document.getElementById("closeAddPlant");
@@ -737,105 +737,39 @@ function setupPlantForm() {
       if (!file) return;
 
       try {
-        // Comprimir la imagen antes de convertirla a data URL
-        // Límite: 200KB en data URL para evitar problemas con Supabase
-        const maxDataUrlSize = 200 * 1024; // 200KB
+        // Mostrar estado de carga
+        const uploadInner = overlayUpload.querySelector(".upload-inner");
+        if (uploadInner) {
+          uploadInner.innerHTML = '<div class="spinner"></div><p>Subiendo...</p>';
+        }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            // Crear canvas para comprimir
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+        // Subir imagen al backend
+        const imageUrl = await window.AdminAPI.uploadImage(file);
+        
+        // Mostrar preview
+        overlayPreview.src = imageUrl;
+        overlayPreview.style.display = "block";
+        overlayPreview.setAttribute("data-image-url", imageUrl);
+        
+        if (uploadInner) {
+          uploadInner.style.display = "none";
+          // Restaurar contenido original por si se cancela/resetea
+          uploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+        }
+        
+        console.log("✅ Imagen subida exitosamente:", imageUrl);
 
-            // Calcular dimensiones manteniendo aspecto
-            let width = img.width;
-            let height = img.height;
-            const maxDimension = 800; // Máximo 800px en la dimensión más grande
-
-            if (width > height && width > maxDimension) {
-              height = (height * maxDimension) / width;
-              width = maxDimension;
-            } else if (height > maxDimension) {
-              width = (width * maxDimension) / height;
-              height = maxDimension;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-
-            // Dibujar imagen redimensionada
-            ctx.drawImage(img, 0, 0, width, height);
-
-            // Convertir a data URL con calidad ajustada
-            let quality = 0.9;
-            let dataUrl = canvas.toDataURL("image/jpeg", quality);
-
-            // Si aún es muy grande, reducir calidad gradualmente
-            while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
-              quality -= 0.1;
-              dataUrl = canvas.toDataURL("image/jpeg", quality);
-              console.log(
-                `🔄 Comprimiendo imagen, calidad: ${quality.toFixed(
-                  1
-                )}, tamaño: ${Math.round(dataUrl.length / 1024)}KB`
-              );
-            }
-
-            // Si sigue siendo muy grande después de comprimir, usar PNG
-            if (dataUrl.length > maxDataUrlSize) {
-              dataUrl = canvas.toDataURL("image/png");
-              // Si PNG también es muy grande, reducir dimensiones más
-              if (dataUrl.length > maxDataUrlSize) {
-                const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
-                canvas.width = Math.round(width * scale);
-                canvas.height = Math.round(height * scale);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-              }
-            }
-
-            if (dataUrl.length > maxDataUrlSize) {
-              console.warn(
-                `⚠️ Imagen muy grande incluso después de comprimir: ${Math.round(
-                  dataUrl.length / 1024
-                )}KB`
-              );
-              showNotification(
-                "La imagen es muy grande. Se guardará sin imagen.",
-                "warning"
-              );
-              dataUrl = null;
-            } else {
-              console.log(
-                `✅ Plant Catalog - Imagen comprimida, tamaño final: ${Math.round(
-                  dataUrl.length / 1024
-                )}KB`
-              );
-            }
-
-            overlayPreview.src = dataUrl || "/placeholder.png";
-            overlayPreview.style.display = "block";
-            const inner = overlayUpload.querySelector(".upload-inner");
-            if (inner) inner.style.display = "none";
-            // Guardar el data URL en un atributo del preview para usarlo después
-            overlayPreview.setAttribute("data-image-url", dataUrl || "");
-          };
-          img.onerror = () => {
-            console.error("Error cargando imagen para compresión");
-            showNotification("Error al procesar la imagen", "error");
-          };
-          img.src = e.target.result;
-        };
-        reader.onerror = (error) => {
-          console.error("Error leyendo archivo:", error);
-          showNotification("Error al leer la imagen", "error");
-        };
-        reader.readAsDataURL(file);
       } catch (error) {
-        console.error("Error processing image:", error);
-        showNotification("Error al procesar la imagen", "error");
+        console.error("Error uploading image:", error);
+        showNotification("Error al subir la imagen", "error");
+        
+        // Restaurar estado
+        const uploadInner = overlayUpload.querySelector(".upload-inner");
+        if (uploadInner) {
+          uploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+          uploadInner.style.display = "block";
+        }
+        overlayPreview.style.display = "none";
       }
     });
   }
@@ -851,57 +785,15 @@ function setupPlantForm() {
 }
 
 async function createPlant() {
-  // CÓDIGO EXACTO DE DASHBOARD - Solo cambiando IDs del DOM
   const form = document.getElementById("overlayPlantForm");
   const formData = new FormData(form);
 
-  // Obtener la imagen subida (data URL)
+  // Obtener la imagen subida (URL)
   const overlayPhotoPreview = document.getElementById("overlayPhotoPreview");
   let imageUrl = null;
 
-  // Obtener el data URL del atributo o del src
   if (overlayPhotoPreview && overlayPhotoPreview.style.display !== "none") {
-    // Primero intentar obtener del atributo data-image-url (más confiable)
-    const dataImageUrl = overlayPhotoPreview.getAttribute("data-image-url");
-    if (dataImageUrl && dataImageUrl.startsWith("data:")) {
-      imageUrl = dataImageUrl;
-      console.log(
-        "✅ Plant Catalog - Imagen obtenida del atributo data-image-url"
-      );
-    }
-    // Si no está en el atributo, usar el src si es data URL
-    else if (
-      overlayPhotoPreview.src &&
-      overlayPhotoPreview.src.startsWith("data:")
-    ) {
-      imageUrl = overlayPhotoPreview.src;
-      console.log("✅ Plant Catalog - Imagen obtenida del src (data URL)");
-    }
-    // Si el src no es data URL, verificar que no sea placeholder
-    else if (
-      overlayPhotoPreview.src &&
-      overlayPhotoPreview.src !== "" &&
-      overlayPhotoPreview.src !== "about:blank" &&
-      !overlayPhotoPreview.src.includes("unsplash.com/photo-1506905925346") &&
-      !overlayPhotoPreview.src.includes("placeholder") &&
-      !overlayPhotoPreview.src.includes("upgrade_access.jpg")
-    ) {
-      imageUrl = overlayPhotoPreview.src;
-      console.log("✅ Plant Catalog - Imagen obtenida del src (URL)");
-    }
-
-    if (imageUrl) {
-      console.log("🔍 Plant Catalog - Imagen validada:", {
-        hasImage: true,
-        isDataUrl: imageUrl.startsWith("data:"),
-        imageLength: imageUrl.length,
-        imagePreview: imageUrl.substring(0, 50) + "...",
-      });
-    } else {
-      console.warn(
-        "⚠️ Plant Catalog - No se encontró imagen válida en el preview"
-      );
-    }
+    imageUrl = overlayPhotoPreview.getAttribute("data-image-url");
   }
 
   // Obtener device_id del selector (puede ser null o string vacío)
@@ -914,9 +806,7 @@ async function createPlant() {
     species: formData.get("species"),
     description: formData.get("description"),
     image: imageUrl,
-    device_id: deviceIdValue, // Solo incluir si se seleccionó un dispositivo
-    // No enviar campos que no existen en la tabla plants
-    // status, health_status, water_level, etc. van en otras tablas relacionadas
+    device_id: deviceIdValue,
   };
 
   try {
@@ -1004,12 +894,16 @@ async function editPlant(plantId) {
 
         editPhotoPreview.src = previewSrc;
         editPhotoPreview.setAttribute("data-original-src", previewSrc);
+        // Guardar también como data-image-url para que updatePlant lo encuentre si no se cambia
+        editPhotoPreview.setAttribute("data-image-url", currentImageUrl);
+        
         editPhotoPreview.style.display = "block";
         if (editUploadInner) editUploadInner.style.display = "none";
       } else {
         // Si no hay imagen, mostrar el placeholder de subida
         editPhotoPreview.style.display = "none";
         editPhotoPreview.removeAttribute("data-original-src");
+        editPhotoPreview.removeAttribute("data-image-url");
         if (editUploadInner) editUploadInner.style.display = "block";
       }
     }
@@ -1022,7 +916,6 @@ async function editPlant(plantId) {
     }
 
     // Configurar subida de nueva imagen DESPUÉS de mostrar el modal
-    // Usar setTimeout para asegurar que el DOM esté completamente renderizado
     setTimeout(() => {
       setupEditImageUpload();
     }, 100);
@@ -1039,68 +932,6 @@ async function editPlant(plantId) {
     console.error("Error loading plant for edit:", error);
     showNotification("Error al cargar la planta", "error");
   }
-}
-
-// Función helper para comprimir imagen (reutilizable)
-function compressImage(file, callback) {
-  const maxDataUrlSize = 150 * 1024; // 150KB (límite más conservador para Supabase)
-  const reader = new FileReader();
-
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      let width = img.width;
-      let height = img.height;
-      const maxDimension = 800;
-
-      if (width > height && width > maxDimension) {
-        height = (height * maxDimension) / width;
-        width = maxDimension;
-      } else if (height > maxDimension) {
-        width = (width * maxDimension) / height;
-        height = maxDimension;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      let quality = 0.9;
-      let dataUrl = canvas.toDataURL("image/jpeg", quality);
-
-      while (dataUrl.length > maxDataUrlSize && quality > 0.1) {
-        quality -= 0.1;
-        dataUrl = canvas.toDataURL("image/jpeg", quality);
-      }
-
-      if (dataUrl.length > maxDataUrlSize) {
-        dataUrl = canvas.toDataURL("image/png");
-        if (dataUrl.length > maxDataUrlSize) {
-          const scale = Math.sqrt(maxDataUrlSize / dataUrl.length) * 0.9;
-          canvas.width = Math.round(width * scale);
-          canvas.height = Math.round(height * scale);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-        }
-      }
-
-      if (dataUrl.length > maxDataUrlSize) {
-        console.warn(
-          `⚠️ Imagen muy grande: ${Math.round(dataUrl.length / 1024)}KB`
-        );
-        callback(null);
-      } else {
-        callback(dataUrl);
-      }
-    };
-    img.onerror = () => callback(null);
-    img.src = e.target.result;
-  };
-  reader.onerror = () => callback(null);
-  reader.readAsDataURL(file);
 }
 
 // Configurar subida de imagen en el formulario de edición
@@ -1122,43 +953,52 @@ function setupEditImageUpload() {
   const currentEditInput = document.getElementById("editPhotoInput");
   const editUploadInner = editUpload.querySelector(".upload-inner");
 
-  // El label ya maneja el click automáticamente, solo necesitamos el change event
   currentEditInput.addEventListener("change", async (e) => {
     const file = e.target.files && e.target.files[0];
-    if (!file) {
-      console.log("⚠️ No se seleccionó ningún archivo");
-      return;
-    }
+    if (!file) return;
 
-    console.log(
-      "📸 Archivo seleccionado para edición:",
-      file.name,
-      "Tamaño:",
-      Math.round(file.size / 1024),
-      "KB"
-    );
+    try {
+      // Mostrar estado de carga
+      if (editUploadInner) {
+        editUploadInner.style.display = "block"; // Mostrar para poner el spinner
+        editUploadInner.innerHTML = '<div class="spinner"></div><p>Subiendo...</p>';
+      }
+      editPreview.style.display = "none"; // Ocultar preview anterior mientras carga
 
-    compressImage(file, (dataUrl) => {
-      if (dataUrl) {
-        editPreview.src = dataUrl;
+      // Subir imagen al backend
+      const imageUrl = await window.AdminAPI.uploadImage(file);
+      
+      // Mostrar preview
+      editPreview.src = imageUrl;
+      editPreview.style.display = "block";
+      editPreview.setAttribute("data-image-url", imageUrl);
+      
+      if (editUploadInner) {
+        editUploadInner.style.display = "none";
+        // Restaurar contenido original
+        editUploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+      }
+      
+      console.log("✅ Imagen actualizada exitosamente:", imageUrl);
+
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      showNotification("Error al subir la imagen", "error");
+      
+      // Restaurar estado (mostrar imagen anterior si había)
+      const originalSrc = editPreview.getAttribute("data-original-src");
+      if (originalSrc) {
+        editPreview.src = originalSrc;
         editPreview.style.display = "block";
         if (editUploadInner) editUploadInner.style.display = "none";
-        editPreview.setAttribute("data-image-url", dataUrl);
-        console.log(
-          `✅ Plant Catalog - Imagen comprimida para edición, tamaño: ${Math.round(
-            dataUrl.length / 1024
-          )}KB`
-        );
       } else {
-        showNotification(
-          "La imagen es muy grande. Se guardará sin cambiar la imagen.",
-          "warning"
-        );
+        if (editUploadInner) {
+          editUploadInner.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload image</p>';
+          editUploadInner.style.display = "block";
+        }
       }
-    });
+    }
   });
-
-  console.log("✅ Event listeners de edición de imagen configurados");
 }
 
 async function updatePlant(plantId) {
@@ -1206,34 +1046,8 @@ async function updatePlant(plantId) {
 
   // Incluir imagen solo si se subió una nueva
   if (imageUrl) {
-    // Validar tamaño de la data URL antes de enviar
-    // Usar límite más conservador para evitar problemas con Supabase
-    const maxDataUrlSize = 150 * 1024; // 150KB
-    const imageSize = imageUrl.length;
-
-    console.log(
-      `📊 Tamaño de imagen a enviar: ${Math.round(imageSize / 1024)}KB`
-    );
-
-    if (imageSize > maxDataUrlSize) {
-      console.warn(
-        `⚠️ Imagen demasiado grande (${Math.round(
-          imageSize / 1024
-        )}KB), no se actualizará la imagen`
-      );
-      showNotification(
-        "La imagen es demasiado grande. Se actualizará la planta sin cambiar la imagen.",
-        "warning"
-      );
-      // No incluir la imagen si es demasiado grande
-    } else {
-      plantData.image = imageUrl;
-      console.log(
-        `✅ Imagen validada y lista para enviar (${Math.round(
-          imageSize / 1024
-        )}KB)`
-      );
-    }
+    plantData.image = imageUrl;
+    console.log("✅ Imagen lista para enviar:", imageUrl);
   }
 
   // health_status se maneja en la tabla plant_status, no directamente en plants

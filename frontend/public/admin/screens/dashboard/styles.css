@@ -742,15 +742,13 @@ body {
 }
 
 .status.recovering {
-  background: #fff7ed;
-  color: #c2410c;
-  border: 1px solid #ffedd5;
+  background: #fff4e0;
+  color: #c28a2c;
 }
 
 .status.bad {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fee2e2;
+  background: #fde3e3;
+  color: #c94949;
 }
 
 .care-notes {

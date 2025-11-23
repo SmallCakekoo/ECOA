@@ -1,26 +1,8 @@
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import supabase from '../services/supabase.service.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configurar multer para subir archivos
-// En Vercel (serverless) no se puede escribir a disco; usar memoria
-const isServerless = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
-const storage = isServerless
-  ? multer.memoryStorage()
-  : multer.diskStorage({
-      destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../../uploads/plants');
-        cb(null, uploadDir);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, `plant-${uniqueSuffix}${ext}`);
-      },
-    });
+// Configurar multer para recibir el archivo en memoria
+const storage = multer.memoryStorage();
 
 // Filtrar solo imágenes
 const fileFilter = (req, file, cb) => {
@@ -53,63 +35,40 @@ export const UploadController = {
         });
       }
 
-      let dataUrl;
-      const filename = req.file.originalname || `plant-${Date.now()}.jpg`;
+      const file = req.file;
+      const fileExt = file.originalname.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-      // Convertir a base64 solo si la imagen es pequeña (para evitar problemas con Supabase)
-      // NOTA: En producción se recomienda usar Supabase Storage para imágenes grandes
-      if (req.file.buffer) {
-        const maxSize = 300 * 1024; // 300KB máximo (archivo original)
-        
-        if (req.file.buffer.length > maxSize) {
-          console.warn(`⚠️ Imagen muy grande (${Math.round(req.file.buffer.length / 1024)}KB). Usando placeholder.`);
-          // Si es muy grande, usar una URL placeholder pero el frontend verá su imagen en preview
-          dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
-        } else {
-          try {
-            const base64Image = req.file.buffer.toString('base64');
-            const mimeType = req.file.mimetype;
-            dataUrl = `data:${mimeType};base64,${base64Image}`;
-            console.log(`✅ Imagen convertida a base64 (${Math.round(dataUrl.length / 1024)}KB data URL)`);
-          } catch (error) {
-            console.error('Error convirtiendo a base64:', error);
-            dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
-          }
-        }
-      } 
-      else if (req.file.path) {
-        const fs = await import('fs');
-        const imageBuffer = fs.readFileSync(req.file.path);
-        const maxSize = 300 * 1024; // 300KB máximo (archivo original)
-        
-        if (imageBuffer.length > maxSize) {
-          console.warn(`⚠️ Imagen muy grande (${Math.round(imageBuffer.length / 1024)}KB). Usando placeholder.`);
-          dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
-        } else {
-          try {
-            const base64Image = imageBuffer.toString('base64');
-            const mimeType = req.file.mimetype;
-            dataUrl = `data:${mimeType};base64,${base64Image}`;
-            console.log(`✅ Imagen convertida a base64 (${Math.round(dataUrl.length / 1024)}KB data URL)`);
-          } catch (error) {
-            console.error('Error convirtiendo a base64:', error);
-            dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
-          }
-        }
-      } else {
-        console.warn('No se pudo procesar el archivo, usando fallback');
-        dataUrl = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop';
+      // Subir a Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('plants_images')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Error subiendo a Supabase:', error);
+        throw error;
       }
+
+      // Obtener URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('plants_images')
+        .getPublicUrl(filePath);
+
+      console.log(`✅ Imagen subida a Supabase: ${publicUrl}`);
 
       return res.status(200).json({
         success: true,
         message: 'Imagen subida exitosamente',
         data: {
-          filename,
-          originalName: req.file.originalname,
-          size: req.file.size,
-          url: dataUrl,
-          fullUrl: dataUrl,
+          filename: fileName,
+          originalName: file.originalname,
+          size: file.size,
+          url: publicUrl,
+          fullUrl: publicUrl,
         }
       });
     } catch (error) {
@@ -122,19 +81,11 @@ export const UploadController = {
     }
   },
 
-  // Endpoint para servir imágenes estáticas
+  // Endpoint para servir imágenes estáticas (mantenido por compatibilidad, aunque ahora se usan URLs de Supabase)
   serveImage: (req, res) => {
-    const filename = req.params.filename;
-    const imagePath = path.join(__dirname, '../../uploads/plants', filename);
-    
-    res.sendFile(imagePath, (err) => {
-      if (err) {
-        console.error('Error serving image:', err);
-        res.status(404).json({
-          success: false,
-          message: 'Imagen no encontrada'
-        });
-      }
+    res.status(404).json({
+      success: false,
+      message: 'Las imágenes ahora se sirven desde Supabase'
     });
   }
 };

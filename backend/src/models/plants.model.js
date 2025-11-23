@@ -16,45 +16,10 @@ export function createPlantModel(payload) {
     throw new Error("name y species son requeridos");
   }
 
-  // Limitar tamaño de imagen a 150KB en base64 para evitar problemas con Supabase
-  // Si la imagen es muy grande, guardar null para evitar errores en Supabase
+  // Permitir cualquier string como imagen (URL de Supabase o Base64 legacy)
   let imageValue = image || null;
-  if (imageValue && typeof imageValue === 'string') {
-    // Si es data URL, validar tamaño de forma más estricta
-    if (imageValue.startsWith('data:')) {
-      // Limitar el string completo a ~150KB para evitar problemas con Supabase TEXT
-      // (margen más conservador para evitar errores de base de datos)
-      const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
-      
-      if (imageValue.length > maxDataUrlLength) {
-        console.warn(`⚠️ Imagen muy grande (${Math.round(imageValue.length / 1024)}KB), guardando null para evitar error en BD`);
-        imageValue = null;
-      } else {
-        // Validar que la data URL esté bien formada
-        try {
-          // Intentar parsear para verificar formato
-          const parts = imageValue.split(',');
-          if (parts.length < 2 || !parts[0] || !parts[1]) {
-            console.warn('⚠️ Data URL mal formada, guardando null');
-            imageValue = null;
-          } else {
-            // Verificar que el header tenga el formato correcto
-            const header = parts[0];
-            if (!header.includes('data:') || !header.includes('base64')) {
-              console.warn('⚠️ Data URL sin formato correcto, guardando null');
-              imageValue = null;
-            }
-          }
-        } catch (e) {
-          console.warn('⚠️ Error validando data URL, guardando null:', e.message);
-          imageValue = null;
-        }
-      }
-    }
-    // Si es URL externa o relativa, validar que no esté vacía
-    else if (typeof imageValue === 'string' && imageValue.trim() === '') {
-      imageValue = null;
-    }
+  if (typeof imageValue === 'string' && imageValue.trim() === '') {
+    imageValue = null;
   }
 
   return {
@@ -91,40 +56,9 @@ export function sanitizePlantUpdate(payload) {
     }
   });
 
-  // Validar y limitar tamaño de imagen igual que en createPlantModel
-  if (update.image && typeof update.image === 'string') {
-    // Si es data URL, validar tamaño de forma más estricta
-    if (update.image.startsWith('data:')) {
-      // Limitar el string completo a ~150KB para evitar problemas con Supabase TEXT
-      // Usar un límite más conservador para actualizaciones
-      const maxDataUrlLength = 150 * 1024; // ~150KB de data URL
-      
-      if (update.image.length > maxDataUrlLength) {
-        console.warn(`⚠️ Imagen muy grande en actualización (${Math.round(update.image.length / 1024)}KB), guardando null para evitar error en BD`);
-        update.image = null;
-      } else {
-        // Validar que la data URL esté bien formada
-        try {
-          const parts = update.image.split(',');
-          if (parts.length < 2 || !parts[0] || !parts[1]) {
-            console.warn('⚠️ Data URL mal formada en actualización, guardando null');
-            update.image = null;
-          } else {
-            // Verificar que el header tenga el formato correcto
-            const header = parts[0];
-            if (!header.includes('data:') || !header.includes('base64')) {
-              console.warn('⚠️ Data URL sin formato correcto en actualización, guardando null');
-              update.image = null;
-            }
-          }
-        } catch (e) {
-          console.warn('⚠️ Error validando data URL en actualización, guardando null:', e.message);
-          update.image = null;
-        }
-      }
-    }
-    // Si es URL externa o relativa, validar que no esté vacía
-    else if (typeof update.image === 'string' && update.image.trim() === '') {
+  // Validar que la imagen no sea un string vacío
+  if (update.image !== undefined) {
+    if (typeof update.image === 'string' && update.image.trim() === '') {
       update.image = null;
     }
   }
