@@ -498,7 +498,11 @@ class AdminAPI {
       console.error("Error uploading image:", error);
 
       // Si falla la subida, usar base64 como fallback
-      console.log("Usando base64 como fallback...");
+      console.warn("⚠️ Falló la subida a Supabase, usando almacenamiento local (Base64) como respaldo.");
+      if (window.showNotification) {
+        window.showNotification("Problema con la nube. Guardando imagen localmente.", "warning");
+      }
+      
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => {

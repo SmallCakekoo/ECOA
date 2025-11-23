@@ -40,8 +40,7 @@ export const UploadController = {
       const fileName = `${Date.now()}-${Math.random()
         .toString(36)
         .substring(2, 15)}.${fileExt}`;
-      // CAMBIO: Incluir la carpeta plants_images/ en la ruta
-      const filePath = `plants_images/${fileName}`;
+      const filePath = fileName;
 
       console.log("📂 Subiendo archivo:", {
         fileName,
@@ -107,12 +106,12 @@ export const UploadController = {
   getImage: async (req, res) => {
     try {
       const { filename } = req.params;
-      const filePath = `plants_images/${filename}`;
+      const filePath = filename;
 
       // Verificar si el archivo existe
       const { data: files, error: listError } = await supabase.storage
         .from("plants_images")
-        .list("plants_images", {
+        .list("", {
           limit: 1,
           search: filename,
         });
