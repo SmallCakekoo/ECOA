@@ -10,54 +10,150 @@ const params = new URLSearchParams(window.location.search);
 let plantId = params.get("id");
 
 // Inicializar Socket.IO para actualización en tiempo real
-  // Inicializar Supabase Realtime
-  import { supabase } from '../../src/supabase.js';
+let socket = null;
+if (typeof io !== "undefined" && window.io) {
+  socket = window.io(SOCKET_URL, {
+    transports: ["websocket", "polling"],
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionAttempts: 5,
+  });
 
-  console.log("🔌 Inicializando Supabase Realtime...");
+  socket.on("connect", () => {
+    console.log("✅ Conectado a WebSocket");
+    if (plantId) {
+      socket.emit("join_plant_room", plantId);
+    }
+  });
 
-  const channel = supabase
-    .channel('plant_stats_changes')
+  socket.on("disconnect", () => {
+    console.log("❌ Desconectado de WebSocket");
+    // IMPORTANTE: NO modificar el estado de la planta al desconectarse
+    // El frontend debe mantener los últimos valores conocidos hasta que
+    // la Raspberry vuelva a enviar datos o se reconecte
+    console.log("ℹ️ Manteniendo últimos valores conocidos de la planta");
+  });
+
+  // Escuchar actualizaciones de datos de sensores
+  socket.on("sensor_data_received", (eventData) => {
+    if (
+      eventData.data &&
+      eventData.data.stats &&
+      eventData.data.stats.plant_id === plantId
+    ) {
+      console.log(
+        "📊 Actualización en tiempo real recibida:",
+        eventData.data.stats
+      );
+      updatePlantStats(eventData.data.stats, eventData.data.status);
+      
+      // Si hay matriz LED, actualizar visualización
+      if (eventData.data.matrix) {
+        console.log("😊 Matriz LED recibida, actualizando visualización");
+        updateLEDMatrix(eventData.data.matrix);
+      }
+    }
+  });
+
+  // Escuchar actualizaciones de estado de planta (específico por plant_id)
+  socket.on("plant_status_updated", (eventData) => {
+    if (eventData.data && eventData.data.plant_id === plantId) {
+      console.log("📊 Estado de planta actualizado:", eventData.data);
+      if (eventData.data.stats) {
+        updatePlantStats(eventData.data.stats, eventData.data.status);
+      }
+      if (eventData.data.matrix) {
+        console.log("😊 Matriz LED actualizada desde plant_status_updated");
+        updateLEDMatrix(eventData.data.matrix);
+      }
+    }
+  });
+
+  // Escuchar actualizaciones de mood (específico por plant_id)
+  socket.on("mood_updated", (eventData) => {
+    if (eventData.data && eventData.data.plant_id === plantId) {
+      console.log("😊 Mood actualizado:", eventData.data);
+      if (eventData.data.matrix) {
+        updateLEDMatrix(eventData.data.matrix);
+      }
+      // Actualizar mood card si existe
+      updateMoodDisplay(eventData.data);
+    }
+  });
+
+  // Escuchar actualizaciones de estadísticas de plantas (legacy)
+  socket.on("plant_stats_updated", (eventData) => {
+    if (eventData.data && eventData.data.plant_id === plantId) {
+      console.log("📊 Estadísticas actualizadas:", eventData.data);
+      updatePlantStats(eventData.data);
+    }
+  });
+}
+
+// Configurar suscripción de Supabase Realtime para plant_stats
+let plantStatsChannel = null;
+
+function setupSupabaseRealtime() {
+  if (!plantId) {
+    console.log("⏭️ No plantId, skipping Supabase Realtime setup");
+    return;
+  }
+
+  // Obtener cliente de Supabase
+  const supabaseClient = window.SupabaseClient?.getClient();
+  
+  if (!supabaseClient) {
+    console.warn("⚠️ Supabase client not available, skipping Realtime setup");
+    return;
+  }
+
+  console.log(`🔌 Setting up Supabase Realtime for plant_stats (plant_id: ${plantId})`);
+
+  // Crear canal para suscribirse a cambios en plant_stats
+  plantStatsChannel = supabaseClient
+    .channel(`plant_stats:${plantId}`)
     .on(
       'postgres_changes',
       {
-        event: '*',
+        event: '*', // Escuchar INSERT, UPDATE, DELETE
         schema: 'public',
         table: 'plant_stats',
-        filter: `plant_id=eq.${plantId}`,
+        filter: `plant_id=eq.${plantId}`
       },
       (payload) => {
-        console.log('📊 Cambio detectado en plant_stats:', payload);
-        if (payload.new) {
+        console.log('📊 Supabase Realtime: plant_stats changed', payload);
+        
+        // Actualizar UI con los nuevos datos
+        if (payload.new && payload.new.plant_id === plantId) {
           updatePlantStats(payload.new);
         }
       }
     )
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('✅ Suscrito a cambios de plant_stats para', plantId);
+        console.log('✅ Supabase Realtime: Subscribed to plant_stats');
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('❌ Supabase Realtime: Channel error');
+      } else if (status === 'TIMED_OUT') {
+        console.error('⏱️ Supabase Realtime: Timed out');
+      } else {
+        console.log(`🔄 Supabase Realtime status: ${status}`);
       }
     });
+}
 
-  // También escuchar cambios en plant_status para el mood
-  const statusChannel = supabase
-    .channel('plant_status_changes')
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'plant_status',
-        filter: `plant_id=eq.${plantId}`,
-      },
-      (payload) => {
-        console.log('😊 Cambio detectado en plant_status:', payload);
-        if (payload.new) {
-          updateMoodDisplay(payload.new);
-        }
-      }
-    )
-    .subscribe();
+// Inicializar Supabase Realtime cuando la página carga
+if (plantId) {
+  setupSupabaseRealtime();
+}
 
+// Limpiar suscripción cuando se cierra la página
+window.addEventListener('beforeunload', () => {
+  if (plantStatsChannel) {
+    plantStatsChannel.unsubscribe();
+    console.log('🔌 Supabase Realtime: Unsubscribed from plant_stats');
+  }
+});
 
 // Si no hay ID, verificar si el usuario tiene plantas adoptadas
 if (!plantId) {

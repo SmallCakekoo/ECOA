@@ -1,5 +1,3 @@
-import { supabase } from '../../src/supabase.js';
-
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 Dashboard cargando...");
 
@@ -253,31 +251,6 @@ async function initializeApp() {
     // Configurar actualización automática
     setInterval(loadStats, 30000); // Actualizar cada 30 segundos
     setInterval(loadRecentDonations, 30000); // Actualizar donaciones cada 30 segundos
-
-    // Configurar Supabase Realtime
-    console.log("🔌 Inicializando Supabase Realtime en Dashboard...");
-    supabase
-      .channel('admin_dashboard_status')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'plant_status',
-        },
-        (payload) => {
-          console.log('🔔 Cambio en plant_status detectado:', payload);
-          // Recargar datos relevantes
-          loadStats();
-          loadRecentPlants();
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Suscrito a cambios de plant_status en Dashboard');
-        }
-      });
-
   } catch (error) {
     console.error("Error initializing app:", error);
     showNotification("Error al cargar los datos del dashboard", "error");

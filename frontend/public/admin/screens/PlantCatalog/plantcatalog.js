@@ -2,6 +2,9 @@ let currentPage = 1;
 let currentFilters = {};
 let allPlants = [];
 
+// Variable para el canal de Supabase Realtime
+let plantStatusChannel = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Verificar autenticación
   if (!window.AdminAPI.isAuthenticated()) {
@@ -11,6 +14,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Inicializar la aplicación
   await initializeApp();
+
+  // Configurar Supabase Realtime para plant_status
+  setupSupabaseRealtime();
 
   // Event listeners para menú
   document.querySelectorAll(".menu-item").forEach((item) => {
@@ -1468,3 +1474,64 @@ async function updateMetricsFromPlants() {
     console.error("Error updating metrics:", e);
   }
 }
+
+// Configurar suscripción de Supabase Realtime para plant_status
+function setupSupabaseRealtime() {
+  // Obtener cliente de Supabase
+  const supabaseClient = window.SupabaseAdmin?.getClient();
+  
+  if (!supabaseClient) {
+    console.warn("⚠️ Supabase client not available, skipping Realtime setup");
+    return;
+  }
+
+  console.log("🔌 Setting up Supabase Realtime for plant_status");
+
+  // Crear canal para suscribirse a cambios en plant_status
+  plantStatusChannel = supabaseClient
+    .channel('plant_status_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // Escuchar INSERT, UPDATE, DELETE
+        schema: 'public',
+        table: 'plant_status'
+      },
+      (payload) => {
+        console.log('📊 Supabase Realtime: plant_status changed', payload);
+        
+        // Verificar si el cambio es relevante (bad, recovering, healthy)
+        const relevantStatuses = ['bad', 'recovering', 'healthy'];
+        const newStatus = payload.new?.status;
+        const oldStatus = payload.old?.status;
+        
+        if (relevantStatuses.includes(newStatus) || relevantStatuses.includes(oldStatus)) {
+          console.log('✅ Relevant status change detected, reloading plants...');
+          
+          // Recargar plantas para actualizar la lista y métricas
+          loadPlants().then(() => {
+            console.log('✅ Plants reloaded after status change');
+          });
+        }
+      }
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Supabase Realtime: Subscribed to plant_status');
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('❌ Supabase Realtime: Channel error');
+      } else if (status === 'TIMED_OUT') {
+        console.error('⏱️ Supabase Realtime: Timed out');
+      } else {
+        console.log(`🔄 Supabase Realtime status: ${status}`);
+      }
+    });
+}
+
+// Limpiar suscripción cuando se cierra la página
+window.addEventListener('beforeunload', () => {
+  if (plantStatusChannel) {
+    plantStatusChannel.unsubscribe();
+    console.log('🔌 Supabase Realtime: Unsubscribed from plant_status');
+  }
+});
