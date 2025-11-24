@@ -6,45 +6,34 @@ const SOCKET_URL = API_BASE_URL.replace("https://", "wss://").replace(
 );
 
 // Inicializar Socket.IO para actualización en tiempo real
-let socket = null;
-if (typeof io !== "undefined" && window.io) {
-  socket = window.io(SOCKET_URL, {
-    transports: ["websocket", "polling"],
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 5,
-  });
+// Inicializar Supabase Realtime
+import { supabase } from '../../src/supabase.js';
 
-  socket.on("connect", () => {
-    console.log("✅ Conectado a WebSocket en Garden");
-    if (USER_DATA && USER_DATA.id) {
-      socket.emit("join_user_room", USER_DATA.id);
+console.log("🔌 Inicializando Supabase Realtime en Garden...");
+
+// Suscribirse a cambios en plant_stats
+const channel = supabase
+  .channel('garden_plant_stats')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'plant_stats',
+    },
+    (payload) => {
+      if (payload.new && payload.new.plant_id) {
+        console.log('📊 Actualización en tiempo real recibida en Garden:', payload.new);
+        updatePlantCardStats(payload.new.plant_id, payload.new);
+      }
+    }
+  )
+  .subscribe((status) => {
+    if (status === 'SUBSCRIBED') {
+      console.log('✅ Suscrito a cambios de plant_stats en Garden');
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("❌ Desconectado de WebSocket");
-  });
-
-  // Escuchar actualizaciones de datos de sensores
-  socket.on("sensor_data_received", (eventData) => {
-    if (eventData.data && eventData.data.stats) {
-      console.log(
-        "📊 Actualización en tiempo real recibida en Garden:",
-        eventData.data.stats
-      );
-      updatePlantCardStats(eventData.data.stats.plant_id, eventData.data.stats);
-    }
-  });
-
-  // Escuchar actualizaciones de estadísticas de plantas
-  socket.on("plant_stats_updated", (eventData) => {
-    if (eventData.data && eventData.data.plant_id) {
-      console.log("📊 Estadísticas actualizadas en Garden:", eventData.data);
-      updatePlantCardStats(eventData.data.plant_id, eventData.data);
-    }
-  });
-}
 
 // Función para actualizar las estadísticas de una tarjeta de planta
 function updatePlantCardStats(plantId, stats) {

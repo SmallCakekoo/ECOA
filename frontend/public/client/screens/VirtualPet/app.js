@@ -10,85 +10,54 @@ const params = new URLSearchParams(window.location.search);
 let plantId = params.get("id");
 
 // Inicializar Socket.IO para actualización en tiempo real
-let socket = null;
-if (typeof io !== "undefined" && window.io) {
-  socket = window.io(SOCKET_URL, {
-    transports: ["websocket", "polling"],
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 5,
-  });
+  // Inicializar Supabase Realtime
+  import { supabase } from '../../src/supabase.js';
 
-  socket.on("connect", () => {
-    console.log("✅ Conectado a WebSocket");
-    if (plantId) {
-      socket.emit("join_plant_room", plantId);
-    }
-  });
+  console.log("🔌 Inicializando Supabase Realtime...");
 
-  socket.on("disconnect", () => {
-    console.log("❌ Desconectado de WebSocket");
-    // IMPORTANTE: NO modificar el estado de la planta al desconectarse
-    // El frontend debe mantener los últimos valores conocidos hasta que
-    // la Raspberry vuelva a enviar datos o se reconecte
-    console.log("ℹ️ Manteniendo últimos valores conocidos de la planta");
-  });
-
-  // Escuchar actualizaciones de datos de sensores
-  socket.on("sensor_data_received", (eventData) => {
-    if (
-      eventData.data &&
-      eventData.data.stats &&
-      eventData.data.stats.plant_id === plantId
-    ) {
-      console.log(
-        "📊 Actualización en tiempo real recibida:",
-        eventData.data.stats
-      );
-      updatePlantStats(eventData.data.stats, eventData.data.status);
-      
-      // Si hay matriz LED, actualizar visualización
-      if (eventData.data.matrix) {
-        console.log("😊 Matriz LED recibida, actualizando visualización");
-        updateLEDMatrix(eventData.data.matrix);
+  const channel = supabase
+    .channel('plant_stats_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'plant_stats',
+        filter: `plant_id=eq.${plantId}`,
+      },
+      (payload) => {
+        console.log('📊 Cambio detectado en plant_stats:', payload);
+        if (payload.new) {
+          updatePlantStats(payload.new);
+        }
       }
-    }
-  });
-
-  // Escuchar actualizaciones de estado de planta (específico por plant_id)
-  socket.on("plant_status_updated", (eventData) => {
-    if (eventData.data && eventData.data.plant_id === plantId) {
-      console.log("📊 Estado de planta actualizado:", eventData.data);
-      if (eventData.data.stats) {
-        updatePlantStats(eventData.data.stats, eventData.data.status);
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Suscrito a cambios de plant_stats para', plantId);
       }
-      if (eventData.data.matrix) {
-        console.log("😊 Matriz LED actualizada desde plant_status_updated");
-        updateLEDMatrix(eventData.data.matrix);
-      }
-    }
-  });
+    });
 
-  // Escuchar actualizaciones de mood (específico por plant_id)
-  socket.on("mood_updated", (eventData) => {
-    if (eventData.data && eventData.data.plant_id === plantId) {
-      console.log("😊 Mood actualizado:", eventData.data);
-      if (eventData.data.matrix) {
-        updateLEDMatrix(eventData.data.matrix);
+  // También escuchar cambios en plant_status para el mood
+  const statusChannel = supabase
+    .channel('plant_status_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'plant_status',
+        filter: `plant_id=eq.${plantId}`,
+      },
+      (payload) => {
+        console.log('😊 Cambio detectado en plant_status:', payload);
+        if (payload.new) {
+          updateMoodDisplay(payload.new);
+        }
       }
-      // Actualizar mood card si existe
-      updateMoodDisplay(eventData.data);
-    }
-  });
+    )
+    .subscribe();
 
-  // Escuchar actualizaciones de estadísticas de plantas (legacy)
-  socket.on("plant_stats_updated", (eventData) => {
-    if (eventData.data && eventData.data.plant_id === plantId) {
-      console.log("📊 Estadísticas actualizadas:", eventData.data);
-      updatePlantStats(eventData.data);
-    }
-  });
-}
 
 // Si no hay ID, verificar si el usuario tiene plantas adoptadas
 if (!plantId) {
