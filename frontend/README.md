@@ -7,7 +7,7 @@ Web client application for the ECOA smart plant monitoring system, built with HT
 - **Modern and responsive** User Interface
 - **Client Dashboard** for end users
 - **Admin Panel** for system management
-- **Real-time** with Socket.IO client
+- **Real-time** with Socket.IO client and Supabase Realtime
 - **PWA Ready** (Progressive Web App)
 - **Optimization** with Vite bundler
 
@@ -21,26 +21,38 @@ Web client application for the ECOA smart plant monitoring system, built with HT
 
 ### Installation
 
-1. **Install dependencies**
+1. **Configure environment variables**
+
+Create a `.env` file in the `frontend/` directory with your Supabase credentials:
+
+```env
+# Supabase Configuration (for Realtime)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+> **Important**: These environment variables are required for Supabase Realtime to work. Get your credentials from your [Supabase Dashboard](https://supabase.com/dashboard).
+
+2. **Install dependencies**
 
 ```bash
 cd frontend
 npm install
 ```
 
-2. **Start development server**
+3. **Start development server**
 
 ```bash
 npm run dev
 ```
 
-3. **Build for production**
+4. **Build for production**
 
 ```bash
 npm run build
 ```
 
-4. **Preview the build**
+5. **Preview the build**
 
 ```bash
 npm run preview
@@ -85,7 +97,6 @@ npm run preview
 - Personal plant dashboard
 - Real-time metrics monitoring
 - Chat with plants using AI
-- Alert and notification system
 - User profile and achievements
 - Community donations
 
@@ -93,6 +104,7 @@ npm run preview
 
 - Responsive design for mobile and desktop
 - Socket.IO connection for live updates
+- Supabase Realtime for database subscriptions
 - LocalStorage for temporary data
 - Fetch API for backend communication
 
@@ -119,6 +131,7 @@ npm run preview
 ### Libraries and APIs
 
 - **Socket.IO Client** - WebSockets for real-time
+- **Supabase Client** - Real-time database subscriptions
 - **Fetch API** - HTTP communication
 - **Web APIs** - Geolocation, Notifications, etc.
 
