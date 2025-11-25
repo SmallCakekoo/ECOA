@@ -2,8 +2,8 @@
 // Este cliente se conecta directamente desde el navegador a Supabase para Realtime
 
 const SUPABASE_CONFIG = {
-  url: import.meta.env.VITE_SUPABASE_URL,
-  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  url: 'https://cjkatlisqqvbvvwlllug.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqa2F0bGlzcXF2YnZ2d2xsbHVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzE5NjYsImV4cCI6MjA3MzYwNzk2Nn0.wGHpSyRnJhN68w_4DCVryKXh91fdj0VxkpGzfY6h3LE'
 };
 
 // Inicializar cliente de Supabase (requiere que la librería esté cargada)
